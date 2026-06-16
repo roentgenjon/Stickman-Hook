@@ -30197,7 +30197,19 @@
                 a.paused && (a.ticker.start(), a.paused = !1, a.eventEmitter.emit("resume"))
             }, a.width = s, a.height = A, o && o.onResize && (a._optionsResize = o.onResize), n && (a.playerInfos = n, n.skin && (a._playerSkin = hs.find(function(t) {
                 return t.id === n.skin
-            }) || hs[0]), a.level = parseInt(a.playerInfos.level, 10) || 0), i && (a.features = i), e.instance = v()(a), window.addEventListener("resize", a.onResize);
+            }) || hs[0]), a.level = parseInt(a.playerInfos.level, 10) || 0), i && (a.features = i), e.instance = v()(a), window.addEventListener("resize", a.onResize), window.addEventListener("visibilitychange", function() {
+                if (document.hidden && a) {
+                    var saved = Dc("STICKMANHOOK_currentLevel") || 0;
+                    if (a.level >= saved) Bc(a.level);
+                    var savedSkin = a.playerInfos && a.playerInfos.skin ? a.playerInfos.skin : null;
+                    if (a._playerSkin && a._playerSkin.id && a._playerSkin.id !== savedSkin) Mc(a._playerSkin.id);
+                }
+            }), window.addEventListener("beforeunload", function() {
+                if (a) {
+                    var saved = Dc("STICKMANHOOK_currentLevel") || 0;
+                    if (a.level >= saved) Bc(a.level);
+                }
+            });
             var c = {};
             return Object.keys(Qh).forEach(function(t) {
                 "object" === u()(Qh[t]) ? c[t] = Qh[t] : a.loader.add(t, Qh[t])
@@ -30297,7 +30309,11 @@
     }
 
     function Pc(t, e) {
-        localStorage.setItem(t, JSON.stringify(e))
+        try {
+            localStorage.setItem(t, JSON.stringify(e))
+        } catch (t) {
+            console.error(t)
+        }
     }
 
     function Rc() {
