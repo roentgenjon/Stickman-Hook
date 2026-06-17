@@ -7,13 +7,17 @@ var corsHeaders = {
     'Access-Control-Allow-Headers': 'Content-Type'
 };
 
-var RANKS = [
-    { id: 'bronze',   label: '\u{1F949} Bronze Ritter',    cost: 100 },
-    { id: 'silver',   label: '\u{1F948} Silber Krieger',   cost: 500 },
-    { id: 'gold',     label: '\u{1F947} Gold Champion',    cost: 1000 },
-    { id: 'diamond',  label: '\u{1F48E} Diamant Legende',  cost: 5000 },
-    { id: 'platinum', label: '\u{1F451} Platin Meister',   cost: 10000 }
-];
+function getRankLabel(rankIndex) {
+    if (typeof rankIndex !== 'number' || rankIndex < 0) return null;
+    if (rankIndex < 34)  return '\u{1F949} Bronze '  + (rankIndex + 1);
+    if (rankIndex < 67)  return '\u{1F48E} Diamant '  + (rankIndex - 33);
+    if (rankIndex < 100) return '\u{1F451} Platin '   + (rankIndex - 66);
+    return null;
+}
+
+function getUpgradeCost(targetIndex) {
+    return Math.ceil(100 * Math.pow(1.08, targetIndex));
+}
 
 function respond(data, status) {
     return new Response(JSON.stringify(data), {
@@ -27,12 +31,14 @@ async function updateLeaderboardCache(lb, player) {
     for (var i = 0; i < lb.length; i++) {
         if (lb[i].name.toLowerCase() === player.name.toLowerCase()) { idx = i; break; }
     }
-    var entry = { name: player.name, trophies: player.trophies, rank: player.rank || null };
-    if (idx >= 0) {
-        lb[idx] = entry;
-    } else {
-        lb.push(entry);
-    }
+    var entry = {
+        name: player.name,
+        trophies: player.trophies || 0,
+        maxLevel: player.maxLevel || 0,
+        rankIndex: typeof player.rankIndex === 'number' ? player.rankIndex : -1,
+        rank: player.rank || null
+    };
+    if (idx >= 0) { lb[idx] = entry; } else { lb.push(entry); }
     lb.sort(function(a, b) { return b.trophies - a.trophies; });
     if (lb.length > 100) lb.length = 100;
     var pos = -1;
@@ -74,20 +80,22 @@ async function handleRequest(request) {
         var key = 'player:' + name.toLowerCase();
         var existing = await PLAYERS.get(key, 'json') || {};
 
-        var trophies = Math.max(0, Math.min(999999, parseInt(body.trophies) || 0));
-        var coins    = Math.max(0, Math.min(99999999, parseInt(body.coins) || 0));
+        var trophies  = Math.max(0, Math.min(999999, parseInt(body.trophies) || 0));
+        var coins     = Math.max(0, Math.min(99999999, parseInt(body.coins) || 0));
+        var maxLevel  = Math.max(0, Math.min(99999, parseInt(body.maxLevel) || 0));
+        var rankIndex = typeof body.rankIndex === 'number' ? Math.max(-1, Math.min(99, body.rankIndex)) : (existing.rankIndex || -1);
 
         var updated = {
             name: name,
             trophies: Math.max(trophies, existing.trophies || 0),
             coins: coins,
-            rank: body.rank || existing.rank || null,
-            ranksOwned: body.ranksOwned || existing.ranksOwned || [],
+            maxLevel: Math.max(maxLevel, existing.maxLevel || 0),
+            rankIndex: Math.max(rankIndex, existing.rankIndex || -1),
+            rank: getRankLabel(Math.max(rankIndex, existing.rankIndex || -1)),
             updatedAt: Date.now()
         };
 
         await PLAYERS.put(key, JSON.stringify(updated));
-
         var lbData = await PLAYERS.get('lb_cache', 'json') || [];
         var result = await updateLeaderboardCache(lbData, updated);
         await PLAYERS.put('lb_cache', JSON.stringify(result.lb));
@@ -110,7 +118,6 @@ async function handleRequest(request) {
         if (!sbody || !sbody.from || !sbody.to || !sbody.amount) {
             return respond({ error: 'Parameter fehlen' }, 400);
         }
-
         var amount = parseInt(sbody.amount);
         if (!amount || amount <= 0 || amount > 10000000) return respond({ error: 'Ungültiger Betrag' }, 400);
 
@@ -131,40 +138,66 @@ async function handleRequest(request) {
 
         await PLAYERS.put(fromKey, JSON.stringify(sender));
         await PLAYERS.put(toKey,   JSON.stringify(recipient));
-
         return respond({ ok: true, newBalance: sender.coins });
     }
 
-    // POST /api/buy-rank
-    if (path === '/api/buy-rank' && request.method === 'POST') {
-        var bbody;
-        try { bbody = await request.json(); } catch(e) { return respond({ error: 'Bad JSON' }, 400); }
-        if (!bbody || !bbody.name || !bbody.rankId) return respond({ error: 'Parameter fehlen' }, 400);
-
-        var rankDef = null;
-        for (var ri = 0; ri < RANKS.length; ri++) {
-            if (RANKS[ri].id === bbody.rankId) { rankDef = RANKS[ri]; break; }
+    // POST /api/upgrade-rank  (linear upgrade only: rankIndex must be currentRank + 1)
+    if (path === '/api/upgrade-rank' && request.method === 'POST') {
+        var ubody;
+        try { ubody = await request.json(); } catch(e) { return respond({ error: 'Bad JSON' }, 400); }
+        if (!ubody || !ubody.name || typeof ubody.targetIndex !== 'number') {
+            return respond({ error: 'Parameter fehlen' }, 400);
         }
-        if (!rankDef) return respond({ error: 'Ungültiger Rang' }, 400);
+        var targetIdx = ubody.targetIndex;
+        if (targetIdx < 0 || targetIdx > 99) return respond({ error: 'Ungültiger Rang' }, 400);
 
-        var bkey = 'player:' + String(bbody.name).toLowerCase().slice(0, 20);
-        var bplayer = await PLAYERS.get(bkey, 'json');
-        if (!bplayer) return respond({ error: 'Spieler nicht gefunden' }, 404);
-        if (bplayer.coins < rankDef.cost) return respond({ error: 'Nicht genug Münzen' }, 400);
+        var ukey = 'player:' + String(ubody.name).toLowerCase().slice(0, 20);
+        var uplayer = await PLAYERS.get(ukey, 'json');
+        if (!uplayer) return respond({ error: 'Spieler nicht gefunden' }, 404);
 
-        bplayer.coins -= rankDef.cost;
-        bplayer.rank   = rankDef.label;
-        bplayer.ranksOwned = bplayer.ranksOwned || [];
-        if (bplayer.ranksOwned.indexOf(bbody.rankId) === -1) bplayer.ranksOwned.push(bbody.rankId);
-        bplayer.updatedAt = Date.now();
+        var curIdx = typeof uplayer.rankIndex === 'number' ? uplayer.rankIndex : -1;
+        if (targetIdx !== curIdx + 1) return respond({ error: 'Nur ein Rang auf einmal upgraden' }, 400);
 
-        await PLAYERS.put(bkey, JSON.stringify(bplayer));
+        var cost = getUpgradeCost(targetIdx);
+        if (uplayer.coins < cost) return respond({ error: 'Nicht genug Münzen' }, 400);
 
-        var blbData = await PLAYERS.get('lb_cache', 'json') || [];
-        var bResult = await updateLeaderboardCache(blbData, bplayer);
-        await PLAYERS.put('lb_cache', JSON.stringify(bResult.lb));
+        uplayer.coins    -= cost;
+        uplayer.rankIndex = targetIdx;
+        uplayer.rank      = getRankLabel(targetIdx);
+        uplayer.updatedAt = Date.now();
 
-        return respond({ ok: true, player: bplayer });
+        await PLAYERS.put(ukey, JSON.stringify(uplayer));
+        var ulbData = await PLAYERS.get('lb_cache', 'json') || [];
+        var uResult = await updateLeaderboardCache(ulbData, uplayer);
+        await PLAYERS.put('lb_cache', JSON.stringify(uResult.lb));
+
+        return respond({ ok: true, player: uplayer });
+    }
+
+    // POST /api/reset-player  (wipe one player's entry and remove from leaderboard)
+    if (path === '/api/reset-player' && request.method === 'POST') {
+        var rbody;
+        try { rbody = await request.json(); } catch(e) { return respond({ error: 'Bad JSON' }, 400); }
+        if (!rbody || !rbody.name) return respond({ error: 'Name fehlt' }, 400);
+
+        var rkey = 'player:' + String(rbody.name).toLowerCase().slice(0, 20);
+        await PLAYERS.delete(rkey);
+
+        var rlb = await PLAYERS.get('lb_cache', 'json') || [];
+        var rname = String(rbody.name).toLowerCase();
+        rlb = rlb.filter(function(p) { return p.name.toLowerCase() !== rname; });
+        await PLAYERS.put('lb_cache', JSON.stringify(rlb));
+
+        return respond({ ok: true });
+    }
+
+    // POST /api/admin/reset-all  (clear entire leaderboard — for admin use)
+    if (path === '/api/admin/reset-all' && request.method === 'POST') {
+        var abody;
+        try { abody = await request.json(); } catch(e) { return respond({ error: 'Bad JSON' }, 400); }
+        if (!abody || abody.secret !== 'STICKMANHOOK_RESET_2026') return respond({ error: 'Unauthorized' }, 401);
+        await PLAYERS.put('lb_cache', JSON.stringify([]));
+        return respond({ ok: true, msg: 'Leaderboard cleared' });
     }
 
     return new Response('Not Found', { status: 404, headers: corsHeaders });

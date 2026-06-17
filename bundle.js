@@ -28810,110 +28810,7 @@
                         onClick: function() {
                             return Sc.instance.gotoLeaderboard()
                         }
-                    }, "Leaderboard") : null), Sc.instance.level > 0 ? qo.h("div", {class: "row"}, qo.h("button", {class: "levels-button button", onClick: function() {t.setState({showLevelSelect: !t.state.showLevelSelect})}}, t.state.showLevelSelect ? "SCHLIESSEN" : "LEVELS")) : null, t.state.showLevelSelect ? qo.h("div", {class: "level-select-grid"}, Array.from({length: Sc.instance.level + 1}, function(_, i) {return qo.h("button", {class: "level-select-btn button", key: i, onClick: function() {t.setState({showLevelSelect: false}); Sc.instance.replayLevel(i)}}, i + 1)})) : null,
-                    qo.h("div",{class:"qs-btn-bar"},
-                      qo.h("button",{class:"levels-button button",style:"color:#f1c40f",onClick:function(){var op=!t.state.showQuests;if(op)window._QS.checkQuests(function(){});t.setState({showQuests:op,showLeaderboard:false,questCat:t.state.questCat!=null?t.state.questCat:0});}},t.state.showQuests?"SCHLIESSEN":"🎯 QUESTS"),
-                      qo.h("button",{class:"levels-button button",style:"color:#9b59b6",onClick:function(){var op=!t.state.showLeaderboard;t.setState({showLeaderboard:op,showQuests:false,lbData:null,lbPanel:"",lbMsg:""});if(op){window._QS.checkQuests(function(){});window._QS.fetchLeaderboard(function(err,data){t.setState({lbData:data||[]});if(!err&&data&&window._QS.state.playerName){for(var pi=0;pi<data.length;pi++){if(data[pi].name.toLowerCase()===window._QS.state.playerName.toLowerCase()){window._QS.state.lbPosition=pi+1;window._QS.checkQuests(function(){});break;}}}});if(window._QS.state.playerName)window._QS.syncToCloud(function(){});}}},t.state.showLeaderboard?"SCHLIESSEN":"🏆 RANGLISTE")
-                    ),
-                    t.state.showQuests?qo.h("div",{class:"qs-modal"},
-                      qo.h("div",{class:"qs-topbar"},
-                        qo.h("button",{class:"qs-close",onClick:function(){t.setState({showQuests:false});}},"✕"),
-                        qo.h("span",null,"🪙 "+window._QS.fmtNum(window._QS.state.coins)),
-                        qo.h("span",null,"🏆 "+window._QS.state.trophies+" Trophäen"),
-                        qo.h("span",{class:"qs-qcount"},window._QS.state.questsDone+"/500")
-                      ),
-                      qo.h("div",{class:"qs-cats"},
-                        window._QS.CATS.map(function(cat,ci){
-                          var done=window._QS.QUESTS.filter(function(q){return q.cat===ci&&window._QS.state.done[q.id];}).length;
-                          return qo.h("button",{class:"qs-cat-btn"+(t.state.questCat===ci?" qs-active":""),key:ci,style:"border-bottom:3px solid "+cat.color,onClick:function(){t.setState({questCat:ci});}},cat.label,qo.h("br",null),qo.h("small",null,done+"/100"));
-                        })
-                      ),
-                      t.state.questCat!=null?qo.h("div",{class:"qs-list"},
-                        window._QS.QUESTS.filter(function(q){return q.cat===t.state.questCat;}).map(function(q){
-                          var dn=!!window._QS.state.done[q.id];
-                          var pr=window._QS.state.progress[q.id]||0;
-                          var pct=Math.min(100,q.target>0?Math.round(pr/q.target*100):0);
-                          return qo.h("div",{class:"qs-item"+(dn?" qs-done":""),key:q.id},
-                            qo.h("div",{class:"qs-item-main"},
-                              qo.h("div",{class:"qs-item-title"},q.title),
-                              qo.h("div",{class:"qs-item-rew"},
-                                q.reward_coins?qo.h("span",{class:"qs-cr"},"+"+window._QS.fmtNum(q.reward_coins)+"🪙"):null,
-                                q.reward_trophies?qo.h("span",{class:"qs-tr"},"+"+q.reward_trophies+"🏆"):null
-                              )
-                            ),
-                            dn?qo.h("div",{class:"qs-check"},"✓"):qo.h("div",{class:"qs-prog"},
-                              qo.h("div",{class:"qs-bar"},qo.h("div",{class:"qs-fill",style:"width:"+pct+"%"})),
-                              qo.h("span",{class:"qs-prog-txt"},window._QS.fmtNum(Math.min(pr,q.target))+"/"+window._QS.fmtNum(q.target))
-                            )
-                          );
-                        })
-                      ):null
-                    ):null,
-                    t.state.showLeaderboard?qo.h("div",{class:"qs-modal"},
-                      qo.h("div",{class:"qs-topbar"},
-                        qo.h("button",{class:"qs-close",onClick:function(){t.setState({showLeaderboard:false,lbPanel:"",sendMsg:""});}},"✕"),
-                        qo.h("span",null,"🪙 "+window._QS.fmtNum(window._QS.state.coins)),
-                        qo.h("span",null,"🏆 "+window._QS.state.trophies),
-                        window._QS.state.lbPosition<999999?qo.h("span",null,"#"+window._QS.state.lbPosition):null
-                      ),
-                      !window._QS.state.playerName?qo.h("div",{class:"qs-register"},
-                        qo.h("p",null,"Registriere dich für die Rangliste:"),
-                        qo.h("input",{class:"qs-name-input",placeholder:"Name (max. 20 Zeichen)",maxLength:20,value:t.state.lbNameInput||"",onInput:function(e){t.setState({lbNameInput:e.target.value,lbMsg:""}); }}),
-                        qo.h("button",{class:"qs-reg-btn",onClick:function(){
-                          var n=(t.state.lbNameInput||"").trim();
-                          if(!n){t.setState({lbMsg:"Name eingeben!"});return;}
-                          window._QS.state.playerName=n;window._QS.save();window._QS.checkQuests(function(){});window._QS.syncToCloud(function(){});
-                          t.setState({lbMsg:"✓ Registriert als "+n+"!"});
-                        }},"Registrieren"),
-                        t.state.lbMsg?qo.h("p",{class:"qs-msg"},t.state.lbMsg):null
-                      ):qo.h("div",{class:"qs-me"},
-                        qo.h("div",{class:"qs-me-name"},window._QS.state.playerRank?window._QS.state.playerRank+" ":"",window._QS.state.playerName),
-                        window._QS.state.lbPosition<999999?qo.h("div",{class:"qs-me-pos"},"#"+window._QS.state.lbPosition+" in der Rangliste"):null
-                      ),
-                      window._QS.state.playerName?qo.h("div",{class:"qs-actions"},
-                        qo.h("button",{class:"qs-act-btn",onClick:function(){t.setState({lbPanel:t.state.lbPanel==="send"?"":"send",lbMsg:"",sendMsg:""});}},"🪙 Senden"),
-                        qo.h("button",{class:"qs-act-btn",onClick:function(){t.setState({lbPanel:t.state.lbPanel==="rank"?"":"rank",lbMsg:"",sendMsg:""});}},"🏅 Rang kaufen")
-                      ):null,
-                      t.state.lbPanel==="send"?qo.h("div",{class:"qs-panel"},
-                        qo.h("input",{class:"qs-input",placeholder:"Spielername",maxLength:20,value:t.state.sendToName||"",onInput:function(e){t.setState({sendToName:e.target.value});}}),
-                        qo.h("input",{class:"qs-input qs-num",type:"number",placeholder:"Betrag",min:"1",value:t.state.sendAmt||"",onInput:function(e){t.setState({sendAmt:parseInt(e.target.value)||0});}}),
-                        qo.h("button",{class:"qs-send-btn",onClick:function(){
-                          var tn=(t.state.sendToName||"").trim(),amt=t.state.sendAmt||0;
-                          if(!tn||amt<1){t.setState({sendMsg:"Name und Betrag eingeben!"});return;}
-                          window._QS.sendCoins(tn,amt,function(err){
-                            if(err)t.setState({sendMsg:"Fehler: "+String(err)});
-                            else{window._QS.checkQuests(function(){});t.setState({sendMsg:"✓ "+window._QS.fmtNum(amt)+"🪙 an "+tn+" gesendet!",lbPanel:""});}
-                          });
-                        }},"Senden"),
-                        t.state.sendMsg?qo.h("p",{class:"qs-msg"},t.state.sendMsg):null
-                      ):null,
-                      t.state.lbPanel==="rank"?qo.h("div",{class:"qs-panel"},
-                        window._QS.RANKS.map(function(rank){
-                          var owned=window._QS.state.ranksOwned.indexOf(rank.id)!==-1;
-                          var canBuy=!owned&&window._QS.state.coins>=rank.cost;
-                          return qo.h("button",{class:"qs-rank-opt"+(owned?" qs-owned":"")+(canBuy?" qs-buyable":""),key:rank.id,disabled:owned||!canBuy,onClick:function(){
-                            if(owned)return;
-                            window._QS.buyRank(rank.id,function(err){
-                              if(err)t.setState({sendMsg:"Fehler: "+String(err)});
-                              else{window._QS.checkQuests(function(){});t.setState({sendMsg:"✓ "+rank.label+" gekauft!",lbPanel:""});}
-                            });
-                          }},rank.label+(owned?" ✓":" — "+window._QS.fmtNum(rank.cost)+"🪙"));
-                        }),
-                        t.state.sendMsg?qo.h("p",{class:"qs-msg"},t.state.sendMsg):null
-                      ):null,
-                      qo.h("div",{class:"qs-lb"},
-                        t.state.lbData===null?qo.h("div",{class:"qs-loading"},"Lade..."):
-                        t.state.lbData.length===0?qo.h("div",{class:"qs-empty"},"Noch keine Einträge. Sei der Erste!"):
-                        t.state.lbData.map(function(p,idx){
-                          var isMe=window._QS.state.playerName&&p.name.toLowerCase()===window._QS.state.playerName.toLowerCase();
-                          return qo.h("div",{class:"qs-lb-row"+(isMe?" qs-lb-me":""),key:idx},
-                            qo.h("span",{class:"qs-lb-pos"},"#"+(idx+1)),
-                            qo.h("div",{class:"qs-lb-info"},p.rank?qo.h("span",{class:"qs-lb-rnk"},p.rank+" "):null,p.name),
-                            qo.h("span",{class:"qs-lb-sc"},"🏆 "+p.trophies)
-                          );
-                        })
-                      )
-                    ):null
+                    }, "Leaderboard") : null), Sc.instance.level > 0 ? qo.h("div", {class: "row"}, qo.h("button", {class: "levels-button button", onClick: function() {t.setState({showLevelSelect: !t.state.showLevelSelect})}}, t.state.showLevelSelect ? "SCHLIESSEN" : "LEVELS")) : null, t.state.showLevelSelect ? qo.h("div", {class: "level-select-grid"}, Array.from({length: Sc.instance.level + 1}, function(_, i) {return qo.h("button", {class: "level-select-btn button", key: i, onClick: function() {t.setState({showLevelSelect: false}); Sc.instance.replayLevel(i)}}, i + 1)})) : null
                     )
                 }
             }]), e
@@ -30510,13 +30407,16 @@
         return '' + n;
       }
 
-      var RANKS = [
-        { id: 'bronze',   label: '\u{1F949} Bronze Ritter',    cost: 100   },
-        { id: 'silver',   label: '\u{1F948} Silber Krieger',   cost: 500   },
-        { id: 'gold',     label: '\u{1F947} Gold Champion',    cost: 1000  },
-        { id: 'diamond',  label: '\u{1F48E} Diamant Legende',  cost: 5000  },
-        { id: 'platinum', label: '\u{1F451} Platin Meister',   cost: 10000 }
-      ];
+      // 100 ranks in 3 tiers: Bronze 1-34, Diamant 1-33, Platin 1-33
+      var RANKS = (function(){
+        var r=[]; for(var i=0;i<100;i++){
+          var lbl;
+          if(i<34) lbl='🥉 Bronze '+(i+1);
+          else if(i<67) lbl='💎 Diamant '+(i-33);
+          else lbl='👑 Platin '+(i-66);
+          r.push({index:i, label:lbl, cost:Math.ceil(100*Math.pow(1.08,i))});
+        } return r;
+      })();
 
       var CATS = [
         { id: 'explorer',  label: '\u{1F5FA}️ Abenteurer', color: '#e67e22' },
@@ -30573,7 +30473,7 @@
       for (i = 0; i < 20; i++) { t=extraSentTargets[i]; QUESTS.push({ id: 'soc_xsc_'+i, cat: 4, title: fmtNum(t)+' Coins senden (Experte)', desc: 'Sende insgesamt '+fmtNum(t)+' Coins.', type: 'sent_coins', target: t, reward_coins: Math.ceil(500*Math.pow(1.12,i)), reward_trophies: i+2 }); }
 
       function makeDefaultState() {
-        return { coins:0, coinsEarned:0, trophies:0, questsDone:0, done:{}, progress:{}, playerName:'', playerRank:null, ranksOwned:[], lbViews:0, sentCoins:0, recvCoins:0, sentToPlayers:[], recvFromPlayers:[], lbPosition:999999 };
+        return { coins:0, coinsEarned:0, trophies:0, questsDone:0, done:{}, progress:{}, playerName:'', rank:null, rankIndex:-1, maxLevel:0, lbViews:0, sentCoins:0, recvCoins:0, sentToPlayers:[], recvFromPlayers:[], lbPosition:999999 };
       }
       var state = makeDefaultState();
       var STORAGE_KEY = 'STICKMANHOOK_qs';
@@ -30593,6 +30493,7 @@
 
       function checkQuests(callback) {
         var currentLevel = (typeof window._QS.getLevel === 'function') ? window._QS.getLevel() : 0;
+        if(currentLevel > (state.maxLevel||0)){ state.maxLevel=currentLevel; }
         var newly = [];
         for (var q = 0; q < QUESTS.length; q++) {
           var quest = QUESTS[q];
@@ -30609,8 +30510,8 @@
           else if (quest.type==='unique_sent')  { prog=state.sentToPlayers.length; met=prog>=quest.target; }
           else if (quest.type==='unique_recv')  { prog=state.recvFromPlayers.length; met=prog>=quest.target; }
           else if (quest.type==='lb_position')  { prog=state.lbPosition; met=state.lbPosition<=quest.target; }
-          else if (quest.type==='has_rank')     { prog=state.ranksOwned.length; met=prog>=quest.target; }
-          else if (quest.type==='all_ranks')    { prog=state.ranksOwned.length; met=prog>=RANKS.length; }
+          else if (quest.type==='has_rank')     { prog=state.rankIndex>=0?1:0; met=state.rankIndex>=0; }
+          else if (quest.type==='all_ranks')    { prog=state.rankIndex+1; met=state.rankIndex>=99; }
           state.progress[quest.id] = prog;
           if (met) { state.done[quest.id]=true; state.coins+=quest.reward_coins; state.coinsEarned+=quest.reward_coins; state.trophies+=quest.reward_trophies; state.questsDone+=1; newly.push(quest); }
         }
@@ -30622,7 +30523,7 @@
 
       function syncToCloud(callback) {
         if (!isValidUrl(WORKER_URL)||!state.playerName) { if(callback) callback('no url/name',null); return; }
-        fetch(WORKER_URL+'/api/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.playerName,trophies:state.trophies,coins:state.coins,rank:state.playerRank,ranksOwned:state.ranksOwned})})
+        fetch(WORKER_URL+'/api/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.playerName,trophies:state.trophies,coins:state.coins,rank:state.rank,rankIndex:state.rankIndex,maxLevel:state.maxLevel||0})})
         .then(function(r){return r.json();}).then(function(d){if(callback)callback(null,d);}).catch(function(e){if(callback)callback(e,null);});
       }
 
@@ -30649,19 +30550,196 @@
         .then(function(r){return r.json();}).then(function(d){if(callback)callback(null,d);}).catch(function(e){if(callback)callback(e,null);});
       }
 
-      function buyRank(rankId, callback) {
+      function upgradeRank(callback) {
         if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
-        var rank=null;
-        for(var r=0;r<RANKS.length;r++){if(RANKS[r].id===rankId){rank=RANKS[r];break;}}
-        if(!rank){if(callback)callback('unknown rank',null);return;}
-        if(state.ranksOwned.indexOf(rankId)!==-1){if(callback)callback('already owned',null);return;}
+        var newIdx=(typeof state.rankIndex==='number'&&state.rankIndex>=0)?state.rankIndex+1:0;
+        if(newIdx>99){if(callback)callback('max rank reached',null);return;}
+        var rank=RANKS[newIdx];
         if(state.coins<rank.cost){if(callback)callback('not enough coins',null);return;}
-        state.coins-=rank.cost; state.ranksOwned.push(rankId); state.playerRank=rank.label; save();
-        fetch(WORKER_URL+'/api/buy-rank',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.playerName,rankId:rankId})})
-        .then(function(r){return r.json();}).then(function(d){if(callback)callback(null,d);}).catch(function(e){if(callback)callback(e,null);});
+        state.coins-=rank.cost; state.rankIndex=newIdx; state.rank=rank.label; save();
+        fetch(WORKER_URL+'/api/upgrade-rank',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.playerName,targetIndex:newIdx})})
+        .then(function(r){return r.json();}).then(function(d){if(d&&d.ok){state.coins=d.player.coins;save();}if(callback)callback(null,d);}).catch(function(e){if(callback)callback(e,null);});
+      }
+      function resetAll(callback) {
+        var n=state.playerName;
+        var fresh=makeDefaultState(); for(var k in fresh){if(Object.prototype.hasOwnProperty.call(fresh,k))state[k]=fresh[k];}
+        save();
+        if(n&&isValidUrl(WORKER_URL)){
+          fetch(WORKER_URL+'/api/reset-player',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n})})
+          .then(function(r){return r.json();}).then(function(){if(callback)callback(null);}).catch(function(){if(callback)callback(null);});
+        } else { if(callback)callback(null); }
       }
 
-      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, buyRank:buyRank, fmtNum:fmtNum, load:load, save:save };
+      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save };
+      // ===== QsUI: standalone Preact component for quest/LB system =====
+      (function(){
+        function QsUI(){
+          qo.Component.call(this);
+          this.state={showQ:false,showLB:false,qcat:0,lbData:null,lbLvl:null,lbTab:'trophies',reg:'',panel:'',msg:'',sto:'',samt:0};
+          window._QSUI=this;
+        }
+        QsUI.prototype=Object.create(qo.Component.prototype);
+        QsUI.prototype.constructor=QsUI;
+        QsUI.prototype.render=function(p,s){
+          var t=this,QS=window._QS;
+          if(!QS)return null;
+          var h=qo.h;
+          var curRankIdx=typeof QS.state.rankIndex==='number'?QS.state.rankIndex:-1;
+          var nextRankIdx=curRankIdx+1;
+          var nextRank=nextRankIdx<=99?QS.RANKS[nextRankIdx]:null;
+          var canUpgrade=nextRank&&QS.state.coins>=nextRank.cost;
+          var rerender=function(){t.setState({});};
+          return h('div',null,
+            h('div',{class:'qs-btn-bar'},
+              h('button',{class:'levels-button button',style:'color:#f1c40f',onClick:function(){
+                var op=!s.showQ;
+                if(op)QS.checkQuests(rerender);
+                t.setState({showQ:op,showLB:false,qcat:s.qcat!=null?s.qcat:0});
+              }},s.showQ?'✕':'🎯 QUESTS'),
+              h('button',{class:'levels-button button',style:'color:#9b59b6',onClick:function(){
+                var op=!s.showLB;
+                t.setState({showLB:op,showQ:false,lbData:null,lbLvl:null,panel:'',msg:''});
+                if(op){
+                  QS.checkQuests(rerender);
+                  QS.fetchLeaderboard(function(err,data){
+                    if(!err&&data){
+                      var byLvl=[].concat(data).sort(function(a,b){return(b.maxLevel||0)-(a.maxLevel||0);});
+                      t.setState({lbData:data,lbLvl:byLvl});
+                      if(QS.state.playerName){for(var i=0;i<data.length;i++){if(data[i].name.toLowerCase()===QS.state.playerName.toLowerCase()){QS.state.lbPosition=i+1;break;}}}
+                    }else{t.setState({lbData:data||[],lbLvl:[]});}
+                  });
+                  if(QS.state.playerName)QS.syncToCloud(function(){});
+                }
+              }},s.showLB?'✕':'🏆 RANGLISTE')
+            ),
+            s.showQ?h('div',{class:'qs-modal'},
+              h('div',{class:'qs-topbar'},
+                h('button',{class:'qs-close',onClick:function(){t.setState({showQ:false});}},'✕'),
+                h('span',null,'🪙 '+QS.fmtNum(QS.state.coins)),
+                h('span',null,'🏆 '+QS.state.trophies+' Trophäen'),
+                h('span',{class:'qs-qcount'},QS.state.questsDone+'/500')
+              ),
+              h('div',{class:'qs-cats'},QS.CATS.map(function(cat,ci){
+                var done=QS.QUESTS.filter(function(q){return q.cat===ci&&QS.state.done[q.id];}).length;
+                return h('button',{class:'qs-cat-btn'+(s.qcat===ci?' qs-active':''),key:ci,
+                  style:'border-bottom:3px solid '+cat.color,
+                  onClick:function(){t.setState({qcat:ci});}
+                },cat.label,h('br',null),h('small',null,done+'/100'));
+              })),
+              s.qcat!=null?h('div',{class:'qs-list'},
+                QS.QUESTS.filter(function(q){return q.cat===s.qcat;}).map(function(q){
+                  var dn=!!QS.state.done[q.id];
+                  var pr=QS.state.progress[q.id]||0;
+                  var pct=Math.min(100,q.target>0?Math.round(pr/q.target*100):0);
+                  return h('div',{class:'qs-item'+(dn?' qs-done':''),key:q.id},
+                    h('div',{class:'qs-item-main'},
+                      h('span',{class:'qs-item-title'},q.title),
+                      h('div',{class:'qs-item-rew'},
+                        q.reward_coins?h('span',{class:'qs-cr'},'+'+QS.fmtNum(q.reward_coins)+'🪙'):null,
+                        q.reward_trophies?h('span',{class:'qs-tr'},'+'+q.reward_trophies+'🏆'):null
+                      )
+                    ),
+                    dn?h('span',{class:'qs-check'},'✓'):h('div',{class:'qs-prog'},
+                      h('div',{class:'qs-bar'},h('div',{class:'qs-fill',style:'width:'+pct+'%'})),
+                      h('span',{class:'qs-prog-txt'},QS.fmtNum(Math.min(pr,q.target))+'/'+QS.fmtNum(q.target))
+                    )
+                  );
+                })
+              ):null
+            ):null,
+            s.showLB?h('div',{class:'qs-modal'},
+              h('div',{class:'qs-topbar'},
+                h('button',{class:'qs-close',onClick:function(){t.setState({showLB:false,panel:'',msg:'',sto:'',samt:0});}},'✕'),
+                h('span',null,'🪙 '+QS.fmtNum(QS.state.coins)),
+                h('span',null,'🏆 '+QS.state.trophies),
+                QS.state.lbPosition<999999?h('span',null,'#'+QS.state.lbPosition):null
+              ),
+              h('div',{class:'qs-cats'},
+                h('button',{class:'qs-cat-btn'+(s.lbTab==='trophies'?' qs-active':''),style:'border-bottom:3px solid #9b59b6',onClick:function(){t.setState({lbTab:'trophies'});}},'🏆 Trophäen'),
+                h('button',{class:'qs-cat-btn'+(s.lbTab==='level'?' qs-active':''),style:'border-bottom:3px solid #e67e22',onClick:function(){t.setState({lbTab:'level'});}},'📊 Level')
+              ),
+              !QS.state.playerName?h('div',{class:'qs-register'},
+                h('p',null,'Registriere dich:'),
+                h('input',{class:'qs-name-input',id:'qs-name-inp',placeholder:'Name (max. 20 Zeichen)',maxLength:20,onInput:function(e){t.setState({reg:e.target.value,msg:''});}}),
+                h('button',{class:'qs-reg-btn',onClick:function(){
+                  var n=(s.reg||'').trim();
+                  if(!n){t.setState({msg:'Name eingeben!'});return;}
+                  QS.state.playerName=n;QS.save();QS.checkQuests(rerender);QS.syncToCloud(function(){});
+                  t.setState({msg:'✓ Registriert als '+n+'!'});
+                }},'Registrieren'),
+                s.msg?h('p',{class:'qs-msg'},s.msg):null
+              ):h('div',{class:'qs-me'},
+                h('div',{class:'qs-me-name'},QS.state.rank?QS.state.rank+' ':'',QS.state.playerName),
+                QS.state.lbPosition<999999?h('div',{class:'qs-me-pos'},'#'+QS.state.lbPosition+' in der Rangliste'):null
+              ),
+              QS.state.playerName?h('div',{class:'qs-actions'},
+                h('button',{class:'qs-act-btn',onClick:function(){t.setState({panel:s.panel==='send'?'':'send',msg:'',sto:'',samt:0});}},'🪙 Senden'),
+                h('button',{class:'qs-act-btn',onClick:function(){t.setState({panel:s.panel==='rank'?'':'rank',msg:'',sto:'',samt:0});}},'🏅 Rang'),
+                h('button',{class:'qs-act-btn',style:'color:#e74c3c',onClick:function(){
+                  if(!confirm('Alles zurücksetzen (Ränge, Münzen, Quests, Trophäen, Rangliste)?'))return;
+                  QS.resetAll(function(){t.setState({lbData:null,lbLvl:null,panel:'',msg:'✓ Zurückgesetzt!'});});
+                }},'🔄 Reset')
+              ):null,
+              s.panel==='send'?h('div',{class:'qs-panel'},
+                h('input',{class:'qs-input',id:'qs-sto',placeholder:'Spielername',maxLength:20,onInput:function(e){t.setState({sto:e.target.value});}}),
+                h('input',{class:'qs-input qs-num',id:'qs-samt',type:'number',placeholder:'Betrag',min:'1',onInput:function(e){t.setState({samt:parseInt(e.target.value)||0});}}),
+                h('button',{class:'qs-send-btn',onClick:function(){
+                  var tn=(s.sto||'').trim(),amt=s.samt||0;
+                  if(!tn||amt<1){t.setState({msg:'Name und Betrag eingeben!'});return;}
+                  QS.sendCoins(tn,amt,function(err){
+                    if(err)t.setState({msg:'Fehler: '+String(err)});
+                    else{QS.checkQuests(rerender);t.setState({msg:'✓ '+QS.fmtNum(amt)+'🪙 an '+tn+' gesendet!',panel:''});}
+                  });
+                }},'Senden'),
+                s.msg?h('p',{class:'qs-msg'},s.msg):null
+              ):null,
+              s.panel==='rank'?h('div',{class:'qs-panel'},
+                curRankIdx>=0?h('div',{class:'qs-lb-rnk',style:'margin-bottom:6px'},'Aktuell: '+QS.state.rank):null,
+                nextRank?h('div',null,
+                  h('div',null,'Nächster Rang: '+nextRank.label),
+                  h('div',{style:'font-size:11px;opacity:0.7;margin:4px 0'},'Kosten: '+QS.fmtNum(nextRank.cost)+'🪙 (Guthaben: '+QS.fmtNum(QS.state.coins)+'🪙)'),
+                  h('div',{style:'font-size:10px;opacity:0.5;margin-bottom:6px'},
+                    nextRankIdx<34?'Tier 1 — Bronze':nextRankIdx<67?'Tier 2 — Diamant':'Tier 3 — Platin'
+                  ),
+                  h('button',{class:'qs-send-btn',disabled:!canUpgrade,style:canUpgrade?'':'opacity:0.4',onClick:function(){
+                    if(!canUpgrade)return;
+                    QS.upgradeRank(function(err){
+                      if(err)t.setState({msg:'Fehler: '+String(err)});
+                      else{QS.checkQuests(rerender);QS.syncToCloud(function(){});t.setState({msg:'✓ '+QS.state.rank+' freigeschaltet!',panel:''});}
+                    });
+                  }},canUpgrade?'Rang upgraden 🚀':'Nicht genug Münzen'),
+                  s.msg?h('p',{class:'qs-msg'},s.msg):null
+                ):h('p',null,'👑 Maximaler Rang erreicht!')
+              ):null,
+              h('div',{class:'qs-lb'},
+                (function(){
+                  var data=s.lbTab==='level'?s.lbLvl:s.lbData;
+                  if(data===null)return h('div',{class:'qs-loading'},'Lade...');
+                  if(!data.length)return h('div',{class:'qs-empty'},'Noch keine Einträge.');
+                  return data.map(function(pl,idx){
+                    var isMe=QS.state.playerName&&pl.name.toLowerCase()===QS.state.playerName.toLowerCase();
+                    return h('div',{class:'qs-lb-row'+(isMe?' qs-lb-me':''),key:idx},
+                      h('span',{class:'qs-lb-pos'},'#'+(idx+1)),
+                      h('div',{class:'qs-lb-info'},
+                        pl.rank?h('span',{class:'qs-lb-rnk'},pl.rank+' '):null,
+                        pl.name,
+                        (pl.maxLevel||0)>0?h('span',{style:'font-size:10px;opacity:0.5;margin-left:4px'},'Lvl '+(pl.maxLevel||0)):null
+                      ),
+                      s.lbTab==='level'?h('span',{class:'qs-lb-sc'},'📊 '+(pl.maxLevel||0)):h('span',{class:'qs-lb-sc'},'🏆 '+(pl.trophies||0))
+                    );
+                  });
+                })()
+              )
+            ):null
+          );
+        };
+        var qsRoot=document.createElement('div');
+        qsRoot.id='qs-root';
+        qsRoot.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:150;';
+        document.body.appendChild(qsRoot);
+        qo.render(qo.h(QsUI,null),qsRoot);
+      })();
+
       load();
       // Auto-check quests and sync existing progress after game loads
       window.addEventListener('load', function() {
