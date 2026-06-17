@@ -30156,16 +30156,19 @@
         function e(t, n, i, o) {
             var a;
             d()(this, e);
-            var s = o && o.width || window.innerWidth,
-                A = o && o.height || window.innerHeight;
+            var _vp0 = window.visualViewport || {width: window.innerWidth, height: window.innerHeight};
+            var s = o && o.width || _vp0.width,
+                A = o && o.height || _vp0.height;
             (a = x()(this, g()(e).call(this, {
                 width: s,
                 height: A,
                 antialias: !0
             }))).level = 0, a.resources = null, a.scene = null, a.lastFrame = 0, a.gravity = new ta(0, 1), a.eventEmitter = new r.EventEmitter, a.paused = !1, a._playerSkin = hs[0], a.playerInfos = {}, a.features = {}, a.isRewardedReady = !1, a.interstitialReady = !1, a.lastInterstitialTime = 0, a.playedAtLeastOnce = !1, a.onResize = function() {
                 var t = a._optionsResize ? a._optionsResize() : null,
-                    e = t ? t.width : window.innerWidth,
-                    n = t ? t.height : window.innerHeight;
+                    _vp = window.visualViewport || {width: window.innerWidth, height: window.innerHeight},
+                    e = t ? t.width : _vp.width,
+                    n = t ? t.height : _vp.height;
+                if (Math.abs(n - a.height) < 80 && e === a.width) return;
                 a.width = e, a.height = n, a.renderer.resize(e, n), a.scene && a.scene.onResize && (a.scene.scale.set(n), a.scene.onResize())
             }, a.setActiveScene = function(t) {
                 a.scene && (a.stage.removeChild(a.scene), a.scene.destroy()), a.scene = t, a.scene.scale.set(a.height), a.stage.addChild(t), a.eventEmitter.emit("sceneChange", {
@@ -30209,7 +30212,7 @@
                 a.paused && (a.ticker.start(), a.paused = !1, a.eventEmitter.emit("resume"))
             }, a.width = s, a.height = A, o && o.onResize && (a._optionsResize = o.onResize), n && (a.playerInfos = n, n.skin && (a._playerSkin = hs.find(function(t) {
                 return t.id === n.skin
-            }) || hs[0]), a.level = parseInt(a.playerInfos.level, 10) || 0), i && (a.features = i), e.instance = v()(a), window.addEventListener("resize", a.onResize), window.addEventListener("visibilitychange", function() {
+            }) || hs[0]), a.level = parseInt(a.playerInfos.level, 10) || 0), i && (a.features = i), e.instance = v()(a), window.addEventListener("resize", a.onResize), window.visualViewport && window.visualViewport.addEventListener("resize", a.onResize), window.addEventListener("visibilitychange", function() {
                 if (document.hidden && a) {
                     var saved = Dc("STICKMANHOOK_currentLevel") || 0;
                     if (a.level >= saved) Bc(a.level);
