@@ -30542,12 +30542,18 @@
         if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
         if(!toName||amount<=0){if(callback)callback('invalid args',null);return;}
         if(state.coins<amount){if(callback)callback('not enough coins',null);return;}
-        state.coins-=amount; state.sentCoins+=amount;
-        var tn=String(toName).toLowerCase();
-        if(state.sentToPlayers.indexOf(tn)===-1)state.sentToPlayers.push(tn);
-        save();
         fetch(WORKER_URL+'/api/send-coins',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({from:state.playerName,to:toName,amount:amount})})
-        .then(function(r){return r.json();}).then(function(d){if(callback)callback(null,d);}).catch(function(e){if(callback)callback(e,null);});
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.ok){
+            state.coins=d.newBalance;
+            state.sentCoins+=amount;
+            var tn=String(toName).toLowerCase();
+            if(state.sentToPlayers.indexOf(tn)===-1)state.sentToPlayers.push(tn);
+            save();
+          }
+          if(callback)callback(d&&d.ok?null:((d&&d.error)||'Fehler'),d);
+        }).catch(function(e){if(callback)callback(String(e),null);});
       }
 
       function upgradeRank(callback) {
@@ -30571,6 +30577,16 @@
       }
 
       window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save };
+      window._gameAPI = {
+        playCustomLevel: function(levelData) {
+          if(!Sc||!Sc.instance){return;}
+          try{
+            Sc.instance._replayOrigLevel=Sc.instance.level;
+            var scene=new Ms(-1,levelData);
+            Sc.instance.setActiveScene(scene);
+          }catch(e){console.error('Custom level:',e);}
+        }
+      };
       // ===== QsUI: standalone Preact component for quest/LB system =====
       (function(){
         function QsUI(){
@@ -30596,6 +30612,10 @@
                 if(op)QS.checkQuests(rerender);
                 t.setState({showQ:op,showLB:false,qcat:s.qcat!=null?s.qcat:0});
               }},s.showQ?'✕':'🎯 QUESTS'),
+              h('button',{class:'levels-button button',style:'color:#27ae60',onClick:function(){
+                t.setState({showQ:false,showLB:false});
+                if(window._showMapMenu)window._showMapMenu();
+              }},'🗺 MAPS'),
               h('button',{class:'levels-button button',style:'color:#9b59b6',onClick:function(){
                 var op=!s.showLB;
                 t.setState({showLB:op,showQ:false,lbData:null,lbLvl:null,panel:'',msg:''});
