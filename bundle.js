@@ -28817,6 +28817,7 @@
                     ),
                     t.state.showQuests?qo.h("div",{class:"qs-modal"},
                       qo.h("div",{class:"qs-topbar"},
+                        qo.h("button",{class:"qs-close",onClick:function(){t.setState({showQuests:false});}},"✕"),
                         qo.h("span",null,"🪙 "+window._QS.fmtNum(window._QS.state.coins)),
                         qo.h("span",null,"🏆 "+window._QS.state.trophies+" Trophäen"),
                         qo.h("span",{class:"qs-qcount"},window._QS.state.questsDone+"/500")
@@ -28850,6 +28851,7 @@
                     ):null,
                     t.state.showLeaderboard?qo.h("div",{class:"qs-modal"},
                       qo.h("div",{class:"qs-topbar"},
+                        qo.h("button",{class:"qs-close",onClick:function(){t.setState({showLeaderboard:false,lbPanel:"",sendMsg:""});}},"✕"),
                         qo.h("span",null,"🪙 "+window._QS.fmtNum(window._QS.state.coins)),
                         qo.h("span",null,"🏆 "+window._QS.state.trophies),
                         window._QS.state.lbPosition<999999?qo.h("span",null,"#"+window._QS.state.lbPosition):null
