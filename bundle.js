@@ -28810,7 +28810,7 @@
                         onClick: function() {
                             return Sc.instance.gotoLeaderboard()
                         }
-                    }, "Leaderboard") : null))
+                    }, "Leaderboard") : null), Sc.instance.level > 0 ? qo.h("div", {class: "row"}, qo.h("button", {class: "levels-button button", onClick: function() {t.setState({showLevelSelect: !t.state.showLevelSelect})}}, t.state.showLevelSelect ? "SCHLIESSEN" : "LEVELS")) : null, t.state.showLevelSelect ? qo.h("div", {class: "level-select-grid"}, Array.from({length: Sc.instance.level + 1}, function(_, i) {return qo.h("button", {class: "level-select-btn button", key: i, onClick: function() {t.setState({showLevelSelect: false}); Sc.instance.replayLevel(i)}}, i + 1)})) : null)
                 }
             }]), e
         }(qo.Component),
@@ -29558,7 +29558,7 @@
                         onClick: function() {
                             return Sc.instance.gotoLeaderboard()
                         }
-                    }, "Leaderboard") : null, qo.h("button", {
+                    }, "Leaderboard") : null, Sc.instance.level > 0 ? qo.h("button", {class: "replay-button button", onClick: function() {return Sc.instance.replayLevel(Sc.instance.level - 1)}}, "REPLAY") : null, qo.h("button", {
                         class: "continue-button button",
                         onClick: function() {
                             return Sc.instance.gotoNextLevel()
@@ -30180,10 +30180,22 @@
                 var e = Ac(t),
                     n = new Ms(t, e);
                 a.setActiveScene(n)
+            }, a._replayOrigLevel = null, a.replayLevel = function(levelIndex) {
+                a._replayOrigLevel = a.level;
+                a.gotoLevel(levelIndex)
             }, a.gotoVictory = function(t) {
-                a.level++, a.playedAtLeastOnce = !0;
-                var e = new Vh(t);
-                a.setActiveScene(e)
+                if (a._replayOrigLevel != null) {
+                    var savedLevel = a._replayOrigLevel;
+                    a._replayOrigLevel = null;
+                    a.level = savedLevel;
+                    a.playedAtLeastOnce = !0;
+                    Bc(savedLevel);
+                    a.gotoTitle();
+                } else {
+                    a.level++, a.playedAtLeastOnce = !0;
+                    var e = new Vh(t);
+                    a.setActiveScene(e)
+                }
             }, a.gotoTitle = function() {
                 a.setActiveScene(new ds)
             }, a.gotoShop = function() {
