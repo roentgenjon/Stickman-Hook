@@ -94,6 +94,17 @@
       }
 
       /* ── Quest & Leaderboard System ── */
+      .qs-btn-bar {
+        position: fixed;
+        bottom: 16px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        z-index: 150;
+        pointer-events: all;
+      }
       .qs-modal {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -107,6 +118,19 @@
         padding: 0 0 16px 0;
         font-family: JUNEGULL, sans-serif;
         color: white;
+        pointer-events: all;
+        text-shadow: none;
+        user-select: text;
+        -webkit-user-select: text;
+      }
+      .qs-name-input, .qs-input {
+        pointer-events: all;
+        user-select: text;
+        -webkit-user-select: text;
+      }
+      .qs-cats, .qs-list, .qs-lb {
+        pointer-events: all;
+        -webkit-overflow-scrolling: touch;
       }
       .qs-topbar {
         display: flex;
