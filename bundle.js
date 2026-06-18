@@ -30473,7 +30473,7 @@
       for (i = 0; i < 20; i++) { t=extraSentTargets[i]; QUESTS.push({ id: 'soc_xsc_'+i, cat: 4, title: fmtNum(t)+' Coins senden (Experte)', desc: 'Sende insgesamt '+fmtNum(t)+' Coins.', type: 'sent_coins', target: t, reward_coins: Math.ceil(500*Math.pow(1.12,i)), reward_trophies: i+2 }); }
 
       function makeDefaultState() {
-        return { coins:0, coinsEarned:0, trophies:0, questsDone:0, done:{}, progress:{}, playerName:'', rank:null, rankIndex:-1, maxLevel:0, lbViews:0, sentCoins:0, recvCoins:0, sentToPlayers:[], recvFromPlayers:[], lbPosition:999999 };
+        return { coins:0, coinsEarned:0, trophies:0, questsDone:0, done:{}, progress:{}, playerName:'', rank:null, rankIndex:-1, maxLevel:0, lbViews:0, sentCoins:0, recvCoins:0, sentToPlayers:[], recvFromPlayers:[], lbPosition:999999, mainAccount:null, subAccounts:[], hasPin:false };
       }
       var state = makeDefaultState();
       var STORAGE_KEY = 'STICKMANHOOK_qs';
@@ -30489,6 +30489,32 @@
             for (var k in defaults) { if (Object.prototype.hasOwnProperty.call(defaults,k)) state[k]=defaults[k]; }
           }
         } catch(e) {}
+      }
+
+      function applyServerData(d) {
+        state.coins=Math.max(state.coins||0,d.coins||0);
+        state.trophies=Math.max(state.trophies||0,d.trophies||0);
+        state.maxLevel=Math.max(state.maxLevel||0,d.maxLevel||0);
+        if(typeof d.rankIndex==='number'&&d.rankIndex>(state.rankIndex||-1)){
+          state.rankIndex=d.rankIndex; state.rank=d.rank||(RANKS[d.rankIndex]&&RANKS[d.rankIndex].label)||null;
+        }
+        state.mainAccount=d.mainAccount||null;
+        state.subAccounts=Array.isArray(d.subAccounts)?d.subAccounts:[];
+        state.hasPin=!!d.hasPin;
+        save();
+      }
+
+      function loadServerData(d) {
+        state.done={}; state.progress={}; state.questsDone=0; state.coinsEarned=d.coins||0;
+        state.lbViews=0; state.sentCoins=0; state.recvCoins=0; state.sentToPlayers=[]; state.recvFromPlayers=[]; state.lbPosition=999999;
+        state.coins=d.coins||0; state.trophies=d.trophies||0; state.maxLevel=d.maxLevel||0;
+        state.rankIndex=typeof d.rankIndex==='number'?d.rankIndex:-1;
+        state.rank=d.rank||(state.rankIndex>=0&&RANKS[state.rankIndex]?RANKS[state.rankIndex].label:null);
+        state.mainAccount=d.mainAccount||null;
+        state.subAccounts=Array.isArray(d.subAccounts)?d.subAccounts:[];
+        state.hasPin=!!d.hasPin;
+        state.playerName=d.name;
+        save();
       }
 
       function checkQuests(callback) {
@@ -30538,20 +30564,13 @@
         }).catch(function(e){if(callback)callback(e,[]);});
       }
 
-      function loadFromCloud(callback) {
+      function loadFromCloud(callback, applyData) {
+        if(applyData===undefined)applyData=true;
         if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('no account',null);return;}
         fetch(WORKER_URL+'/api/player/'+encodeURIComponent(state.playerName))
         .then(function(r){return r.json();})
         .then(function(d){
-          if(d&&d.name){
-            state.coins=Math.max(state.coins||0, d.coins||0);
-            state.trophies=Math.max(state.trophies||0, d.trophies||0);
-            state.maxLevel=Math.max(state.maxLevel||0, d.maxLevel||0);
-            if(typeof d.rankIndex==='number'&&d.rankIndex>(state.rankIndex||-1)){
-              state.rankIndex=d.rankIndex; state.rank=d.rank||getRankLabel(d.rankIndex);
-            }
-            save();
-          }
+          if(d&&d.name&&applyData){applyServerData(d);}
           if(callback)callback(null,d);
         }).catch(function(e){if(callback)callback(String(e),null);});
       }
@@ -30594,7 +30613,79 @@
         } else { if(callback)callback(null); }
       }
 
-      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save };
+      function verifyPin(name, pin, callback) {
+        if(!isValidUrl(WORKER_URL)){if(callback)callback('no url',null);return;}
+        fetch(WORKER_URL+'/api/verify-pin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,pin:pin||''})})
+        .then(function(r){return r.json();})
+        .then(function(d){if(callback)callback(d&&d.ok?null:'Falsche PIN',d);})
+        .catch(function(e){if(callback)callback(String(e),null);});
+      }
+
+      function renameAccount(newName, pin, callback) {
+        if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
+        fetch(WORKER_URL+'/api/rename',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.playerName,newName:newName,pin:pin||''})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.ok){state.playerName=d.newName||newName;save();}
+          if(callback)callback(d&&d.ok?null:(d&&d.error)||'Fehler',d);
+        }).catch(function(e){if(callback)callback(String(e),null);});
+      }
+
+      function setPinAccount(currentPin, newPin, callback) {
+        if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
+        fetch(WORKER_URL+'/api/set-pin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.playerName,currentPin:currentPin||'',newPin:newPin||''})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.ok){state.hasPin=!!(newPin&&newPin.length>0);save();}
+          if(callback)callback(d&&d.ok?null:(d&&d.error)||'Fehler',d);
+        }).catch(function(e){if(callback)callback(String(e),null);});
+      }
+
+      function createSubAccount(subName, subPin, mainPin, callback) {
+        if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
+        fetch(WORKER_URL+'/api/create-subaccount',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mainName:state.playerName,subName:subName,subPin:subPin||'',mainPin:mainPin||''})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.ok){
+            if(!Array.isArray(state.subAccounts))state.subAccounts=[];
+            if(state.subAccounts.indexOf(subName)===-1)state.subAccounts.push(subName);
+            save();
+          }
+          if(callback)callback(d&&d.ok?null:(d&&d.error)||'Fehler',d);
+        }).catch(function(e){if(callback)callback(String(e),null);});
+      }
+
+      function deleteAccount(pin, callback) {
+        if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
+        fetch(WORKER_URL+'/api/delete-account',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.playerName,pin:pin||''})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.ok){logoutAccount();}
+          if(callback)callback(d&&d.ok?null:(d&&d.error)||'Fehler',d);
+        }).catch(function(e){if(callback)callback(String(e),null);});
+      }
+
+      function logoutAccount() {
+        var fresh=makeDefaultState(); for(var k in fresh){if(Object.prototype.hasOwnProperty.call(fresh,k))state[k]=fresh[k];}
+        save();
+      }
+
+      function switchToAccount(name, callback) {
+        if(!isValidUrl(WORKER_URL)){if(callback)callback('no url',null);return;}
+        fetch(WORKER_URL+'/api/player/'+encodeURIComponent(name))
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(!d||!d.name){if(callback)callback('Account nicht gefunden',null);return;}
+          if(callback)callback(null,d);
+        }).catch(function(e){if(callback)callback(String(e),null);});
+      }
+
+      function resetQuests() {
+        state.done={}; state.progress={}; state.questsDone=0;
+        save();
+      }
+
+      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save, applyServerData:applyServerData, loadServerData:loadServerData, verifyPin:verifyPin, renameAccount:renameAccount, setPinAccount:setPinAccount, createSubAccount:createSubAccount, deleteAccount:deleteAccount, logoutAccount:logoutAccount, switchToAccount:switchToAccount, resetQuests:resetQuests };
       window._gameAPI = {
         playCustomLevel: function(levelData) {
           if(!Sc||!Sc.instance){return;}
@@ -30609,7 +30700,7 @@
       (function(){
         function QsUI(){
           qo.Component.call(this);
-          this.state={showQ:false,showLB:false,qcat:0,lbData:null,lbLvl:null,lbTab:'trophies',reg:'',panel:'',msg:'',sto:'',samt:0};
+          this.state={showQ:false,showLB:false,showAcc:false,qcat:0,lbData:null,lbLvl:null,lbTab:'trophies',reg:'',panel:'',msg:'',sto:'',samt:0,loginPin:'',loginPinRequired:false,loginPinData:null,accPanel:'',accMsg:'',accNewName:'',accCurPin:'',accNewPin:'',accSubName:'',accSubPin:'',accMainPin:'',accSwitchTarget:null,accSwitchData:null,accSwitchPin:''};
           window._QSUI=this;
         }
         QsUI.prototype=Object.create(qo.Component.prototype);
@@ -30628,15 +30719,15 @@
               h('button',{class:'levels-button button',style:'color:#f1c40f',onClick:function(){
                 var op=!s.showQ;
                 if(op)QS.checkQuests(rerender);
-                t.setState({showQ:op,showLB:false,qcat:s.qcat!=null?s.qcat:0});
+                t.setState({showQ:op,showLB:false,showAcc:false,qcat:s.qcat!=null?s.qcat:0});
               }},s.showQ?'✕':'🎯 QUESTS'),
               h('button',{class:'levels-button button',style:'color:#27ae60',onClick:function(){
-                t.setState({showQ:false,showLB:false});
+                t.setState({showQ:false,showLB:false,showAcc:false});
                 if(window._showMapMenu)window._showMapMenu();
               }},'🗺 MAPS'),
               h('button',{class:'levels-button button',style:'color:#9b59b6',onClick:function(){
                 var op=!s.showLB;
-                t.setState({showLB:op,showQ:false,lbData:null,lbLvl:null,panel:'',msg:''});
+                t.setState({showLB:op,showQ:false,showAcc:false,lbData:null,lbLvl:null,panel:'',msg:''});
                 if(op){
                   QS.checkQuests(rerender);
                   QS.fetchLeaderboard(function(err,data){
@@ -30648,7 +30739,10 @@
                   });
                   if(QS.state.playerName){QS.loadFromCloud(function(){rerender();QS.syncToCloud(function(){});});}
                 }
-              }},s.showLB?'✕':'🏆 RANGLISTE')
+              }},s.showLB?'✕':'🏆 RANGLISTE'),
+              h('button',{class:'levels-button button',style:'color:#00b9dc',onClick:function(){
+                t.setState({showAcc:!s.showAcc,showQ:false,showLB:false,accPanel:'',accMsg:'',accNewName:'',accCurPin:'',accNewPin:'',accSubName:'',accSubPin:'',accMainPin:'',accSwitchTarget:null,accSwitchData:null,accSwitchPin:''});
+              }},s.showAcc?'✕':'👤 KONTO')
             ),
             s.showQ?h('div',{class:'qs-modal'},
               h('div',{class:'qs-topbar'},
@@ -30697,28 +30791,64 @@
                 h('button',{class:'qs-cat-btn'+(s.lbTab==='level'?' qs-active':''),style:'border-bottom:3px solid #e67e22',onClick:function(){t.setState({lbTab:'level'});}},'📊 Level')
               ),
               !QS.state.playerName?h('div',{class:'qs-register'},
-                h('p',null,'Name eingeben zum Einloggen oder Registrieren:'),
-                h('input',{class:'qs-name-input',id:'qs-name-inp',placeholder:'Name (max. 20 Zeichen)',maxLength:20,onInput:function(e){t.setState({reg:e.target.value,msg:''});}}),
-                h('button',{class:'qs-reg-btn',disabled:s.msg==='Lade...',onClick:function(){
-                  var n=(s.reg||'').trim();
-                  if(!n){t.setState({msg:'Name eingeben!'});return;}
-                  QS.state.playerName=n; QS.save();
-                  t.setState({msg:'Lade...'});
-                  QS.loadFromCloud(function(err,d){
-                    if(d&&d.name){
-                      QS.checkQuests(rerender);
-                      rerender();
-                      t.setState({msg:'✓ Willkommen zurück, '+d.name+'! Fortschritt geladen.'});
-                    } else {
-                      QS.checkQuests(rerender);
-                      QS.syncToCloud(function(){});
-                      t.setState({msg:'✓ Account erstellt für '+n+'!'});
-                    }
-                  });
-                }},s.msg==='Lade...'?'Verbinde...':'Einloggen / Registrieren'),
-                s.msg?h('p',{class:'qs-msg'},s.msg):null
+                s.loginPinRequired?h('div',null,
+                  h('p',null,'PIN für ',h('span',{style:'font-family:sans-serif'},s.loginPinData&&s.loginPinData.name||''),':'),
+                  h('input',{class:'qs-name-input',type:'password',placeholder:'PIN eingeben',maxLength:20,
+                    value:s.loginPin,onInput:function(e){t.setState({loginPin:e.target.value,msg:''}); }}),
+                  h('div',{style:'display:flex;gap:8px;justify-content:center;'},
+                    h('button',{class:'qs-reg-btn',onClick:function(){
+                      var d=s.loginPinData, n=d&&d.name;
+                      if(!n)return;
+                      QS.state.playerName=n; QS.save();
+                      QS.verifyPin(n,s.loginPin,function(err){
+                        if(err){t.setState({msg:'Falsche PIN'});QS.logoutAccount();return;}
+                        QS.applyServerData(d);
+                        QS.checkQuests(rerender);
+                        QS.syncToCloud(function(){});
+                        t.setState({loginPinRequired:false,loginPinData:null,loginPin:'',msg:'✓ Willkommen zurück, '+n+'!'});
+                        rerender();
+                      });
+                    }},'Bestätigen'),
+                    h('button',{class:'qs-act-btn',onClick:function(){
+                      QS.logoutAccount();
+                      t.setState({loginPinRequired:false,loginPinData:null,loginPin:'',msg:'',reg:''});
+                    }},'Abbrechen')
+                  ),
+                  s.msg?h('p',{class:'qs-msg',style:s.msg.startsWith('✓')?'':'color:#e74c3c'},s.msg):null
+                ):h('div',null,
+                  h('p',null,'Name eingeben zum Einloggen oder Registrieren:'),
+                  h('input',{class:'qs-name-input',id:'qs-name-inp',placeholder:'Name (max. 20 Zeichen)',maxLength:20,
+                    style:'font-family:sans-serif',
+                    value:s.reg,onInput:function(e){t.setState({reg:e.target.value,msg:''}); }}),
+                  h('button',{class:'qs-reg-btn',disabled:s.msg==='Lade...',onClick:function(){
+                    var n=(s.reg||'').trim();
+                    if(!n){t.setState({msg:'Name eingeben!'});return;}
+                    QS.state.playerName=n; QS.save();
+                    t.setState({msg:'Lade...'});
+                    QS.loadFromCloud(function(err,d){
+                      if(d&&d.name){
+                        if(d.hasPin){
+                          QS.logoutAccount();
+                          t.setState({msg:'',loginPinRequired:true,loginPinData:d,loginPin:''});
+                        } else {
+                          QS.applyServerData(d);
+                          QS.checkQuests(rerender);
+                          QS.syncToCloud(function(){});
+                          t.setState({msg:'✓ Willkommen zurück, '+d.name+'!'});
+                          rerender();
+                        }
+                      } else {
+                        QS.checkQuests(rerender);
+                        QS.syncToCloud(function(){});
+                        t.setState({msg:'✓ Account erstellt für '+n+'!'});
+                        rerender();
+                      }
+                    },false);
+                  }},s.msg==='Lade...'?'Verbinde...':'Einloggen / Registrieren'),
+                  s.msg?h('p',{class:'qs-msg',style:s.msg.startsWith('✓')?'':'color:#e74c3c'},s.msg):null
+                )
               ):h('div',{class:'qs-me'},
-                h('div',{class:'qs-me-name'},QS.state.rank?QS.state.rank+' ':'',QS.state.playerName),
+                h('div',{class:'qs-me-name'},QS.state.rank?QS.state.rank+' ':'',h('span',{style:'font-family:sans-serif'},QS.state.playerName)),
                 QS.state.lbPosition<999999?h('div',{class:'qs-me-pos'},'#'+QS.state.lbPosition+' in der Rangliste'):null
               ),
               QS.state.playerName?h('div',{class:'qs-actions'},
@@ -30771,7 +30901,7 @@
                       h('span',{class:'qs-lb-pos'},'#'+(idx+1)),
                       h('div',{class:'qs-lb-info'},
                         pl.rank?h('span',{class:'qs-lb-rnk'},pl.rank+' '):null,
-                        pl.name,
+                        h('span',{style:'font-family:sans-serif'},pl.name),
                         (pl.maxLevel||0)>0?h('span',{style:'font-size:10px;opacity:0.5;margin-left:4px'},'Lvl '+(pl.maxLevel||0)):null
                       ),
                       s.lbTab==='level'?h('span',{class:'qs-lb-sc'},'📊 '+(pl.maxLevel||0)):h('span',{class:'qs-lb-sc'},'🏆 '+(pl.trophies||0))
@@ -30779,7 +30909,154 @@
                   });
                 })()
               )
-            ):null
+            ):null,
+            s.showAcc?(function(){
+              var accClose=function(){t.setState({showAcc:false,accPanel:'',accMsg:'',accNewName:'',accCurPin:'',accNewPin:'',accSubName:'',accSubPin:'',accMainPin:'',accSwitchTarget:null,accSwitchData:null,accSwitchPin:''}); };
+              var accPanelBtn=function(id,label){return h('button',{class:'qs-act-btn',onClick:function(){t.setState({accPanel:s.accPanel===id?'':id,accMsg:'',accNewName:'',accCurPin:'',accNewPin:'',accSubName:'',accSubPin:'',accMainPin:''});}},label);};
+              var doSwitch=function(targetName,d){
+                QS.loadServerData(d);
+                t.setState({showAcc:false,accPanel:'',accMsg:'',accSwitchTarget:null,accSwitchData:null,accSwitchPin:''});
+                rerender();
+              };
+              return h('div',{class:'qs-modal'},
+                h('div',{class:'qs-topbar'},
+                  h('button',{class:'qs-close',onClick:accClose},'✕'),
+                  h('span',null,'👤 KONTO'),
+                  h('span',null,'🪙 '+QS.fmtNum(QS.state.coins))
+                ),
+                !QS.state.playerName?h('div',{class:'qs-register'},
+                  h('p',null,'Kein Account. Bitte einloggen.'),
+                  h('button',{class:'qs-reg-btn',onClick:function(){t.setState({showAcc:false,showLB:true,panel:'',msg:'',lbData:null,lbLvl:null});}},
+                    'Zum Einloggen')
+                ):h('div',null,
+                  h('div',{style:'padding:12px 16px;text-align:center;'},
+                    h('div',{style:'font-size:20px;font-family:sans-serif;margin-bottom:4px;'},QS.state.playerName),
+                    QS.state.rank?h('div',{style:'font-size:13px;opacity:0.8;margin-bottom:4px;'},QS.state.rank):null,
+                    QS.state.mainAccount
+                      ?h('div',{style:'font-size:12px;opacity:0.7;'},'Unteraccount von ',h('span',{style:'font-family:sans-serif'},QS.state.mainAccount))
+                      :h('div',{style:'font-size:12px;opacity:0.7;'},'Hauptaccount')
+                  ),
+                  QS.state.mainAccount?h('div',{style:'padding:0 16px 8px;text-align:center;'},
+                    s.accSwitchTarget===QS.state.mainAccount
+                      ?h('div',null,
+                        h('div',{style:'font-size:12px;margin-bottom:6px;opacity:0.8'},'PIN für ',h('span',{style:'font-family:sans-serif'},QS.state.mainAccount),':'),
+                        h('input',{class:'qs-input',type:'password',placeholder:'PIN',maxLength:20,value:s.accSwitchPin,onInput:function(e){t.setState({accSwitchPin:e.target.value,accMsg:''});}}),
+                        h('div',{style:'display:flex;gap:8px;justify-content:center;margin-top:6px;'},
+                          h('button',{class:'qs-send-btn',onClick:function(){
+                            var d=s.accSwitchData, tgt=s.accSwitchTarget;
+                            QS.verifyPin(tgt,s.accSwitchPin,function(err){
+                              if(err){t.setState({accMsg:'Falsche PIN'});return;}
+                              doSwitch(tgt,d);
+                            });
+                          }},'Bestätigen'),
+                          h('button',{class:'qs-act-btn',onClick:function(){t.setState({accSwitchTarget:null,accSwitchData:null,accSwitchPin:'',accMsg:''});}},'Abbrechen')
+                        ),
+                        s.accMsg?h('p',{class:'qs-msg',style:'color:#e74c3c'},s.accMsg):null
+                      )
+                      :h('button',{class:'qs-act-btn',onClick:function(){
+                        var mainName=QS.state.mainAccount;
+                        QS.switchToAccount(mainName,function(err,d){
+                          if(err){t.setState({accMsg:'Fehler: '+String(err)});return;}
+                          if(d.hasPin){t.setState({accSwitchTarget:mainName,accSwitchData:d,accSwitchPin:'',accMsg:''});}
+                          else{doSwitch(mainName,d);}
+                        });
+                      }},'🏠 Zum Hauptaccount')
+                  ):null,
+                  !QS.state.mainAccount&&Array.isArray(QS.state.subAccounts)&&QS.state.subAccounts.length>0?h('div',{style:'padding:0 16px 8px;'},
+                    h('div',{style:'font-size:13px;opacity:0.7;margin-bottom:6px;'},'Unteraccounts:'),
+                    QS.state.subAccounts.map(function(sub){
+                      var isSwitching=s.accSwitchTarget===sub;
+                      return h('div',{key:sub,style:'display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;'},
+                        h('span',{style:'font-family:sans-serif;flex:1;min-width:80px;'},sub),
+                        isSwitching?h('div',{style:'display:flex;flex-direction:column;gap:4px;flex:1;'},
+                          h('input',{class:'qs-input',type:'password',placeholder:'PIN (falls vorhanden)',maxLength:20,value:s.accSwitchPin,onInput:function(e){t.setState({accSwitchPin:e.target.value,accMsg:''}); }}),
+                          h('div',{style:'display:flex;gap:6px;'},
+                            h('button',{class:'qs-send-btn',style:'padding:6px 12px;font-size:11px;',onClick:function(){
+                              var d=s.accSwitchData;
+                              if(d&&d.hasPin){
+                                QS.verifyPin(sub,s.accSwitchPin,function(err){
+                                  if(err){t.setState({accMsg:'Falsche PIN'});return;}
+                                  doSwitch(sub,d);
+                                });
+                              } else {doSwitch(sub,d||{name:sub,coins:0,trophies:0,maxLevel:0,rankIndex:-1,rank:null,mainAccount:QS.state.playerName,subAccounts:[],hasPin:false});}
+                            }},'OK'),
+                            h('button',{class:'qs-act-btn',style:'padding:6px 10px;font-size:11px;',onClick:function(){t.setState({accSwitchTarget:null,accSwitchData:null,accSwitchPin:'',accMsg:''});}},'✕')
+                          )
+                        ):h('button',{class:'qs-act-btn',style:'font-size:11px;padding:5px 10px;',onClick:function(){
+                          QS.switchToAccount(sub,function(err,d){
+                            if(err){t.setState({accMsg:'Fehler'});return;}
+                            if(d&&d.hasPin){t.setState({accSwitchTarget:sub,accSwitchData:d,accSwitchPin:'',accMsg:''});}
+                            else{doSwitch(sub,d);}
+                          });
+                        }},'Einloggen')
+                      );
+                    })
+                  ):null,
+                  h('div',{class:'qs-actions',style:'flex-wrap:wrap;'},
+                    accPanelBtn('rename','✏️ Umbenennen'),
+                    accPanelBtn('pin',QS.state.hasPin?'🔐 PIN ändern':'🔐 PIN setzen'),
+                    !QS.state.mainAccount?accPanelBtn('newsub','➕ Unteraccount'):null,
+                    h('button',{class:'qs-act-btn',onClick:function(){
+                      if(confirm('Alle Quests zurücksetzen? Münzen und Trophäen bleiben erhalten.')){
+                        QS.resetQuests(); t.setState({accMsg:'✓ Quests zurückgesetzt!'});
+                      }
+                    }},'🔄 Quests Reset'),
+                    h('button',{class:'qs-act-btn',onClick:function(){
+                      if(confirm('Ausloggen?')){QS.logoutAccount();accClose();rerender();}
+                    }},'🚪 Ausloggen'),
+                    h('button',{class:'qs-act-btn',style:'color:#e74c3c',onClick:function(){
+                      var n=QS.state.playerName;
+                      if(!confirm('Account "'+n+'" wirklich löschen? Nicht rückgängig machbar!'))return;
+                      var pin=QS.state.hasPin?prompt('PIN eingeben:'):'';
+                      if(pin===null)return;
+                      QS.deleteAccount(pin,function(err){
+                        if(err){t.setState({accMsg:'Fehler: '+String(err)});return;}
+                        accClose(); rerender();
+                      });
+                    }},'🗑️ Löschen')
+                  ),
+                  s.accMsg?h('p',{class:'qs-msg',style:s.accMsg.startsWith('✓')?'padding:0 16px':'color:#e74c3c;padding:0 16px'},s.accMsg):null,
+                  s.accPanel==='rename'?h('div',{class:'qs-panel'},
+                    h('div',{style:'font-size:12px;opacity:0.7;margin-bottom:6px;'},'Aktuell: ',h('span',{style:'font-family:sans-serif'},QS.state.playerName)),
+                    h('input',{class:'qs-input',placeholder:'Neuer Name (max. 20)',maxLength:20,style:'font-family:sans-serif',value:s.accNewName,onInput:function(e){t.setState({accNewName:e.target.value,accMsg:''}); }}),
+                    QS.state.hasPin?h('input',{class:'qs-input',type:'password',placeholder:'Dein PIN',maxLength:20,value:s.accCurPin,onInput:function(e){t.setState({accCurPin:e.target.value,accMsg:''}); }}):null,
+                    h('button',{class:'qs-send-btn',onClick:function(){
+                      var nn=(s.accNewName||'').trim();
+                      if(!nn){t.setState({accMsg:'Name eingeben!'});return;}
+                      QS.renameAccount(nn,s.accCurPin||'',function(err){
+                        if(err){t.setState({accMsg:'Fehler: '+String(err)});return;}
+                        t.setState({accPanel:'',accMsg:'✓ Umbenannt zu '+nn+'!',accNewName:'',accCurPin:''});
+                        rerender();
+                      });
+                    }},'Umbenennen')
+                  ):null,
+                  s.accPanel==='pin'?h('div',{class:'qs-panel'},
+                    QS.state.hasPin?h('input',{class:'qs-input',type:'password',placeholder:'Aktueller PIN',maxLength:20,value:s.accCurPin,onInput:function(e){t.setState({accCurPin:e.target.value,accMsg:''}); }}):null,
+                    h('input',{class:'qs-input',type:'password',placeholder:'Neuer PIN (leer = kein PIN)',maxLength:20,value:s.accNewPin,onInput:function(e){t.setState({accNewPin:e.target.value,accMsg:''}); }}),
+                    h('button',{class:'qs-send-btn',onClick:function(){
+                      QS.setPinAccount(s.accCurPin||'',s.accNewPin||'',function(err){
+                        if(err){t.setState({accMsg:'Fehler: '+String(err)});return;}
+                        t.setState({accPanel:'',accMsg:s.accNewPin?'✓ PIN gesetzt!':'✓ PIN entfernt!',accCurPin:'',accNewPin:''});
+                      });
+                    }},'Speichern')
+                  ):null,
+                  s.accPanel==='newsub'?h('div',{class:'qs-panel'},
+                    h('input',{class:'qs-input',placeholder:'Name des Unteraccounts (max. 20)',maxLength:20,style:'font-family:sans-serif',value:s.accSubName,onInput:function(e){t.setState({accSubName:e.target.value,accMsg:''}); }}),
+                    h('input',{class:'qs-input',type:'password',placeholder:'PIN für Unteraccount (optional)',maxLength:20,value:s.accSubPin,onInput:function(e){t.setState({accSubPin:e.target.value,accMsg:''}); }}),
+                    QS.state.hasPin?h('input',{class:'qs-input',type:'password',placeholder:'Dein PIN (Hauptaccount)',maxLength:20,value:s.accMainPin,onInput:function(e){t.setState({accMainPin:e.target.value,accMsg:''}); }}):null,
+                    h('button',{class:'qs-send-btn',onClick:function(){
+                      var sn=(s.accSubName||'').trim();
+                      if(!sn){t.setState({accMsg:'Name eingeben!'});return;}
+                      QS.createSubAccount(sn,s.accSubPin||'',s.accMainPin||'',function(err){
+                        if(err){t.setState({accMsg:'Fehler: '+String(err)});return;}
+                        t.setState({accPanel:'',accMsg:'✓ Unteraccount '+sn+' erstellt!',accSubName:'',accSubPin:'',accMainPin:''});
+                        rerender();
+                      });
+                    }},'Erstellen')
+                  ):null
+                )
+              );
+            })():null
           );
         };
         var qsRoot=document.createElement('div');
