@@ -30747,7 +30747,7 @@
             s.showQ?h('div',{class:'qs-modal'},
               h('div',{class:'qs-topbar'},
                 h('button',{class:'qs-close',onClick:function(){t.setState({showQ:false});}},'✕'),
-                h('span',null,'🪙 '+QS.fmtNum(QS.state.coins)),
+                h('span',{style:'display:inline-flex;align-items:center;gap:3px;'},h('span',{class:'mc'}),QS.fmtNum(QS.state.coins)),
                 h('span',null,'🏆 '+QS.state.trophies+' Trophäen'),
                 h('span',{class:'qs-qcount'},QS.state.questsDone+'/500')
               ),
@@ -30767,7 +30767,7 @@
                     h('div',{class:'qs-item-main'},
                       h('span',{class:'qs-item-title'},q.title),
                       h('div',{class:'qs-item-rew'},
-                        q.reward_coins?h('span',{class:'qs-cr'},'+'+QS.fmtNum(q.reward_coins)+'🪙'):null,
+                        q.reward_coins?h('span',{class:'qs-cr',style:'display:inline-flex;align-items:center;gap:2px;'},'+'+QS.fmtNum(q.reward_coins),h('span',{class:'mc'})):null,
                         q.reward_trophies?h('span',{class:'qs-tr'},'+'+q.reward_trophies+'🏆'):null
                       )
                     ),
@@ -30782,7 +30782,7 @@
             s.showLB?h('div',{class:'qs-modal'},
               h('div',{class:'qs-topbar'},
                 h('button',{class:'qs-close',onClick:function(){t.setState({showLB:false,panel:'',msg:'',sto:'',samt:0});}},'✕'),
-                h('span',null,'🪙 '+QS.fmtNum(QS.state.coins)),
+                h('span',{style:'display:inline-flex;align-items:center;gap:3px;'},h('span',{class:'mc'}),QS.fmtNum(QS.state.coins)),
                 h('span',null,'🏆 '+QS.state.trophies),
                 QS.state.lbPosition<999999?h('span',null,'#'+QS.state.lbPosition):null
               ),
@@ -30852,7 +30852,7 @@
                 QS.state.lbPosition<999999?h('div',{class:'qs-me-pos'},'#'+QS.state.lbPosition+' in der Rangliste'):null
               ),
               QS.state.playerName?h('div',{class:'qs-actions'},
-                h('button',{class:'qs-act-btn',onClick:function(){t.setState({panel:s.panel==='send'?'':'send',msg:'',sto:'',samt:0});}},'🪙 Senden'),
+                h('button',{class:'qs-act-btn',style:'display:inline-flex;align-items:center;gap:5px;',onClick:function(){t.setState({panel:s.panel==='send'?'':'send',msg:'',sto:'',samt:0});}},h('span',{class:'mc'}),'Senden'),
                 h('button',{class:'qs-act-btn',onClick:function(){t.setState({panel:s.panel==='rank'?'':'rank',msg:'',sto:'',samt:0});}},'🏅 Rang'),
                 h('button',{class:'qs-act-btn',style:'color:#e74c3c',onClick:function(){
                   if(!confirm('Alles zurücksetzen (Ränge, Münzen, Quests, Trophäen, Rangliste)?'))return;
@@ -30867,7 +30867,7 @@
                   if(!tn||amt<1){t.setState({msg:'Name und Betrag eingeben!'});return;}
                   QS.sendCoins(tn,amt,function(err){
                     if(err)t.setState({msg:'Fehler: '+String(err)});
-                    else{QS.checkQuests(rerender);t.setState({msg:'✓ '+QS.fmtNum(amt)+'🪙 an '+tn+' gesendet!',panel:''});}
+                    else{QS.checkQuests(rerender);t.setState({msg:'✓ '+QS.fmtNum(amt)+' Münzen an '+tn+' gesendet!',panel:''});}
                   });
                 }},'Senden'),
                 s.msg?h('p',{class:'qs-msg'},s.msg):null
@@ -30876,7 +30876,7 @@
                 curRankIdx>=0?h('div',{class:'qs-lb-rnk',style:'margin-bottom:6px'},'Aktuell: '+QS.state.rank):null,
                 nextRank?h('div',null,
                   h('div',null,'Nächster Rang: '+nextRank.label),
-                  h('div',{style:'font-size:11px;opacity:0.7;margin:4px 0'},'Kosten: '+QS.fmtNum(nextRank.cost)+'🪙 (Guthaben: '+QS.fmtNum(QS.state.coins)+'🪙)'),
+                  h('div',{style:'font-size:11px;opacity:0.7;margin:4px 0;display:flex;align-items:center;gap:3px;flex-wrap:wrap;'},'Kosten: '+QS.fmtNum(nextRank.cost),h('span',{class:'mc'}),' (Guthaben: '+QS.fmtNum(QS.state.coins),h('span',{class:'mc'}),')'),
                   h('div',{style:'font-size:10px;opacity:0.5;margin-bottom:6px'},
                     nextRankIdx<34?'Tier 1 — Bronze':nextRankIdx<67?'Tier 2 — Diamant':'Tier 3 — Platin'
                   ),
@@ -30922,7 +30922,7 @@
                 h('div',{class:'qs-topbar'},
                   h('button',{class:'qs-close',onClick:accClose},'✕'),
                   h('span',null,'👤 KONTO'),
-                  h('span',null,'🪙 '+QS.fmtNum(QS.state.coins))
+                  h('span',{style:'display:inline-flex;align-items:center;gap:3px;'},h('span',{class:'mc'}),QS.fmtNum(QS.state.coins))
                 ),
                 !QS.state.playerName?h('div',{class:'qs-register'},
                   h('p',null,'Kein Account. Bitte einloggen.'),
