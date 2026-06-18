@@ -30716,16 +30716,16 @@
           var rerender=function(){t.setState({});};
           return h('div',null,
             h('div',{class:'qs-btn-bar'},
-              h('button',{class:'levels-button button',style:'color:#f1c40f',onClick:function(){
+              h('button',{class:'levels-button button',onClick:function(){
                 var op=!s.showQ;
                 if(op)QS.checkQuests(rerender);
                 t.setState({showQ:op,showLB:false,showAcc:false,qcat:s.qcat!=null?s.qcat:0});
               }},s.showQ?'✕':'🎯 QUESTS'),
-              h('button',{class:'levels-button button',style:'color:#27ae60',onClick:function(){
+              h('button',{class:'levels-button button',onClick:function(){
                 t.setState({showQ:false,showLB:false,showAcc:false});
                 if(window._showMapMenu)window._showMapMenu();
               }},'🗺 MAPS'),
-              h('button',{class:'levels-button button',style:'color:#9b59b6',onClick:function(){
+              h('button',{class:'levels-button button',onClick:function(){
                 var op=!s.showLB;
                 t.setState({showLB:op,showQ:false,showAcc:false,lbData:null,lbLvl:null,panel:'',msg:''});
                 if(op){
@@ -30740,7 +30740,7 @@
                   if(QS.state.playerName){QS.loadFromCloud(function(){rerender();QS.syncToCloud(function(){});});}
                 }
               }},s.showLB?'✕':'🏆 RANGLISTE'),
-              h('button',{class:'levels-button button',style:'color:#00b9dc',onClick:function(){
+              h('button',{class:'levels-button button',onClick:function(){
                 t.setState({showAcc:!s.showAcc,showQ:false,showLB:false,accPanel:'',accMsg:'',accNewName:'',accCurPin:'',accNewPin:'',accSubName:'',accSubPin:'',accMainPin:'',accSwitchTarget:null,accSwitchData:null,accSwitchPin:''});
               }},s.showAcc?'✕':'👤 KONTO')
             ),
