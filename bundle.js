@@ -30538,6 +30538,24 @@
         }).catch(function(e){if(callback)callback(e,[]);});
       }
 
+      function loadFromCloud(callback) {
+        if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('no account',null);return;}
+        fetch(WORKER_URL+'/api/player/'+encodeURIComponent(state.playerName))
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.name){
+            state.coins=Math.max(state.coins||0, d.coins||0);
+            state.trophies=Math.max(state.trophies||0, d.trophies||0);
+            state.maxLevel=Math.max(state.maxLevel||0, d.maxLevel||0);
+            if(typeof d.rankIndex==='number'&&d.rankIndex>(state.rankIndex||-1)){
+              state.rankIndex=d.rankIndex; state.rank=d.rank||getRankLabel(d.rankIndex);
+            }
+            save();
+          }
+          if(callback)callback(null,d);
+        }).catch(function(e){if(callback)callback(String(e),null);});
+      }
+
       function sendCoins(toName, amount, callback) {
         if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
         if(!toName||amount<=0){if(callback)callback('invalid args',null);return;}
@@ -30576,7 +30594,7 @@
         } else { if(callback)callback(null); }
       }
 
-      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save };
+      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save };
       window._gameAPI = {
         playCustomLevel: function(levelData) {
           if(!Sc||!Sc.instance){return;}
@@ -30628,7 +30646,7 @@
                       if(QS.state.playerName){for(var i=0;i<data.length;i++){if(data[i].name.toLowerCase()===QS.state.playerName.toLowerCase()){QS.state.lbPosition=i+1;break;}}}
                     }else{t.setState({lbData:data||[],lbLvl:[]});}
                   });
-                  if(QS.state.playerName)QS.syncToCloud(function(){});
+                  if(QS.state.playerName){QS.loadFromCloud(function(){rerender();QS.syncToCloud(function(){});});}
                 }
               }},s.showLB?'✕':'🏆 RANGLISTE')
             ),
@@ -30679,14 +30697,25 @@
                 h('button',{class:'qs-cat-btn'+(s.lbTab==='level'?' qs-active':''),style:'border-bottom:3px solid #e67e22',onClick:function(){t.setState({lbTab:'level'});}},'📊 Level')
               ),
               !QS.state.playerName?h('div',{class:'qs-register'},
-                h('p',null,'Registriere dich:'),
+                h('p',null,'Name eingeben zum Einloggen oder Registrieren:'),
                 h('input',{class:'qs-name-input',id:'qs-name-inp',placeholder:'Name (max. 20 Zeichen)',maxLength:20,onInput:function(e){t.setState({reg:e.target.value,msg:''});}}),
-                h('button',{class:'qs-reg-btn',onClick:function(){
+                h('button',{class:'qs-reg-btn',disabled:s.msg==='Lade...',onClick:function(){
                   var n=(s.reg||'').trim();
                   if(!n){t.setState({msg:'Name eingeben!'});return;}
-                  QS.state.playerName=n;QS.save();QS.checkQuests(rerender);QS.syncToCloud(function(){});
-                  t.setState({msg:'✓ Registriert als '+n+'!'});
-                }},'Registrieren'),
+                  QS.state.playerName=n; QS.save();
+                  t.setState({msg:'Lade...'});
+                  QS.loadFromCloud(function(err,d){
+                    if(d&&d.name){
+                      QS.checkQuests(rerender);
+                      rerender();
+                      t.setState({msg:'✓ Willkommen zurück, '+d.name+'! Fortschritt geladen.'});
+                    } else {
+                      QS.checkQuests(rerender);
+                      QS.syncToCloud(function(){});
+                      t.setState({msg:'✓ Account erstellt für '+n+'!'});
+                    }
+                  });
+                }},s.msg==='Lade...'?'Verbinde...':'Einloggen / Registrieren'),
                 s.msg?h('p',{class:'qs-msg'},s.msg):null
               ):h('div',{class:'qs-me'},
                 h('div',{class:'qs-me-name'},QS.state.rank?QS.state.rank+' ':'',QS.state.playerName),
@@ -30765,9 +30794,13 @@
       window.addEventListener('load', function() {
         setTimeout(function() {
           if (!window._QS) return;
-          window._QS.checkQuests(function() {
-            if (window._QS.state.playerName) {
-              window._QS.syncToCloud(function() {});
+          var qs = window._QS;
+          qs.checkQuests(function() {
+            if (qs.state.playerName) {
+              qs.loadFromCloud(function() {
+                if (window._QSUI) window._QSUI.setState({});
+                qs.syncToCloud(function() {});
+              });
             }
           });
         }, 3000);
