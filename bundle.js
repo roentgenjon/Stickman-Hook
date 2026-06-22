@@ -30699,6 +30699,16 @@
           recvCoins:state.recvCoins||0, sentToPlayersCount:(state.sentToPlayers||[]).length,
           recvFromPlayersCount:(state.recvFromPlayers||[]).length
         };
+        // Mark permanently-true threshold quests as done without giving rewards,
+        // so they don't cascade rewards into other quests on the next checkQuests() call.
+        for(var qi=0;qi<QUESTS.length;qi++){
+          var qr=QUESTS[qi], alreadyMet=false;
+          if(qr.type==='has_name')    alreadyMet=!!(state.playerName&&state.playerName.length>0);
+          else if(qr.type==='has_rank')    alreadyMet=state.rankIndex>=0;
+          else if(qr.type==='all_ranks')   alreadyMet=state.rankIndex>=99;
+          else if(qr.type==='lb_position') alreadyMet=state.lbPosition<=qr.target;
+          if(alreadyMet) state.done[qr.id]=true;
+        }
         save();
       }
 
