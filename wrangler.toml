@@ -1,0 +1,7 @@
+name = "stickman-hook-api"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "PLAYERS"
+id = "da60a546e55e4c2b940d351cdf08c4fe"
