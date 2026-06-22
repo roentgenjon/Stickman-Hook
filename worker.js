@@ -125,7 +125,7 @@ async function handleRequest(request) {
 
         var updated = {
             name: name,
-            trophies: Math.max(trophies, existing.trophies || 0),
+            trophies: trophies,
             coins: coins,
             maxLevel: Math.max(maxLevel, existing.maxLevel || 0),
             rankIndex: Math.max(rankIndex, existing.rankIndex || -1),
