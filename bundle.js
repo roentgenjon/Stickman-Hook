@@ -30473,7 +30473,7 @@
       for (i = 0; i < 20; i++) { t=extraSentTargets[i]; QUESTS.push({ id: 'soc_xsc_'+i, cat: 4, title: fmtNum(t)+' Coins senden (Experte)', desc: 'Sende insgesamt '+fmtNum(t)+' Coins.', type: 'sent_coins', target: t, reward_coins: Math.ceil(500*Math.pow(1.12,i)), reward_trophies: i+2 }); }
 
       function makeDefaultState() {
-        return { coins:0, coinsEarned:0, trophies:0, questsDone:0, done:{}, progress:{}, playerName:'', rank:null, rankIndex:-1, maxLevel:0, lbViews:0, sentCoins:0, recvCoins:0, sentToPlayers:[], recvFromPlayers:[], lbPosition:999999, mainAccount:null, subAccounts:[], hasPin:false };
+        return { coins:0, coinsEarned:0, trophies:0, questsDone:0, done:{}, progress:{}, playerName:'', rank:null, rankIndex:-1, maxLevel:0, lbViews:0, sentCoins:0, recvCoins:0, sentToPlayers:[], recvFromPlayers:[], lbPosition:999999, mainAccount:null, subAccounts:[], hasPin:false, questBaseline:null };
       }
       var state = makeDefaultState();
       var STORAGE_KEY = 'STICKMANHOOK_qs';
@@ -30520,26 +30520,36 @@
       function checkQuests(callback) {
         var currentLevel = (typeof window._QS.getLevel === 'function') ? window._QS.getLevel() : 0;
         if(currentLevel > (state.maxLevel||0)){ state.maxLevel=currentLevel; }
+        var bl = state.questBaseline || {};
+        var effLevel        = Math.max(0, currentLevel                        - (bl.level||0));
+        var effCoinsEarned  = Math.max(0, (state.coinsEarned||0)              - (bl.coinsEarned||0));
+        var effTrophies     = Math.max(0, (state.trophies||0)                 - (bl.trophies||0));
+        var effQuestsDone   = Math.max(0, (state.questsDone||0)               - (bl.questsDone||0));
+        var effLbViews      = Math.max(0, (state.lbViews||0)                  - (bl.lbViews||0));
+        var effSentCoins    = Math.max(0, (state.sentCoins||0)                - (bl.sentCoins||0));
+        var effRecvCoins    = Math.max(0, (state.recvCoins||0)                - (bl.recvCoins||0));
+        var effSentPlayers  = Math.max(0, (state.sentToPlayers||[]).length    - (bl.sentToPlayersCount||0));
+        var effRecvPlayers  = Math.max(0, (state.recvFromPlayers||[]).length  - (bl.recvFromPlayersCount||0));
         var newly = [];
         for (var q = 0; q < QUESTS.length; q++) {
           var quest = QUESTS[q];
           if (state.done[quest.id]) continue;
           var met = false, prog = 0;
-          if (quest.type==='level')        { prog=currentLevel; met=prog>=quest.target; }
-          else if (quest.type==='coins_earned') { prog=state.coinsEarned; met=prog>=quest.target; }
-          else if (quest.type==='trophies')     { prog=state.trophies; met=prog>=quest.target; }
-          else if (quest.type==='quests_done')  { prog=state.questsDone; met=prog>=quest.target; }
+          if (quest.type==='level')             { prog=effLevel;       met=prog>=quest.target; }
+          else if (quest.type==='coins_earned') { prog=effCoinsEarned; met=prog>=quest.target; }
+          else if (quest.type==='trophies')     { prog=effTrophies;    met=prog>=quest.target; }
+          else if (quest.type==='quests_done')  { prog=effQuestsDone;  met=prog>=quest.target; }
           else if (quest.type==='has_name')     { met=!!(state.playerName&&state.playerName.length>0); prog=met?1:0; }
-          else if (quest.type==='lb_views')     { prog=state.lbViews; met=prog>=quest.target; }
-          else if (quest.type==='sent_coins')   { prog=state.sentCoins; met=prog>=quest.target; }
-          else if (quest.type==='recv_coins')   { prog=state.recvCoins; met=prog>=quest.target; }
-          else if (quest.type==='unique_sent')  { prog=state.sentToPlayers.length; met=prog>=quest.target; }
-          else if (quest.type==='unique_recv')  { prog=state.recvFromPlayers.length; met=prog>=quest.target; }
+          else if (quest.type==='lb_views')     { prog=effLbViews;     met=prog>=quest.target; }
+          else if (quest.type==='sent_coins')   { prog=effSentCoins;   met=prog>=quest.target; }
+          else if (quest.type==='recv_coins')   { prog=effRecvCoins;   met=prog>=quest.target; }
+          else if (quest.type==='unique_sent')  { prog=effSentPlayers; met=prog>=quest.target; }
+          else if (quest.type==='unique_recv')  { prog=effRecvPlayers; met=prog>=quest.target; }
           else if (quest.type==='lb_position')  { prog=state.lbPosition; met=state.lbPosition<=quest.target; }
           else if (quest.type==='has_rank')     { prog=state.rankIndex>=0?1:0; met=state.rankIndex>=0; }
           else if (quest.type==='all_ranks')    { prog=state.rankIndex+1; met=state.rankIndex>=99; }
           state.progress[quest.id] = prog;
-          if (met) { state.done[quest.id]=true; state.coins+=quest.reward_coins; state.coinsEarned+=quest.reward_coins; state.trophies+=quest.reward_trophies; state.questsDone+=1; newly.push(quest); }
+          if (met) { state.done[quest.id]=true; state.coins+=quest.reward_coins; state.coinsEarned+=quest.reward_coins; state.trophies+=quest.reward_trophies; state.questsDone+=1; effQuestsDone+=1; newly.push(quest); }
         }
         save();
         if (typeof callback==='function') callback(newly);
@@ -30682,6 +30692,13 @@
 
       function resetQuests() {
         state.done={}; state.progress={}; state.questsDone=0;
+        var curLvl=(typeof window._QS.getLevel==='function')?window._QS.getLevel():0;
+        state.questBaseline={
+          level:curLvl, coinsEarned:state.coinsEarned||0, trophies:state.trophies||0,
+          questsDone:0, lbViews:state.lbViews||0, sentCoins:state.sentCoins||0,
+          recvCoins:state.recvCoins||0, sentToPlayersCount:(state.sentToPlayers||[]).length,
+          recvFromPlayersCount:(state.recvFromPlayers||[]).length
+        };
         save();
       }
 
