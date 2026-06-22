@@ -30407,14 +30407,11 @@
         return '' + n;
       }
 
-      // 100 ranks in 3 tiers: Bronze 1-34, Diamant 1-33, Platin 1-33
+      // 100 ranks in 10 tiers of 10: Stein→Bronze→Silber→Gold→Amethyst→Diamant→Saphir→Platin→Meister→Legende
+      var RANK_TIERS=['🪨 Stein','🥉 Bronze','🥈 Silber','🥇 Gold','💜 Amethyst','💎 Diamant','💠 Saphir','👑 Platin','⭐ Meister','🌟 Legende'];
       var RANKS = (function(){
         var r=[]; for(var i=0;i<100;i++){
-          var lbl;
-          if(i<34) lbl='🥉 Bronze '+(i+1);
-          else if(i<67) lbl='💎 Diamant '+(i-33);
-          else lbl='👑 Platin '+(i-66);
-          r.push({index:i, label:lbl, cost:Math.ceil(100*Math.pow(1.08,i))});
+          r.push({index:i, label:RANK_TIERS[Math.floor(i/10)]+' '+(i%10+1), cost:Math.ceil(100*Math.pow(1.08,i))});
         } return r;
       })();
 
@@ -30905,7 +30902,7 @@
                   h('div',null,'Nächster Rang: '+nextRank.label),
                   h('div',{style:'font-size:11px;opacity:0.7;margin:4px 0;display:flex;align-items:center;gap:3px;flex-wrap:wrap;'},'Kosten: '+QS.fmtNum(nextRank.cost),h('span',{class:'mc'}),' (Guthaben: '+QS.fmtNum(QS.state.coins),h('span',{class:'mc'}),')'),
                   h('div',{style:'font-size:10px;opacity:0.5;margin-bottom:6px'},
-                    nextRankIdx<34?'Tier 1 — Bronze':nextRankIdx<67?'Tier 2 — Diamant':'Tier 3 — Platin'
+                    'Tier '+(Math.floor(nextRankIdx/10)+1)+' — '+RANK_TIERS[Math.floor(nextRankIdx/10)].replace(/^\S+\s/,'')
                   ),
                   h('button',{class:'qs-send-btn',disabled:!canUpgrade,style:canUpgrade?'':'opacity:0.4',onClick:function(){
                     if(!canUpgrade)return;

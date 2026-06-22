@@ -7,10 +7,10 @@ var corsHeaders = {
 
 function getRankLabel(rankIndex) {
     if (typeof rankIndex !== 'number' || rankIndex < 0) return null;
-    if (rankIndex < 34)  return '\u{1F949} Bronze '  + (rankIndex + 1);
-    if (rankIndex < 67)  return '\u{1F48E} Diamant '  + (rankIndex - 33);
-    if (rankIndex < 100) return '\u{1F451} Platin '   + (rankIndex - 66);
-    return null;
+    var tiers=['\u{1FAA8} Stein','\u{1F949} Bronze','\u{1F948} Silber','\u{1F947} Gold','\u{1F49C} Amethyst','\u{1F48E} Diamant','\u{1F4A0} Saphir','\u{1F451} Platin','⭐ Meister','\u{1F31F} Legende'];
+    var tierIdx=Math.floor(rankIndex/10);
+    if(tierIdx<0||tierIdx>=tiers.length) return null;
+    return tiers[tierIdx]+' '+(rankIndex%10+1);
 }
 
 function getUpgradeCost(targetIndex) {
