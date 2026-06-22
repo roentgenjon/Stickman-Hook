@@ -30764,7 +30764,7 @@
                       if(QS.state.playerName){for(var i=0;i<data.length;i++){if(data[i].name.toLowerCase()===QS.state.playerName.toLowerCase()){QS.state.lbPosition=i+1;break;}}}
                     }else{t.setState({lbData:data||[],lbLvl:[]});}
                   });
-                  if(QS.state.playerName){QS.loadFromCloud(function(){rerender();QS.syncToCloud(function(){});});}
+                  if(QS.state.playerName){QS.syncToCloud(function(){QS.loadFromCloud(function(){rerender();});});}
                 }
               }},s.showLB?'✕':'🏆 RANGLISTE'),
               h('button',{class:'levels-button button',onClick:function(){
@@ -31099,14 +31099,19 @@
         setTimeout(function() {
           if (!window._QS) return;
           var qs = window._QS;
-          qs.checkQuests(function() {
-            if (qs.state.playerName) {
+          if (qs.state.playerName) {
+            // Push locally-earned coins to server first so they survive reload,
+            // then load authoritative server state, then check quests.
+            qs.syncToCloud(function() {
               qs.loadFromCloud(function() {
-                if (window._QSUI) window._QSUI.setState({});
-                qs.syncToCloud(function() {});
+                qs.checkQuests(function() {
+                  if (window._QSUI) window._QSUI.setState({});
+                });
               });
-            }
-          });
+            });
+          } else {
+            qs.checkQuests(function() {});
+          }
         }, 3000);
       });
     })();
