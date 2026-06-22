@@ -30407,11 +30407,11 @@
         return '' + n;
       }
 
-      // 100 ranks in 10 tiers of 10: Stein→Bronze→Silber→Gold→Amethyst→Diamant→Saphir→Platin→Meister→Legende
-      var RANK_TIERS=['🪨 Stein','🥉 Bronze','🥈 Silber','🥇 Gold','💜 Amethyst','💎 Diamant','💠 Saphir','👑 Platin','⭐ Meister','🌟 Legende'];
+      // 300 ranks in 30 tiers of 10: Stein→Bronze→Eisen→Silber→Gold→Jade→Amethyst→Saphir→Rubin→Smaragd→Diamant→Kristall→Eis→Feuer→Blitz→Wasser→Sonne→Mond→Stern→Supernova→Magie→Komet→Galaxis→Planet→Regenbogen→Platin→Meister→Großmeister→Champion→Legende
+      var RANK_TIERS=['🪨 Stein','🥉 Bronze','⚙️ Eisen','🥈 Silber','🥇 Gold','🌿 Jade','💜 Amethyst','💙 Saphir','❤️ Rubin','💚 Smaragd','💎 Diamant','🔮 Kristall','🧊 Eis','🔥 Feuer','⚡ Blitz','🌊 Wasser','☀️ Sonne','🌙 Mond','⭐ Stern','🌟 Supernova','✨ Magie','💫 Komet','🌌 Galaxis','🪐 Planet','🌈 Regenbogen','👑 Platin','🏅 Meister','🎖️ Großmeister','🏆 Champion','🔱 Legende'];
       var RANKS = (function(){
-        var r=[]; for(var i=0;i<100;i++){
-          r.push({index:i, label:RANK_TIERS[Math.floor(i/10)]+' '+(i%10+1), cost:Math.ceil(100*Math.pow(1.08,i))});
+        var r=[]; for(var i=0;i<300;i++){
+          r.push({index:i, label:RANK_TIERS[Math.floor(i/10)]+' '+(i%10+1), cost:Math.ceil(100*Math.pow(1.025,i))});
         } return r;
       })();
 
@@ -30544,7 +30544,7 @@
           else if (quest.type==='unique_recv')  { prog=effRecvPlayers; met=prog>=quest.target; }
           else if (quest.type==='lb_position')  { prog=state.lbPosition; met=state.lbPosition<=quest.target; }
           else if (quest.type==='has_rank')     { prog=state.rankIndex>=0?1:0; met=state.rankIndex>=0; }
-          else if (quest.type==='all_ranks')    { prog=state.rankIndex+1; met=state.rankIndex>=99; }
+          else if (quest.type==='all_ranks')    { prog=state.rankIndex+1; met=state.rankIndex>=299; }
           state.progress[quest.id] = prog;
           if (met) { state.done[quest.id]=true; state.coins+=quest.reward_coins; state.coinsEarned+=quest.reward_coins; state.trophies+=quest.reward_trophies; state.questsDone+=1; effQuestsDone+=1; newly.push(quest); }
         }
@@ -30603,7 +30603,7 @@
       function upgradeRank(callback) {
         if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
         var newIdx=(typeof state.rankIndex==='number'&&state.rankIndex>=0)?state.rankIndex+1:0;
-        if(newIdx>99){if(callback)callback('max rank reached',null);return;}
+        if(newIdx>299){if(callback)callback('max rank reached',null);return;}
         var rank=RANKS[newIdx];
         if(state.coins<rank.cost){if(callback)callback('not enough coins',null);return;}
         state.coins-=rank.cost; state.rankIndex=newIdx; state.rank=rank.label; save();
@@ -30702,7 +30702,7 @@
           var qr=QUESTS[qi], alreadyMet=false;
           if(qr.type==='has_name')    alreadyMet=!!(state.playerName&&state.playerName.length>0);
           else if(qr.type==='has_rank')    alreadyMet=state.rankIndex>=0;
-          else if(qr.type==='all_ranks')   alreadyMet=state.rankIndex>=99;
+          else if(qr.type==='all_ranks')   alreadyMet=state.rankIndex>=299;
           else if(qr.type==='lb_position') alreadyMet=state.lbPosition<=qr.target;
           if(alreadyMet) state.done[qr.id]=true;
         }
@@ -30735,7 +30735,7 @@
           var h=qo.h;
           var curRankIdx=typeof QS.state.rankIndex==='number'?QS.state.rankIndex:-1;
           var nextRankIdx=curRankIdx+1;
-          var nextRank=nextRankIdx<=99?QS.RANKS[nextRankIdx]:null;
+          var nextRank=nextRankIdx<=299?QS.RANKS[nextRankIdx]:null;
           var canUpgrade=nextRank&&QS.state.coins>=nextRank.cost;
           var rerender=function(){t.setState({});};
           return h('div',null,
