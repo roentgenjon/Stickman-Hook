@@ -147,29 +147,38 @@
 
     sep(bar);
 
-    // Bumper sliders
-    var bWrap = el('div', 'display:flex;flex-direction:column;gap:2px;flex-shrink:0;');
-    function mkSliderRow(lbl, mn, mx, st, val, cb) {
+    // Bumper number inputs
+    var bWrap = el('div', 'display:flex;flex-direction:column;gap:3px;flex-shrink:0;');
+    function mkNumRow(lbl, mn, mx, st, val, cb) {
       var row = el('div', 'display:flex;align-items:center;gap:4px;');
-      var l = el('span', 'font-size:9px;opacity:0.55;min-width:28px;'); l.textContent = lbl;
-      var s = el('input', 'width:68px;');
-      s.type = 'range'; s.min = String(mn); s.max = String(mx); s.step = String(st); s.value = String(val);
-      s.oninput = function () { cb(parseFloat(s.value)); if (hVis) draw(); };
-      row.appendChild(l); row.appendChild(s); return row;
+      var l = el('span', 'font-size:9px;opacity:0.55;min-width:30px;'); l.textContent = lbl;
+      var inp = el('input', 'width:58px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);border-radius:5px;color:white;font-family:JUNEGULL,sans-serif;font-size:11px;padding:3px 5px;box-sizing:border-box;');
+      inp.type = 'number'; inp.min = String(mn); inp.max = String(mx); inp.step = String(st); inp.value = String(val);
+      inp.oninput = function () {
+        var v = parseFloat(inp.value);
+        if (!isNaN(v)) { v = Math.max(mn, Math.min(mx, v)); cb(v); if (hVis) draw(); }
+      };
+      inp.onblur = function () { inp.value = String(parseFloat(inp.value) || val); };
+      row.appendChild(l); row.appendChild(inp); return { row: row, inp: inp };
     }
-    bWrap.appendChild(mkSliderRow('Breite', 0.03, 0.40, 0.01, bumperW, function (v) { bumperW = v; }));
-    bWrap.appendChild(mkSliderRow('Dreh', -1.57, 1.57, 0.05, 0, function (v) { bumperRot = v; }));
+    var bwRow = mkNumRow('Breite', 0.03, 0.40, 0.01, bumperW, function (v) { bumperW = v; });
+    var brRow = mkNumRow('Dreh°', -180, 180, 1, 0, function (v) { bumperRot = v * Math.PI / 180; });
+    bWrap.appendChild(bwRow.row);
+    bWrap.appendChild(brRow.row);
     bar.appendChild(bWrap);
 
     sep(bar);
 
-    // Map length (= finish line X)
-    var flWrap = el('div', 'display:flex;flex-direction:column;gap:2px;flex-shrink:0;');
+    // Map length number input
+    var flWrap = el('div', 'display:flex;flex-direction:column;gap:3px;flex-shrink:0;');
     var flLbl = el('span', 'font-size:9px;opacity:0.55;'); flLbl.textContent = 'Kartenlänge';
-    var flSlider = el('input', 'width:80px;accent-color:#f1c40f;');
-    flSlider.type = 'range'; flSlider.min = '0.3'; flSlider.max = '5.0'; flSlider.step = '0.025'; flSlider.value = String(ld.finishLine);
-    flSlider.oninput = function () { ld.finishLine = parseFloat(flSlider.value); updateSb(); draw(); };
-    flWrap.appendChild(flLbl); flWrap.appendChild(flSlider);
+    var flInp = el('input', 'width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(241,196,15,0.5);border-radius:5px;color:#f1c40f;font-family:JUNEGULL,sans-serif;font-size:11px;padding:3px 5px;box-sizing:border-box;accent-color:#f1c40f;');
+    flInp.type = 'number'; flInp.min = '0.3'; flInp.max = '5.0'; flInp.step = '0.025'; flInp.value = String(ld.finishLine);
+    flInp.oninput = function () {
+      var v = parseFloat(flInp.value);
+      if (!isNaN(v)) { ld.finishLine = Math.max(0.3, Math.min(5.0, v)); updateSb(); draw(); }
+    };
+    flWrap.appendChild(flLbl); flWrap.appendChild(flInp);
     bar.appendChild(flWrap);
 
     bar.appendChild(el('div', 'flex:1;min-width:6px;'));
@@ -429,7 +438,7 @@
 
       if (finDrag) {
         ld.finishLine = Math.max(0.3, Math.min(5.0, sv(pos.rawWX)));
-        flSlider.value = String(ld.finishLine);
+        flInp.value = String(ld.finishLine);
         updateSb(); draw();
         stEl.textContent = '🏁 Ziellinie: x=' + ld.finishLine.toFixed(3);
         return;
@@ -480,7 +489,7 @@
           stEl.textContent = 'Bumper: x=' + nx.toFixed(3) + '  y=' + ny.toFixed(3); break;
         case 'finish':
           ld.finishLine = Math.max(0.3, nx);
-          flSlider.value = String(ld.finishLine); updateSb();
+          flInp.value = String(ld.finishLine); updateSb();
           stEl.textContent = '🏁 Ziellinie: x=' + ld.finishLine.toFixed(3); break;
         case 'delete': {
           var near = nearObj(nx, ny);
@@ -530,15 +539,28 @@
           var sub = el('div', 'font-size:10px;opacity:0.5;margin-top:2px;');
           sub.textContent = '👤 ' + (map.author || '?') + '  🪝' + (map.hooks != null ? map.hooks : '?') + '  ▬' + (map.bumpers != null ? map.bumpers : '?');
           info.appendChild(sub); row.appendChild(info);
-          var playBtn = mkbtn('▶ Spielen', 'padding:8px 14px;background:#27ae60;border:none;border-radius:7px;color:white;font-family:JUNEGULL,sans-serif;font-size:12px;cursor:pointer;flex-shrink:0;', function () {
-            playBtn.disabled = true; playBtn.textContent = '…';
-            fetch(API + '/api/map/' + map.id).then(function(r){ return r.json(); }).then(function(fullMap) {
-              root.remove();
-              if (window._gameAPI && fullMap.data) window._gameAPI.playCustomLevel(fullMap.data);
-              else { playBtn.disabled = false; playBtn.textContent = '▶ Spielen'; alert('Map-Daten fehlen.'); }
-            }).catch(function() { playBtn.disabled = false; playBtn.textContent = '▶ Spielen'; alert('Netzwerkfehler'); });
-          });
-          row.appendChild(playBtn);
+          (function(m) {
+            var playBtn = mkbtn('▶ Spielen', 'padding:8px 14px;background:#27ae60;border:none;border-radius:7px;color:white;font-family:JUNEGULL,sans-serif;font-size:12px;cursor:pointer;flex-shrink:0;', function () {
+              playBtn.disabled = true; playBtn.textContent = '…';
+              fetch(API + '/api/map/' + m.id).then(function(r){ return r.json(); }).then(function(fullMap) {
+                root.remove();
+                if (window._gameAPI && fullMap.data) window._gameAPI.playCustomLevel(fullMap.data);
+                else { playBtn.disabled = false; playBtn.textContent = '▶ Spielen'; alert('Map-Daten fehlen.'); }
+              }).catch(function() { playBtn.disabled = false; playBtn.textContent = '▶ Spielen'; alert('Netzwerkfehler'); });
+            });
+            row.appendChild(playBtn);
+            var playerName = (window._QS && window._QS.state && window._QS.state.playerName) || '';
+            if (playerName && m.author && m.author.toLowerCase() === playerName.toLowerCase()) {
+              var delBtn = mkbtn('🚫 Offline', 'padding:8px 10px;background:rgba(231,76,60,0.65);border:1px solid rgba(231,76,60,0.4);border-radius:7px;color:white;font-family:JUNEGULL,sans-serif;font-size:11px;cursor:pointer;flex-shrink:0;', function () {
+                if (!confirm('Map "' + (m.name||'Map') + '" offline nehmen?')) return;
+                delBtn.disabled = true; delBtn.textContent = '…';
+                fetch(API + '/api/map/' + m.id, { method: 'DELETE' }).then(function(r){ return r.json(); }).then(function(j){
+                  if (j.ok) { row.remove(); } else { delBtn.disabled = false; delBtn.textContent = '🚫 Offline'; alert('Fehler: ' + (j.error||'?')); }
+                }).catch(function(){ delBtn.disabled = false; delBtn.textContent = '🚫 Offline'; alert('Netzwerkfehler'); });
+              });
+              row.appendChild(delBtn);
+            }
+          })(map);
           list.appendChild(row);
         });
       }).catch(function() {
