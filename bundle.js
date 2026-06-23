@@ -30453,8 +30453,8 @@
       }
       // Cat 4: Social - 100 quests
       QUESTS.push({ id: 's_name', cat: 4, title: 'Namen registrieren', desc: 'Registriere deinen Spielernamen.', type: 'has_name', target: 1, reward_coins: 50, reward_trophies: 2 });
-      var lbViewTargets = [1,2,3,5,7,10,15,20,25,30,40,50,75,100];
-      for (i = 0; i < lbViewTargets.length; i++) { t=lbViewTargets[i]; QUESTS.push({ id: 'soc_lb_'+i, cat: 4, title: 'Rangliste '+t+'x anschauen', desc: 'Öffne die Rangliste '+t+' Mal.', type: 'lb_views', target: t, reward_coins: 10+i*15, reward_trophies: Math.floor(i/4)+1 }); }
+      var lbViewTargets = makeMilestones(1, 50000, 500);
+      for (i = 0; i < 500; i++) { t=lbViewTargets[i]; QUESTS.push({ id: 'soc_lb_'+i, cat: 4, title: 'Rangliste '+t+'x anschauen', desc: 'Öffne die Rangliste '+t+' Mal.', type: 'lb_views', target: t, reward_coins: Math.ceil(10*Math.pow(1.02,i)), reward_trophies: Math.floor(i/50)+1 }); }
       var sentCoinTargets = makeMilestones(1, 100000, 15);
       for (i = 0; i < 15; i++) { t=sentCoinTargets[i]; QUESTS.push({ id: 'soc_sc_'+i, cat: 4, title: fmtNum(t)+' Coins senden', desc: 'Sende insgesamt '+fmtNum(t)+' Coins an andere Spieler.', type: 'sent_coins', target: t, reward_coins: Math.ceil(20*Math.pow(1.08,i)), reward_trophies: Math.floor(i/5)+1 }); }
       var recvCoinTargets = makeMilestones(1, 100000, 15);
