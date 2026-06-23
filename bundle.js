@@ -30803,7 +30803,7 @@
           var h=qo.h;
           var isPlaying=!!(Sc&&Sc.instance&&Sc.instance.scene&&Sc.instance.scene.sceneName==='level');
           var levelSelectOpen=!!document.querySelector('.level-select-grid');
-          var hideSidebar=s.showQ||s.showLB||s.showAcc||isPlaying||levelSelectOpen;
+          var hideSidebar=s.showQ||s.showLB||s.showAcc||isPlaying;
           var curRankIdx=typeof QS.state.rankIndex==='number'?QS.state.rankIndex:-1;
           var nextRankIdx=curRankIdx+1;
           var nextRank=nextRankIdx<=1099?QS.RANKS[nextRankIdx]:null;
