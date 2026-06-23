@@ -30776,17 +30776,29 @@
         }
         QsUI.prototype=Object.create(qo.Component.prototype);
         QsUI.prototype.constructor=QsUI;
+        QsUI.prototype.componentDidMount=function(){
+          var t=this, lastScene='', lastLvlSel=false;
+          t._poll=setInterval(function(){
+            var sn=(Sc&&Sc.instance&&Sc.instance.scene&&Sc.instance.scene.sceneName)||'';
+            var ls=!!document.querySelector('.level-select-grid');
+            if(sn!==lastScene||ls!==lastLvlSel){lastScene=sn;lastLvlSel=ls;t.setState({});}
+          },150);
+        };
+        QsUI.prototype.componentWillUnmount=function(){ if(this._poll)clearInterval(this._poll); };
         QsUI.prototype.render=function(p,s){
           var t=this,QS=window._QS;
           if(!QS)return null;
           var h=qo.h;
+          var isPlaying=!!(Sc&&Sc.instance&&Sc.instance.scene&&Sc.instance.scene.sceneName==='level');
+          var levelSelectOpen=!!document.querySelector('.level-select-grid');
+          var hideSidebar=s.showQ||s.showLB||s.showAcc||isPlaying||levelSelectOpen;
           var curRankIdx=typeof QS.state.rankIndex==='number'?QS.state.rankIndex:-1;
           var nextRankIdx=curRankIdx+1;
           var nextRank=nextRankIdx<=299?QS.RANKS[nextRankIdx]:null;
           var canUpgrade=nextRank&&QS.state.coins>=nextRank.cost;
           var rerender=function(){t.setState({});};
           return h('div',null,
-            h('div',{class:'qs-btn-bar'},
+            hideSidebar?null:h('div',{class:'qs-btn-bar'},
               h('button',{class:'levels-button button',onClick:function(){
                 var op=!s.showQ;
                 if(op)QS.checkQuests(rerender);
