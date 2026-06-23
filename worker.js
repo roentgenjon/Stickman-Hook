@@ -26,7 +26,7 @@ function getRankLabel(rankIndex) {
 }
 
 function getUpgradeCost(targetIndex) {
-    return (targetIndex+1)*100;
+    return (targetIndex+1)*500;
 }
 
 function respond(data, status) {
@@ -435,6 +435,52 @@ async function handleRequest(request) {
         dlist = dlist.filter(function(m) { return m.id !== delId; });
         await PLAYERS.put('map_list', JSON.stringify(dlist));
         return respond({ ok: true });
+    }
+
+    // POST /api/admin/migrate-ranks
+    if (path === '/api/admin/migrate-ranks' && request.method === 'POST') {
+        var mibody;
+        try { mibody = await request.json(); } catch(e) { return respond({ error: 'Bad JSON' }, 400); }
+        if (!mibody || mibody.secret !== 'STICKMANHOOK_RESET_2026') return respond({ error: 'Unauthorized' }, 401);
+        var miCursor = undefined, miUpdated = 0, miChecked = 0;
+        do {
+            var listed = await PLAYERS.list({ prefix: 'player:', cursor: miCursor, limit: 100 });
+            for (var ki = 0; ki < listed.keys.length; ki++) {
+                var kname = listed.keys[ki].name;
+                var mp = await PLAYERS.get(kname, 'json');
+                if (!mp || typeof mp.rankIndex !== 'number' || mp.rankIndex < 0) continue;
+                miChecked++;
+                var n = mp.rankIndex;
+                var oldCum = 5000 * (Math.pow(1.02, n + 1) - 1);
+                var k2 = (-1 + Math.sqrt(1 + 4 * oldCum / 50)) / 2;
+                var m = Math.min(1099, Math.max(n, Math.floor(k2) - 1));
+                if (m > n) {
+                    mp.rankIndex = m;
+                    mp.rank = getRankLabel(m);
+                    mp.updatedAt = Date.now();
+                    await PLAYERS.put(kname, JSON.stringify(mp));
+                    miUpdated++;
+                }
+            }
+            miCursor = listed.cursor;
+        } while (!listed.list_complete);
+        // Rebuild lb_cache from all players
+        var newLb = [];
+        var rbCursor = undefined;
+        do {
+            var rblisted = await PLAYERS.list({ prefix: 'player:', cursor: rbCursor, limit: 100 });
+            for (var ri = 0; ri < rblisted.keys.length; ri++) {
+                var rbp = await PLAYERS.get(rblisted.keys[ri].name, 'json');
+                if (rbp && rbp.name) {
+                    newLb.push({ name: rbp.name, trophies: rbp.trophies || 0, maxLevel: rbp.maxLevel || 0, rankIndex: typeof rbp.rankIndex === 'number' ? rbp.rankIndex : -1, rank: rbp.rank || null });
+                }
+            }
+            rbCursor = rblisted.cursor;
+        } while (!rblisted.list_complete);
+        newLb.sort(function(a, b) { return b.trophies - a.trophies; });
+        if (newLb.length > 100) newLb.length = 100;
+        await PLAYERS.put('lb_cache', JSON.stringify(newLb));
+        return respond({ ok: true, checked: miChecked, updated: miUpdated });
     }
 
     // POST /api/admin/reset-all
