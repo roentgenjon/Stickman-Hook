@@ -30423,7 +30423,7 @@
       ];
       var RANKS = (function(){
         var r=[]; for(var i=0;i<1100;i++){
-          r.push({index:i, label:RANK_TIERS[Math.floor(i/10)]+' '+(i%10+1), cost:Math.ceil(100*Math.pow(1.025,i))});
+          r.push({index:i, label:RANK_TIERS[Math.floor(i/10)]+' '+(i%10+1), cost:Math.ceil(100*Math.pow(1.02,i))});
         } return r;
       })();
 

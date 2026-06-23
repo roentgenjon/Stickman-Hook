@@ -26,7 +26,7 @@ function getRankLabel(rankIndex) {
 }
 
 function getUpgradeCost(targetIndex) {
-    return Math.ceil(100 * Math.pow(1.08, targetIndex));
+    return Math.ceil(100 * Math.pow(1.02, targetIndex));
 }
 
 function respond(data, status) {
