@@ -30748,8 +30748,21 @@
         playCustomLevel: function(levelData) {
           if(!Sc||!Sc.instance){return;}
           try{
+            // Normalise map-editor format → game format
+            var rawBumpers = levelData.bumpers || [];
+            var normBumpers = rawBumpers.map(function(b){
+              return { x:b.x, y:b.y, w:b.w||b.width||0.12, h:b.h||b.height||0.04, rotation:b.rotation!=null?b.rotation:(b.angle||0), bounce:b.bounce||0 };
+            });
+            var ld = {
+              spawnPoint: levelData.spawnPoint || levelData.spawn || {x:0.1,y:0.3},
+              hooks: levelData.hooks || [],
+              bumpers: normBumpers,
+              obstacles: levelData.obstacles || [],
+              finishLine: levelData.finishLine || 0.8,
+              background: levelData.background || (levelData.bg==='night'?'background_night':'background_0')
+            };
             Sc.instance._replayOrigLevel=Sc.instance.level;
-            var scene=new Ms(-1,levelData);
+            var scene=new Ms(-1,ld);
             Sc.instance.setActiveScene(scene);
           }catch(e){console.error('Custom level:',e);}
         }
@@ -30783,6 +30796,10 @@
                 t.setState({showQ:false,showLB:false,showAcc:false});
                 if(window._showMapMenu)window._showMapMenu();
               }},'🗺 MAPS'),
+              h('button',{class:'levels-button button',onClick:function(){
+                t.setState({showQ:false,showLB:false,showAcc:false});
+                if(window._showCommunityMaps)window._showCommunityMaps();
+              }},'🌍 KARTEN'),
               h('button',{class:'levels-button button',onClick:function(){
                 var op=!s.showLB;
                 t.setState({showLB:op,showQ:false,showAcc:false,lbData:null,lbLvl:null,panel:'',msg:''});

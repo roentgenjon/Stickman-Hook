@@ -378,6 +378,53 @@ async function handleRequest(request) {
         return respond({ ok: true });
     }
 
+    // GET /api/maps — community map list
+    if (path === '/api/maps' && request.method === 'GET') {
+        var mapList = await PLAYERS.get('map_list', 'json') || [];
+        return respond(mapList.slice(0, 50));
+    }
+
+    // GET /api/map/{id} — full map data
+    if (path.startsWith('/api/map/') && request.method === 'GET') {
+        var mapId = path.slice(9).replace(/[^a-z0-9]/gi, '').slice(0, 24);
+        var mapData = await PLAYERS.get('map:' + mapId, 'json');
+        if (!mapData) return respond({ error: 'Map nicht gefunden' }, 404);
+        return respond(mapData);
+    }
+
+    // POST /api/publish-map
+    if (path === '/api/publish-map' && request.method === 'POST') {
+        var mbody;
+        try { mbody = await request.json(); } catch(e) { return respond({ error: 'Bad JSON' }, 400); }
+        if (!mbody || !mbody.name || !mbody.data || !mbody.author) return respond({ error: 'Parameter fehlen' }, 400);
+        var mapId2 = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        var mapEntry = {
+            id: mapId2,
+            name: String(mbody.name).slice(0, 40),
+            author: String(mbody.author).slice(0, 20),
+            createdAt: Date.now(),
+            data: mbody.data
+        };
+        await PLAYERS.put('map:' + mapId2, JSON.stringify(mapEntry));
+        var mlist = await PLAYERS.get('map_list', 'json') || [];
+        mlist.unshift({ id: mapId2, name: mapEntry.name, author: mapEntry.author, createdAt: mapEntry.createdAt, hooks: (mbody.data.hooks||[]).length, bumpers: (mbody.data.bumpers||[]).length });
+        if (mlist.length > 100) mlist.length = 100;
+        await PLAYERS.put('map_list', JSON.stringify(mlist));
+        return respond({ ok: true, id: mapId2 });
+    }
+
+    // DELETE /api/map/{id}
+    if (path.startsWith('/api/map/') && request.method === 'DELETE') {
+        var delId = path.slice(9).replace(/[^a-z0-9]/gi, '').slice(0, 24);
+        var delMap = await PLAYERS.get('map:' + delId, 'json');
+        if (!delMap) return respond({ error: 'Map nicht gefunden' }, 404);
+        await PLAYERS.delete('map:' + delId);
+        var dlist = await PLAYERS.get('map_list', 'json') || [];
+        dlist = dlist.filter(function(m) { return m.id !== delId; });
+        await PLAYERS.put('map_list', JSON.stringify(dlist));
+        return respond({ ok: true });
+    }
+
     // POST /api/admin/reset-all
     if (path === '/api/admin/reset-all' && request.method === 'POST') {
         var abody;

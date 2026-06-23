@@ -4,6 +4,7 @@
 
   var MAPS_KEY = 'STICKMANHOOK_custmaps';
   var SNAP = 0.025;
+  var API = 'https://stickman-hook-api.jonathanrontgen7.workers.dev';
 
   function getMaps() { try { return JSON.parse(localStorage.getItem(MAPS_KEY)) || []; } catch (e) { return []; } }
   function saveMaps(m) { localStorage.setItem(MAPS_KEY, JSON.stringify(m)); }
@@ -52,6 +53,21 @@
         inf.textContent = ((map.data && map.data.hooks) ? map.data.hooks.length : 0) + '🪝 ' + ((map.data && map.data.bumpers) ? map.data.bumpers.length : 0) + '▬'; row.appendChild(inf);
         row.appendChild(mkbtn('▶', 'padding:7px 11px;background:#27ae60;border:none;border-radius:7px;color:white;font-size:14px;cursor:pointer;', function () { root.remove(); if (window._gameAPI) window._gameAPI.playCustomLevel(map.data); }));
         row.appendChild(mkbtn('✏', 'padding:7px 11px;background:#e67e22;border:none;border-radius:7px;color:white;font-size:13px;cursor:pointer;', function () { root.remove(); openEditor(idx, map); }));
+        (function(m) {
+          var pubBtn = mkbtn('📤', 'padding:7px 10px;background:rgba(52,152,219,0.7);border:1px solid rgba(52,152,219,0.5);border-radius:7px;color:white;font-size:13px;cursor:pointer;', function () {
+            pubBtn.disabled = true; pubBtn.textContent = '…';
+            var playerName = (window._QS && window._QS.state && window._QS.state.playerName) || 'Anonym';
+            fetch(API + '/api/publish-map', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: m.name || 'Unbenannt', author: playerName, data: m.data })
+            }).then(function(r){ return r.json(); }).then(function(j){
+              if (j.ok) { pubBtn.textContent = '✓'; pubBtn.style.background = 'rgba(46,204,113,0.7)'; }
+              else { pubBtn.disabled = false; pubBtn.textContent = '📤'; alert('Fehler: ' + (j.error||'Unbekannt')); }
+            }).catch(function(){ pubBtn.disabled = false; pubBtn.textContent = '📤'; alert('Netzwerkfehler'); });
+          });
+          row.appendChild(pubBtn);
+        })(map);
         row.appendChild(mkbtn('🗑', 'padding:7px 10px;background:rgba(231,76,60,0.6);border:1px solid rgba(231,76,60,0.4);border-radius:7px;color:white;font-size:13px;cursor:pointer;', function () {
           if (!confirm('Map "' + (map.name || 'Map') + '" löschen?')) return;
           var m = getMaps(); m.splice(idx, 1); saveMaps(m); root.remove(); showMapsMenu();
@@ -480,5 +496,56 @@
     }
   }
 
+  // ── Community Maps Browser ────────────────────────────────────
+  function showCommunityMaps() {
+    var ex = document.getElementById('cm-menu');
+    if (ex) { ex.remove(); return; }
+    var root = el('div', 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,4,60,0.96);z-index:300;display:flex;flex-direction:column;font-family:JUNEGULL,sans-serif;color:white;pointer-events:all;');
+    root.id = 'cm-menu';
+
+    var hdr = el('div', 'display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(0,0,0,0.5);flex-shrink:0;');
+    hdr.appendChild(mkbtn('✕', 'background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:6px;color:white;font-size:15px;width:32px;height:32px;cursor:pointer;font-family:sans-serif;', function () { root.remove(); }));
+    var ttl = el('span', 'font-size:15px;flex:1;'); ttl.textContent = '🌍 Community Maps'; hdr.appendChild(ttl);
+    var refBtn = mkbtn('↻', 'padding:8px 12px;background:#3498db;border:none;border-radius:8px;color:white;font-family:sans-serif;font-size:16px;cursor:pointer;', function () { loadMaps(); });
+    hdr.appendChild(refBtn);
+    root.appendChild(hdr);
+
+    var list = el('div', 'flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;display:flex;flex-direction:column;gap:8px;');
+    root.appendChild(list);
+    document.body.appendChild(root);
+
+    function loadMaps() {
+      list.innerHTML = '';
+      var loading = el('div', 'text-align:center;padding:40px;opacity:0.6;font-size:13px;'); loading.textContent = 'Lade Maps…'; list.appendChild(loading);
+      fetch(API + '/api/maps').then(function(r){ return r.json(); }).then(function(maps) {
+        list.innerHTML = '';
+        if (!maps || !maps.length) {
+          var emp = el('div', 'text-align:center;padding:40px;opacity:0.6;font-size:13px;'); emp.textContent = 'Noch keine Community Maps — veröffentliche deine erste!'; list.appendChild(emp);
+          return;
+        }
+        maps.forEach(function(map) {
+          var row = el('div', 'background:rgba(255,255,255,0.07);border-radius:8px;padding:11px 13px;display:flex;align-items:center;gap:8px;');
+          var info = el('div', 'flex:1;min-width:0;');
+          var nm = el('div', 'font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'); nm.textContent = map.name || 'Unbenannt'; info.appendChild(nm);
+          var sub = el('div', 'font-size:10px;opacity:0.5;margin-top:2px;');
+          sub.textContent = '👤 ' + (map.author || '?') + '  🪝' + ((map.data && map.data.hooks) ? map.data.hooks.length : '?') + '  ▬' + ((map.data && map.data.bumpers) ? map.data.bumpers.length : '?');
+          info.appendChild(sub); row.appendChild(info);
+          row.appendChild(mkbtn('▶ Spielen', 'padding:8px 14px;background:#27ae60;border:none;border-radius:7px;color:white;font-family:JUNEGULL,sans-serif;font-size:12px;cursor:pointer;flex-shrink:0;', function () {
+            root.remove();
+            if (window._gameAPI && map.data) window._gameAPI.playCustomLevel(map.data);
+            else alert('Spiel nicht bereit oder Map-Daten fehlen.');
+          }));
+          list.appendChild(row);
+        });
+      }).catch(function() {
+        list.innerHTML = '';
+        var err = el('div', 'text-align:center;padding:40px;opacity:0.6;font-size:13px;color:#e74c3c;'); err.textContent = 'Fehler beim Laden der Maps.'; list.appendChild(err);
+      });
+    }
+
+    loadMaps();
+  }
+
   window._showMapMenu = showMapsMenu;
+  window._showCommunityMaps = showCommunityMaps;
 })();
