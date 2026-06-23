@@ -7,7 +7,21 @@ var corsHeaders = {
 
 function getRankLabel(rankIndex) {
     if (typeof rankIndex !== 'number' || rankIndex < 0) return null;
-    var tiers=['\u{1FAA8} Stein','\u{1F949} Bronze','⚙️ Eisen','\u{1F948} Silber','\u{1F947} Gold','\u{1F33F} Jade','\u{1F49C} Amethyst','\u{1F499} Saphir','❤️ Rubin','\u{1F49A} Smaragd','\u{1F48E} Diamant','\u{1F52E} Kristall','\u{1F9CA} Eis','\u{1F525} Feuer','⚡ Blitz','\u{1F30A} Wasser','☀️ Sonne','\u{1F319} Mond','⭐ Stern','\u{1F31F} Supernova','✨ Magie','\u{1F4AB} Komet','\u{1F30C} Galaxis','\u{1FA90} Planet','\u{1F308} Regenbogen','\u{1F451} Platin','\u{1F3C5} Meister','\u{1F396}️ Gro\xDFmeister','\u{1F3C6} Champion','\u{1F531} Legende'];
+    var tiers=[
+        '🪨 Stein','🥉 Bronze','⚙️ Eisen','🥈 Silber','🥇 Gold','🌿 Jade','💜 Amethyst','💙 Saphir','❤️ Rubin','💚 Smaragd',
+        '💎 Diamant','🔮 Kristall','🧊 Eis','🔥 Feuer','⚡ Blitz','🌊 Wasser','☀️ Sonne','🌙 Mond','⭐ Stern','🌟 Supernova',
+        '✨ Magie','💫 Komet','🌌 Galaxis','🪐 Planet','🌈 Regenbogen','👑 Platin','🏅 Meister','🎖️ Großmeister','🏆 Champion','🔱 Legende',
+        '🌪️ Sturm','🌊 Ozean','🏔️ Gipfel','🌋 Vulkan','❄️ Blizzard','🌩️ Gewitter','🌀 Tornado','🌫️ Dunkel','☄️ Meteor','💥 Nova',
+        '🐉 Drache','🦁 Löwe','🦅 Adler','🐺 Wolf','🔥 Phönix','🐯 Tiger','🦈 Hai','🐆 Panther','🦊 Fuchs','🐻 Bär',
+        '⚔️ Krieger','🛡️ Ritter','🏹 Jäger','🗡️ Assassine','🧙 Zauberer','🧝 Elf','👁️ Seher','🔮 Mystiker','🧿 Schamane','💀 Geist',
+        '💠 Opal','💛 Topas','🖤 Onyx','💙 Türkis','🌕 Bernstein','🟠 Koralle','🔵 Lapislazuli','🟢 Malachit','⚪ Perlmutt','🔴 Granat',
+        '🚀 Rakete','🛸 Raumschiff','🌠 Sternschnuppe','🌑 Eclipse','💫 Pulsar','🌐 Universum','🌌 Andromeda','⚡ Quasar','🔭 Teleskop','🌟 Hypernova',
+        '🔥 Inferno','🌊 Tsunami','⚡ Plasma','⚛️ Atom','🌈 Aurora','✨ Aura','🌪️ Hurrikan','🌑 Schatten','⚡ Titan','🔮 Götter',
+        '👑 Elite','🏛️ Kaiser','🎯 Präzision','💫 Absolut','☀️ Unsterblich','🔱 Mythisch','💎 Ewigkeit','🌌 Transzendenz','⚡ Omega','🔱 Ultima',
+        '🌟 Gottheit','⚡ Göttlich','🌌 Kosmisch','💥 Genesis','🌈 Paradies','✨ Heilig','🔮 Weisheit','👁️ Allsehend','🌠 Schöpfer','💫 Uralt',
+        '🔱 Übernatur','💎 Prisma','🌀 Dimension','🌌 Portal','🔮 Zeitlos','💫 Quantum','⭐ Chronos','🌠 Parallel','💥 Multiversum','⚡ Unendlich',
+        '🔱 Ikone','💥 Phänomen','⭐ Kult','🌠 Grenzlos','💫 Jenseits','🔮 Endlos','⚡ Urgewalt','💎 Maßlos','🌌 Apex','🔱 Gott'
+    ];
     var tierIdx=Math.floor(rankIndex/10);
     if(tierIdx<0||tierIdx>=tiers.length) return null;
     return tiers[tierIdx]+' '+(rankIndex%10+1);
@@ -106,7 +120,7 @@ async function handleRequest(request) {
         var trophies  = Math.max(0, Math.min(999999,  parseInt(body.trophies) || 0));
         var coins     = Math.max(0, Math.min(99999999, parseInt(body.coins)    || 0));
         var maxLevel  = Math.max(0, Math.min(99999,   parseInt(body.maxLevel)  || 0));
-        var rankIndex = typeof body.rankIndex === 'number' ? Math.max(-1, Math.min(299, body.rankIndex)) : (existing.rankIndex || -1);
+        var rankIndex = typeof body.rankIndex === 'number' ? Math.max(-1, Math.min(1299, body.rankIndex)) : (existing.rankIndex || -1);
 
         // Sub-account: transfer earned coins to main account, keep none locally
         if (existing.mainAccount && coins > 0) {
@@ -178,7 +192,7 @@ async function handleRequest(request) {
         try { ubody = await request.json(); } catch(e) { return respond({ error: 'Bad JSON' }, 400); }
         if (!ubody || !ubody.name || typeof ubody.targetIndex !== 'number') return respond({ error: 'Parameter fehlen' }, 400);
         var targetIdx = ubody.targetIndex;
-        if (targetIdx < 0 || targetIdx > 299) return respond({ error: 'Ungültiger Rang' }, 400);
+        if (targetIdx < 0 || targetIdx > 1299) return respond({ error: 'Ungültiger Rang' }, 400);
 
         var ukey = 'player:' + String(ubody.name).toLowerCase().slice(0, 20);
         var uplayer = await PLAYERS.get(ukey, 'json');
