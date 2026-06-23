@@ -30420,7 +30420,8 @@
         { id: 'collector', label: '\u{1F4B0} Sammler',          color: '#f1c40f' },
         { id: 'champion',  label: '\u{1F3C6} Champion',         color: '#9b59b6' },
         { id: 'master',    label: '⚡ Meister',             color: '#e74c3c' },
-        { id: 'social',    label: '\u{1F91D} Sozial',           color: '#3498db' }
+        { id: 'social',    label: '\u{1F91D} Sozial',           color: '#3498db' },
+        { id: 'rang',      label: '\u{1F3C5} Rang',             color: '#9b59b6' }
       ];
 
       var QUESTS = [];
@@ -30468,9 +30469,11 @@
       QUESTS.push({ id: 'soc_all_ranks', cat: 4, title: 'Alle Ränge besitzen', desc: 'Kaufe alle verfügbaren Ränge.', type: 'all_ranks', target: 5, reward_coins: 5000, reward_trophies: 10 });
       var extraSentTargets = makeMilestones(200000, 10000000, 20);
       for (i = 0; i < 20; i++) { t=extraSentTargets[i]; QUESTS.push({ id: 'soc_xsc_'+i, cat: 4, title: fmtNum(t)+' Coins senden (Experte)', desc: 'Sende insgesamt '+fmtNum(t)+' Coins.', type: 'sent_coins', target: t, reward_coins: Math.ceil(500*Math.pow(1.12,i)), reward_trophies: i+2 }); }
+      / Cat 5: Rang - one quest per rank level (300 quests)
+      for (i = 0; i < 300; i++) { var rl=RANKS[i]; QUESTS.push({ id: 'rng_'+i, cat: 5, title: rl.label+' kaufen', desc: 'Kaufe das Rang-Upgrade '+rl.label+'.', type: 'rank_level', target: i, reward_coins: (i+1)*10, reward_trophies: Math.floor(i/30)+1 }); }
 
       function makeDefaultState() {
-        return { coins:0, coinsEarned:0, trophies:0, questsDone:0, done:{}, progress:{}, playerName:'', rank:null, rankIndex:-1, maxLevel:0, lbViews:0, sentCoins:0, recvCoins:0, sentToPlayers:[], recvFromPlayers:[], lbPosition:999999, mainAccount:null, subAccounts:[], hasPin:false, questBaseline:null };
+        return { coins:0, coinsEarned:0, trophies:0, questsDone:0, done:{}, ready:{}, progress:{}, autoCollect:false, playerName:'', rank:null, rankIndex:-1, maxLevel:0, lbViews:0, sentCoins:0, recvCoins:0, sentToPlayers:[], recvFromPlayers:[], lbPosition:999999, mainAccount:null, subAccounts:[], hasPin:false, questBaseline:null };
       }
       var state = makeDefaultState();
       var STORAGE_KEY = 'STICKMANHOOK_qs';
@@ -30527,10 +30530,11 @@
         var effRecvCoins    = Math.max(0, (state.recvCoins||0)                - (bl.recvCoins||0));
         var effSentPlayers  = Math.max(0, (state.sentToPlayers||[]).length    - (bl.sentToPlayersCount||0));
         var effRecvPlayers  = Math.max(0, (state.recvFromPlayers||[]).length  - (bl.recvFromPlayersCount||0));
+        if (!state.ready) state.ready = {};
         var newly = [];
         for (var q = 0; q < QUESTS.length; q++) {
           var quest = QUESTS[q];
-          if (state.done[quest.id]) continue;
+          if (state.done[quest.id] || state.ready[quest.id]) continue;
           var met = false, prog = 0;
           if (quest.type==='level')             { prog=effLevel;       met=prog>=quest.target; }
           else if (quest.type==='coins_earned') { prog=effCoinsEarned; met=prog>=quest.target; }
@@ -30545,8 +30549,16 @@
           else if (quest.type==='lb_position')  { prog=state.lbPosition; met=state.lbPosition<=quest.target; }
           else if (quest.type==='has_rank')     { prog=state.rankIndex>=0?1:0; met=state.rankIndex>=0; }
           else if (quest.type==='all_ranks')    { prog=state.rankIndex+1; met=state.rankIndex>=299; }
+          else if (quest.type==='rank_level')   { prog=state.rankIndex+1; met=state.rankIndex>=quest.target; }
           state.progress[quest.id] = prog;
-          if (met) { state.done[quest.id]=true; state.coins+=quest.reward_coins; state.coinsEarned+=quest.reward_coins; state.trophies+=quest.reward_trophies; state.questsDone+=1; effQuestsDone+=1; newly.push(quest); }
+          if (met) {
+            if (state.autoCollect) {
+              state.done[quest.id]=true; state.coins+=quest.reward_coins; state.coinsEarned+=quest.reward_coins; state.trophies+=quest.reward_trophies; state.questsDone+=1; effQuestsDone+=1;
+            } else {
+              state.ready[quest.id]=true;
+            }
+            newly.push(quest);
+          }
         }
         save();
         if (typeof callback==='function') callback(newly);
@@ -30688,7 +30700,7 @@
       }
 
       function resetQuests() {
-        state.done={}; state.progress={}; state.questsDone=0;
+        state.done={}; state.ready={}; state.progress={}; state.questsDone=0;
         var curLvl=(typeof window._QS.getLevel==='function')?window._QS.getLevel():0;
         state.questBaseline={
           level:curLvl, coinsEarned:state.coinsEarned||0, trophies:state.trophies||0,
@@ -30703,13 +30715,35 @@
           if(qr.type==='has_name')    alreadyMet=!!(state.playerName&&state.playerName.length>0);
           else if(qr.type==='has_rank')    alreadyMet=state.rankIndex>=0;
           else if(qr.type==='all_ranks')   alreadyMet=state.rankIndex>=299;
+          else if(qr.type==='rank_level')  alreadyMet=state.rankIndex>=qr.target;
           else if(qr.type==='lb_position') alreadyMet=state.lbPosition<=qr.target;
           if(alreadyMet) state.done[qr.id]=true;
         }
         save();
       }
 
-      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save, applyServerData:applyServerData, loadServerData:loadServerData, verifyPin:verifyPin, renameAccount:renameAccount, setPinAccount:setPinAccount, createSubAccount:createSubAccount, deleteAccount:deleteAccount, logoutAccount:logoutAccount, switchToAccount:switchToAccount, resetQuests:resetQuests };
+      function collectQuest(questId) {
+        if (!state.ready || !state.ready[questId]) return null;
+        var quest = null;
+        for (var ci=0; ci<QUESTS.length; ci++) { if(QUESTS[ci].id===questId){quest=QUESTS[ci];break;} }
+        if (!quest) return null;
+        state.done[questId]=true; delete state.ready[questId];
+        state.coins+=quest.reward_coins; state.coinsEarned+=quest.reward_coins;
+        state.trophies+=quest.reward_trophies; state.questsDone+=1;
+        save(); return quest;
+      }
+      function collectAllReady() {
+        if (!state.ready) return;
+        var ids=Object.keys(state.ready); for(var ci=0;ci<ids.length;ci++) collectQuest(ids[ci]);
+        save();
+      }
+      function toggleAutoCollect() {
+        state.autoCollect=!state.autoCollect;
+        if(state.autoCollect) collectAllReady();
+        save();
+      }
+
+      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save, applyServerData:applyServerData, loadServerData:loadServerData, verifyPin:verifyPin, renameAccount:renameAccount, setPinAccount:setPinAccount, createSubAccount:createSubAccount, deleteAccount:deleteAccount, logoutAccount:logoutAccount, switchToAccount:switchToAccount, resetQuests:resetQuests, collectQuest:collectQuest, collectAllReady:collectAllReady, toggleAutoCollect:toggleAutoCollect };
       window._gameAPI = {
         playCustomLevel: function(levelData) {
           if(!Sc||!Sc.instance){return;}
@@ -30772,22 +30806,27 @@
               h('div',{class:'qs-topbar'},
                 h('button',{class:'qs-close',onClick:function(){t.setState({showQ:false});}},'✕'),
                 h('span',{style:'display:inline-flex;align-items:center;gap:3px;'},h('span',{class:'mc'}),QS.fmtNum(QS.state.coins)),
-                h('span',null,'🏆 '+QS.state.trophies+' Trophäen'),
-                h('span',{class:'qs-qcount'},QS.state.questsDone+'/500')
+                h('span',null,'🏆 '+QS.state.trophies),
+                h('span',{class:'qs-qcount'},QS.state.questsDone+'/'+QS.QUESTS.length),
+                Object.keys(QS.state.ready||{}).length>0?h('button',{class:'qs-collect-btn',style:'padding:4px 8px;font-size:11px;',onClick:function(){QS.collectAllReady();QS.checkQuests(rerender);QS.syncToCloud(function(){});rerender();}},'⬇ Alle ('+Object.keys(QS.state.ready||{}).length+')'):null,
+                h('button',{class:'qs-act-btn',style:'font-size:11px;padding:4px 8px;'+(QS.state.autoCollect?'background:#27ae60;color:white;':''),onClick:function(){QS.toggleAutoCollect();QS.checkQuests(rerender);rerender();}},QS.state.autoCollect?'Auto ✓':'Auto ○')
               ),
               h('div',{class:'qs-cats'},QS.CATS.map(function(cat,ci){
-                var done=QS.QUESTS.filter(function(q){return q.cat===ci&&QS.state.done[q.id];}).length;
+                var catQuests=QS.QUESTS.filter(function(q){return q.cat===ci;});
+                var done=catQuests.filter(function(q){return QS.state.done[q.id];}).length;
+                var ready=catQuests.filter(function(q){return QS.state.ready&&QS.state.ready[q.id];}).length;
                 return h('button',{class:'qs-cat-btn'+(s.qcat===ci?' qs-active':''),key:ci,
-                  style:'border-bottom:3px solid '+cat.color,
+                  style:'border-bottom:3px solid '+cat.color+(ready>0?';position:relative':''),
                   onClick:function(){t.setState({qcat:ci});}
-                },cat.label,h('br',null),h('small',null,done+'/100'));
+                },cat.label,h('br',null),h('small',null,done+'/'+catQuests.length+(ready>0?' ('+ready+'⬇)':'')));
               })),
               s.qcat!=null?h('div',{class:'qs-list'},
                 QS.QUESTS.filter(function(q){return q.cat===s.qcat;}).map(function(q){
                   var dn=!!QS.state.done[q.id];
+                  var rdy=!dn&&!!(QS.state.ready&&QS.state.ready[q.id]);
                   var pr=QS.state.progress[q.id]||0;
                   var pct=Math.min(100,q.target>0?Math.round(pr/q.target*100):0);
-                  return h('div',{class:'qs-item'+(dn?' qs-done':''),key:q.id},
+                  return h('div',{class:'qs-item'+(dn?' qs-done':'')+(rdy?' qs-ready':''),key:q.id},
                     h('div',{class:'qs-item-main'},
                       h('span',{class:'qs-item-title'},q.title),
                       h('div',{class:'qs-item-rew'},
@@ -30795,10 +30834,12 @@
                         q.reward_trophies?h('span',{class:'qs-tr'},'+'+q.reward_trophies+'🏆'):null
                       )
                     ),
-                    dn?h('span',{class:'qs-check'},'✓'):h('div',{class:'qs-prog'},
-                      h('div',{class:'qs-bar'},h('div',{class:'qs-fill',style:'width:'+pct+'%'})),
-                      h('span',{class:'qs-prog-txt'},QS.fmtNum(Math.min(pr,q.target))+'/'+QS.fmtNum(q.target))
-                    )
+                    dn?h('span',{class:'qs-check'},'✓')
+                      :rdy?h('button',{class:'qs-collect-btn',onClick:function(){QS.collectQuest(q.id);QS.checkQuests(rerender);QS.syncToCloud(function(){});rerender();}},'⬇ Abholen!')
+                      :h('div',{class:'qs-prog'},
+                        h('div',{class:'qs-bar'},h('div',{class:'qs-fill',style:'width:'+pct+'%'})),
+                        h('span',{class:'qs-prog-txt'},QS.fmtNum(Math.min(pr,q.target))+'/'+QS.fmtNum(q.target))
+                      )
                   );
                 })
               ):null
