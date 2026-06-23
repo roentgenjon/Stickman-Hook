@@ -30785,7 +30785,7 @@
       (function(){
         function QsUI(){
           qo.Component.call(this);
-          this.state={showQ:false,showLB:false,showAcc:false,qcat:0,lbData:null,lbLvl:null,lbTab:'trophies',reg:'',panel:'',msg:'',sto:'',samt:0,loginPin:'',loginPinRequired:false,loginPinData:null,accPanel:'',accMsg:'',accNewName:'',accCurPin:'',accNewPin:'',accSubName:'',accSubPin:'',accMainPin:'',accSwitchTarget:null,accSwitchData:null,accSwitchPin:''};
+          this.state={showQ:false,showLB:false,showAcc:false,qcat:0,lbData:null,lbLvl:null,lbTab:'level',reg:'',panel:'',msg:'',sto:'',samt:0,loginPin:'',loginPinRequired:false,loginPinData:null,accPanel:'',accMsg:'',accNewName:'',accCurPin:'',accNewPin:'',accSubName:'',accSubPin:'',accMainPin:'',accSwitchTarget:null,accSwitchData:null,accSwitchPin:''};
           window._QSUI=this;
         }
         QsUI.prototype=Object.create(qo.Component.prototype);
@@ -30895,8 +30895,8 @@
                 QS.state.lbPosition<999999?h('span',null,'#'+QS.state.lbPosition):null
               ),
               h('div',{class:'qs-cats'},
-                h('button',{class:'qs-cat-btn'+(s.lbTab==='trophies'?' qs-active':''),style:'border-bottom:3px solid #9b59b6',onClick:function(){t.setState({lbTab:'trophies'});}},'🏆 Trophäen'),
-                h('button',{class:'qs-cat-btn'+(s.lbTab==='level'?' qs-active':''),style:'border-bottom:3px solid #e67e22',onClick:function(){t.setState({lbTab:'level'});}},'📊 Level')
+                h('button',{class:'qs-cat-btn'+(s.lbTab==='level'?' qs-active':''),style:'border-bottom:3px solid #e67e22',onClick:function(){t.setState({lbTab:'level'});}},'📊 Level'),
+                h('button',{class:'qs-cat-btn'+(s.lbTab==='trophies'?' qs-active':''),style:'border-bottom:3px solid #9b59b6',onClick:function(){t.setState({lbTab:'trophies'});}},'🏆 Trophäen')
               ),
               !QS.state.playerName?h('div',{class:'qs-register'},
                 s.loginPinRequired?h('div',null,
