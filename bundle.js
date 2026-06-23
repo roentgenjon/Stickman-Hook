@@ -30469,7 +30469,7 @@
       QUESTS.push({ id: 'soc_all_ranks', cat: 4, title: 'Alle Ränge besitzen', desc: 'Kaufe alle verfügbaren Ränge.', type: 'all_ranks', target: 5, reward_coins: 5000, reward_trophies: 10 });
       var extraSentTargets = makeMilestones(200000, 10000000, 20);
       for (i = 0; i < 20; i++) { t=extraSentTargets[i]; QUESTS.push({ id: 'soc_xsc_'+i, cat: 4, title: fmtNum(t)+' Coins senden (Experte)', desc: 'Sende insgesamt '+fmtNum(t)+' Coins.', type: 'sent_coins', target: t, reward_coins: Math.ceil(500*Math.pow(1.12,i)), reward_trophies: i+2 }); }
-      / Cat 5: Rang - one quest per rank level (300 quests)
+      // Cat 5: Rang - one quest per rank level (300 quests)
       for (i = 0; i < 300; i++) { var rl=RANKS[i]; QUESTS.push({ id: 'rng_'+i, cat: 5, title: rl.label+' kaufen', desc: 'Kaufe das Rang-Upgrade '+rl.label+'.', type: 'rank_level', target: i, reward_coins: (i+1)*10, reward_trophies: Math.floor(i/30)+1 }); }
 
       function makeDefaultState() {
