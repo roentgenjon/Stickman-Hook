@@ -18,9 +18,7 @@ function getRankLabel(rankIndex) {
         '🚀 Rakete','🛸 Raumschiff','🌠 Sternschnuppe','🌑 Eclipse','💫 Pulsar','🌐 Universum','🌌 Andromeda','⚡ Quasar','🔭 Teleskop','🌟 Hypernova',
         '🔥 Inferno','🌊 Tsunami','⚡ Plasma','⚛️ Atom','🌈 Aurora','✨ Aura','🌪️ Hurrikan','🌑 Schatten','⚡ Titan','🔮 Götter',
         '👑 Elite','🏛️ Kaiser','🎯 Präzision','💫 Absolut','☀️ Unsterblich','🔱 Mythisch','💎 Ewigkeit','🌌 Transzendenz','⚡ Omega','🔱 Ultima',
-        '🌟 Gottheit','⚡ Göttlich','🌌 Kosmisch','💥 Genesis','🌈 Paradies','✨ Heilig','🔮 Weisheit','👁️ Allsehend','🌠 Schöpfer','💫 Uralt',
-        '🔱 Übernatur','💎 Prisma','🌀 Dimension','🌌 Portal','🔮 Zeitlos','💫 Quantum','⭐ Chronos','🌠 Parallel','💥 Multiversum','⚡ Unendlich',
-        '🔱 Ikone','💥 Phänomen','⭐ Kult','🌠 Grenzlos','💫 Jenseits','🔮 Endlos','⚡ Urgewalt','💎 Maßlos','🌌 Apex','🔱 Gott'
+        '🌟 Gottheit','⚡ Göttlich','🌌 Kosmisch','💥 Genesis','🌈 Paradies','✨ Heilig','🔮 Weisheit','👁️ Allsehend','🌠 Schöpfer','💫 Uralt'
     ];
     var tierIdx=Math.floor(rankIndex/10);
     if(tierIdx<0||tierIdx>=tiers.length) return null;
@@ -120,7 +118,7 @@ async function handleRequest(request) {
         var trophies  = Math.max(0, Math.min(999999,  parseInt(body.trophies) || 0));
         var coins     = Math.max(0, Math.min(99999999, parseInt(body.coins)    || 0));
         var maxLevel  = Math.max(0, Math.min(99999,   parseInt(body.maxLevel)  || 0));
-        var rankIndex = typeof body.rankIndex === 'number' ? Math.max(-1, Math.min(1299, body.rankIndex)) : (existing.rankIndex || -1);
+        var rankIndex = typeof body.rankIndex === 'number' ? Math.max(-1, Math.min(1099, body.rankIndex)) : (existing.rankIndex || -1);
 
         // Sub-account: transfer earned coins to main account, keep none locally
         if (existing.mainAccount && coins > 0) {
@@ -192,7 +190,7 @@ async function handleRequest(request) {
         try { ubody = await request.json(); } catch(e) { return respond({ error: 'Bad JSON' }, 400); }
         if (!ubody || !ubody.name || typeof ubody.targetIndex !== 'number') return respond({ error: 'Parameter fehlen' }, 400);
         var targetIdx = ubody.targetIndex;
-        if (targetIdx < 0 || targetIdx > 1299) return respond({ error: 'Ungültiger Rang' }, 400);
+        if (targetIdx < 0 || targetIdx > 1099) return respond({ error: 'Ungültiger Rang' }, 400);
 
         var ukey = 'player:' + String(ubody.name).toLowerCase().slice(0, 20);
         var uplayer = await PLAYERS.get(ukey, 'json');

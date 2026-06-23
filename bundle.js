@@ -30407,7 +30407,7 @@
         return '' + n;
       }
 
-      // 1300 ranks in 130 tiers of 10
+      // 1100 ranks in 110 tiers of 10
       var RANK_TIERS=[
         '🪨 Stein','🥉 Bronze','⚙️ Eisen','🥈 Silber','🥇 Gold','🌿 Jade','💜 Amethyst','💙 Saphir','❤️ Rubin','💚 Smaragd',
         '💎 Diamant','🔮 Kristall','🧊 Eis','🔥 Feuer','⚡ Blitz','🌊 Wasser','☀️ Sonne','🌙 Mond','⭐ Stern','🌟 Supernova',
@@ -30419,12 +30419,10 @@
         '🚀 Rakete','🛸 Raumschiff','🌠 Sternschnuppe','🌑 Eclipse','💫 Pulsar','🌐 Universum','🌌 Andromeda','⚡ Quasar','🔭 Teleskop','🌟 Hypernova',
         '🔥 Inferno','🌊 Tsunami','⚡ Plasma','⚛️ Atom','🌈 Aurora','✨ Aura','🌪️ Hurrikan','🌑 Schatten','⚡ Titan','🔮 Götter',
         '👑 Elite','🏛️ Kaiser','🎯 Präzision','💫 Absolut','☀️ Unsterblich','🔱 Mythisch','💎 Ewigkeit','🌌 Transzendenz','⚡ Omega','🔱 Ultima',
-        '🌟 Gottheit','⚡ Göttlich','🌌 Kosmisch','💥 Genesis','🌈 Paradies','✨ Heilig','🔮 Weisheit','👁️ Allsehend','🌠 Schöpfer','💫 Uralt',
-        '🔱 Übernatur','💎 Prisma','🌀 Dimension','🌌 Portal','🔮 Zeitlos','💫 Quantum','⭐ Chronos','🌠 Parallel','💥 Multiversum','⚡ Unendlich',
-        '🔱 Ikone','💥 Phänomen','⭐ Kult','🌠 Grenzlos','💫 Jenseits','🔮 Endlos','⚡ Urgewalt','💎 Maßlos','🌌 Apex','🔱 Gott'
+        '🌟 Gottheit','⚡ Göttlich','🌌 Kosmisch','💥 Genesis','🌈 Paradies','✨ Heilig','🔮 Weisheit','👁️ Allsehend','🌠 Schöpfer','💫 Uralt'
       ];
       var RANKS = (function(){
-        var r=[]; for(var i=0;i<1300;i++){
+        var r=[]; for(var i=0;i<1100;i++){
           r.push({index:i, label:RANK_TIERS[Math.floor(i/10)]+' '+(i%10+1), cost:Math.ceil(100*Math.pow(1.025,i))});
         } return r;
       })();
@@ -30562,7 +30560,7 @@
           else if (quest.type==='unique_recv')  { prog=effRecvPlayers; met=prog>=quest.target; }
           else if (quest.type==='lb_position')  { prog=state.lbPosition; met=state.lbPosition<=quest.target; }
           else if (quest.type==='has_rank')     { prog=state.rankIndex>=0?1:0; met=state.rankIndex>=0; }
-          else if (quest.type==='all_ranks')    { prog=state.rankIndex+1; met=state.rankIndex>=1299; }
+          else if (quest.type==='all_ranks')    { prog=state.rankIndex+1; met=state.rankIndex>=1099; }
           else if (quest.type==='rank_level')   { prog=state.rankIndex+1; met=state.rankIndex>=quest.target; }
           state.progress[quest.id] = prog;
           if (met) {
@@ -30629,7 +30627,7 @@
       function upgradeRank(callback) {
         if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
         var newIdx=(typeof state.rankIndex==='number'&&state.rankIndex>=0)?state.rankIndex+1:0;
-        if(newIdx>1299){if(callback)callback('max rank reached',null);return;}
+        if(newIdx>1099){if(callback)callback('max rank reached',null);return;}
         var rank=RANKS[newIdx];
         if(state.coins<rank.cost){if(callback)callback('not enough coins',null);return;}
         state.coins-=rank.cost; state.rankIndex=newIdx; state.rank=rank.label; save();
@@ -30728,7 +30726,7 @@
           var qr=QUESTS[qi], alreadyMet=false;
           if(qr.type==='has_name')    alreadyMet=!!(state.playerName&&state.playerName.length>0);
           else if(qr.type==='has_rank')    alreadyMet=state.rankIndex>=0;
-          else if(qr.type==='all_ranks')   alreadyMet=state.rankIndex>=1299;
+          else if(qr.type==='all_ranks')   alreadyMet=state.rankIndex>=1099;
           else if(qr.type==='rank_level')  alreadyMet=state.rankIndex>=qr.target;
           else if(qr.type==='lb_position') alreadyMet=state.lbPosition<=qr.target;
           if(alreadyMet) state.done[qr.id]=true;
@@ -30808,7 +30806,7 @@
           var hideSidebar=s.showQ||s.showLB||s.showAcc||isPlaying||levelSelectOpen;
           var curRankIdx=typeof QS.state.rankIndex==='number'?QS.state.rankIndex:-1;
           var nextRankIdx=curRankIdx+1;
-          var nextRank=nextRankIdx<=1299?QS.RANKS[nextRankIdx]:null;
+          var nextRank=nextRankIdx<=1099?QS.RANKS[nextRankIdx]:null;
           var canUpgrade=nextRank&&QS.state.coins>=nextRank.cost;
           var rerender=function(){t.setState({});};
           return h('div',null,
