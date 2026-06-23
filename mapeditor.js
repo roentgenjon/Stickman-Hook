@@ -528,13 +528,17 @@
           var info = el('div', 'flex:1;min-width:0;');
           var nm = el('div', 'font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'); nm.textContent = map.name || 'Unbenannt'; info.appendChild(nm);
           var sub = el('div', 'font-size:10px;opacity:0.5;margin-top:2px;');
-          sub.textContent = '👤 ' + (map.author || '?') + '  🪝' + ((map.data && map.data.hooks) ? map.data.hooks.length : '?') + '  ▬' + ((map.data && map.data.bumpers) ? map.data.bumpers.length : '?');
+          sub.textContent = '👤 ' + (map.author || '?') + '  🪝' + (map.hooks != null ? map.hooks : '?') + '  ▬' + (map.bumpers != null ? map.bumpers : '?');
           info.appendChild(sub); row.appendChild(info);
-          row.appendChild(mkbtn('▶ Spielen', 'padding:8px 14px;background:#27ae60;border:none;border-radius:7px;color:white;font-family:JUNEGULL,sans-serif;font-size:12px;cursor:pointer;flex-shrink:0;', function () {
-            root.remove();
-            if (window._gameAPI && map.data) window._gameAPI.playCustomLevel(map.data);
-            else alert('Spiel nicht bereit oder Map-Daten fehlen.');
-          }));
+          var playBtn = mkbtn('▶ Spielen', 'padding:8px 14px;background:#27ae60;border:none;border-radius:7px;color:white;font-family:JUNEGULL,sans-serif;font-size:12px;cursor:pointer;flex-shrink:0;', function () {
+            playBtn.disabled = true; playBtn.textContent = '…';
+            fetch(API + '/api/map/' + map.id).then(function(r){ return r.json(); }).then(function(fullMap) {
+              root.remove();
+              if (window._gameAPI && fullMap.data) window._gameAPI.playCustomLevel(fullMap.data);
+              else { playBtn.disabled = false; playBtn.textContent = '▶ Spielen'; alert('Map-Daten fehlen.'); }
+            }).catch(function() { playBtn.disabled = false; playBtn.textContent = '▶ Spielen'; alert('Netzwerkfehler'); });
+          });
+          row.appendChild(playBtn);
           list.appendChild(row);
         });
       }).catch(function() {
