@@ -483,6 +483,22 @@ async function handleRequest(request) {
         return respond({ ok: true, checked: miChecked, updated: miUpdated });
     }
 
+    // POST /api/admin/add-coins  { secret, name, coins }
+    if (path === '/api/admin/add-coins' && request.method === 'POST') {
+        var acbody;
+        try { acbody = await request.json(); } catch(e) { return respond({ error: 'Bad JSON' }, 400); }
+        if (!acbody || acbody.secret !== 'STICKMANHOOK_RESET_2026') return respond({ error: 'Unauthorized' }, 401);
+        var acKey = 'player:' + (acbody.name || '').toLowerCase();
+        var acRaw = await PLAYERS.get(acKey);
+        if (!acRaw) return respond({ error: 'Player not found' }, 404);
+        var acData = JSON.parse(acRaw);
+        var oldCoins = acData.coins || 0;
+        acData.coins = oldCoins + (acbody.coins || 0);
+        acData.updatedAt = Date.now();
+        await PLAYERS.put(acKey, JSON.stringify(acData));
+        return respond({ ok: true, player: acbody.name, oldCoins, newCoins: acData.coins });
+    }
+
     // POST /api/admin/reset-all
     if (path === '/api/admin/reset-all' && request.method === 'POST') {
         var abody;

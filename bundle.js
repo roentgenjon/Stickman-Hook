@@ -30445,23 +30445,23 @@
         t = levelTargets[i];
         QUESTS.push({ id: 'exp_'+i, cat: 0, title: 'Level '+t+' erreichen', desc: 'Erreiche Level '+t+' im Spiel.', type: 'level', target: t, reward_coins: Math.ceil(10*Math.pow(1.05,i)), reward_trophies: Math.floor(i/10)+1 });
       }
-      // Cat 1: Collector - coins earned
-      var coinTargets = makeMilestones(10, 2000000, 100);
-      for (i = 0; i < 100; i++) {
+      // Cat 1: Collector - coins earned (1000 quests)
+      var coinTargets = makeMilestones(10, 1000000000, 1000);
+      for (i = 0; i < 1000; i++) {
         t = coinTargets[i];
-        QUESTS.push({ id: 'col_'+i, cat: 1, title: fmtNum(t)+' Coins verdienen', desc: 'Verdiene insgesamt '+fmtNum(t)+' Coins.', type: 'coins_earned', target: t, reward_coins: Math.ceil(15*Math.pow(1.04,i)), reward_trophies: Math.floor(i/12)+1 });
+        QUESTS.push({ id: 'col_'+i, cat: 1, title: fmtNum(t)+' Coins verdienen', desc: 'Verdiene insgesamt '+fmtNum(t)+' Coins.', type: 'coins_earned', target: t, reward_coins: Math.ceil(15*Math.pow(1.0042,i)), reward_trophies: Math.floor(i/100)+1 });
       }
-      // Cat 2: Champion - trophies
-      var trophyTargets = makeMilestones(1, 500, 100);
-      for (i = 0; i < 100; i++) {
+      // Cat 2: Champion - trophies (1000 quests)
+      var trophyTargets = makeMilestones(1, 100000, 1000);
+      for (i = 0; i < 1000; i++) {
         t = trophyTargets[i];
-        QUESTS.push({ id: 'cha_'+i, cat: 2, title: fmtNum(t)+' Trophäen sammeln', desc: 'Sammle insgesamt '+fmtNum(t)+' Trophäen.', type: 'trophies', target: t, reward_coins: Math.ceil(30*Math.pow(1.06,i)), reward_trophies: 0 });
+        QUESTS.push({ id: 'cha_'+i, cat: 2, title: fmtNum(t)+' Trophäen sammeln', desc: 'Sammle insgesamt '+fmtNum(t)+' Trophäen.', type: 'trophies', target: t, reward_coins: Math.ceil(30*Math.pow(1.0042,i)), reward_trophies: 0 });
       }
-      // Cat 3: Master - quests done
-      var questTargets = makeMilestones(1, 499, 100);
-      for (i = 0; i < 100; i++) {
+      // Cat 3: Master - quests done (1000 quests)
+      var questTargets = makeMilestones(1, 9999, 1000);
+      for (i = 0; i < 1000; i++) {
         t = questTargets[i];
-        QUESTS.push({ id: 'mas_'+i, cat: 3, title: t+' Quests abschließen', desc: 'Schließe '+t+' Quests ab.', type: 'quests_done', target: t, reward_coins: Math.ceil(20*Math.pow(1.05,i)), reward_trophies: Math.floor(i/8)+1 });
+        QUESTS.push({ id: 'mas_'+i, cat: 3, title: t+' Quests abschließen', desc: 'Schließe '+t+' Quests ab.', type: 'quests_done', target: t, reward_coins: Math.ceil(20*Math.pow(1.0042,i)), reward_trophies: Math.floor(i/80)+1 });
       }
       // Cat 4: Social - 100 quests
       QUESTS.push({ id: 's_name', cat: 4, title: 'Namen registrieren', desc: 'Registriere deinen Spielernamen.', type: 'has_name', target: 1, reward_coins: 50, reward_trophies: 2 });
