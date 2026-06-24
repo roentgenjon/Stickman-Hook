@@ -30794,7 +30794,7 @@
             var sn=(Sc&&Sc.instance&&Sc.instance.scene&&Sc.instance.scene.sceneName)||'';
             var ls=!!document.querySelector('.level-select-grid');
             if(sn!==lastScene||ls!==lastLvlSel){lastScene=sn;lastLvlSel=ls;t.setState({});}
-          },150);
+          },100);
         };
         QsUI.prototype.componentWillUnmount=function(){ if(this._poll)clearInterval(this._poll); };
         QsUI.prototype.render=function(p,s){
@@ -30803,7 +30803,8 @@
           var h=qo.h;
           var isPlaying=!!(Sc&&Sc.instance&&Sc.instance.scene&&Sc.instance.scene.sceneName==='level');
           var levelSelectOpen=!!document.querySelector('.level-select-grid');
-          var hideSidebar=s.showQ||s.showLB||s.showAcc||isPlaying||levelSelectOpen;
+          var isShop=!!(Sc&&Sc.instance&&Sc.instance.scene&&Sc.instance.scene.sceneName==='shop');
+          var hideSidebar=s.showQ||s.showLB||s.showAcc||isPlaying||levelSelectOpen||isShop;
           var curRankIdx=typeof QS.state.rankIndex==='number'?QS.state.rankIndex:-1;
           var nextRankIdx=curRankIdx+1;
           var nextRank=nextRankIdx<=1099?QS.RANKS[nextRankIdx]:null;
