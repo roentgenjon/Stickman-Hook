@@ -91,8 +91,14 @@ async function handleRequest(request) {
 
     // GET /api/leaderboard
     if (path === '/api/leaderboard' && request.method === 'GET') {
-        var lb = await PLAYERS.get('lb_cache', 'json') || [];
-        return respond(lb.slice(0, 50));
+        var keys = await PLAYERS.list({ prefix: 'player:' });
+        var players = [];
+        for (var ki = 0; ki < keys.keys.length; ki++) {
+            var p = await PLAYERS.get(keys.keys[ki].name, 'json');
+            if (p && p.name) players.push(publicPlayer(p));
+        }
+        players.sort(function(a, b) { return (b.trophies || 0) - (a.trophies || 0); });
+        return respond(players.slice(0, 50));
     }
 
     // GET /api/player/{name}  — strips PIN, adds hasPin + account metadata
