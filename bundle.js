@@ -30803,7 +30803,7 @@
           var h=qo.h;
           var isPlaying=!!(Sc&&Sc.instance&&Sc.instance.scene&&Sc.instance.scene.sceneName==='level');
           var levelSelectOpen=!!document.querySelector('.level-select-grid');
-          var hideSidebar=s.showQ||s.showLB||s.showAcc||isPlaying;
+          var hideSidebar=s.showQ||s.showLB||s.showAcc||isPlaying||levelSelectOpen;
           var curRankIdx=typeof QS.state.rankIndex==='number'?QS.state.rankIndex:-1;
           var nextRankIdx=curRankIdx+1;
           var nextRank=nextRankIdx<=1099?QS.RANKS[nextRankIdx]:null;
@@ -30811,6 +30811,11 @@
           var rerender=function(){t.setState({});};
           return h('div',null,
             hideSidebar?null:h('div',{class:'qs-btn-bar'},
+              h('button',{class:'levels-button button',onClick:function(){
+                t.setState({showQ:false,showLB:false,showAcc:false});
+                var btns=document.querySelectorAll('.levels-button.button');
+                for(var bi=0;bi<btns.length;bi++){var bt=btns[bi].textContent.trim();if(bt==='LEVELS'||bt==='SCHLIESSEN'){btns[bi].click();break;}}
+              }},'📋 LEVELS'),
               h('button',{class:'levels-button button',onClick:function(){
                 var op=!s.showQ;
                 if(op)QS.checkQuests(rerender);
