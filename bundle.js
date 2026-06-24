@@ -30986,10 +30986,7 @@
               QS.state.playerName?h('div',{class:'qs-actions'},
                 h('button',{class:'qs-act-btn',style:'display:inline-flex;align-items:center;gap:5px;',onClick:function(){t.setState({panel:s.panel==='send'?'':'send',msg:'',sto:'',samt:0});}},h('span',{class:'mc'}),'Senden'),
                 h('button',{class:'qs-act-btn',onClick:function(){t.setState({panel:s.panel==='rank'?'':'rank',msg:'',sto:'',samt:0});}},'🏅 Rang'),
-                h('button',{class:'qs-act-btn',style:'color:#e74c3c',onClick:function(){
-                  if(!confirm('Alles zurücksetzen (Ränge, Münzen, Quests, Trophäen, Rangliste)?'))return;
-                  QS.resetAll(function(){t.setState({lbData:null,lbLvl:null,panel:'',msg:'✓ Zurückgesetzt!'});});
-                }},'🔄 Reset')
+                null
               ):null,
               s.panel==='send'?h('div',{class:'qs-panel'},
                 h('input',{class:'qs-input',id:'qs-sto',placeholder:'Spielername',maxLength:20,onInput:function(e){t.setState({sto:e.target.value});}}),
