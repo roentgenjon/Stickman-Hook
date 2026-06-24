@@ -30504,7 +30504,7 @@
       }
 
       function applyServerData(d) {
-        state.coins=typeof d.coins==='number'?d.coins:(state.coins||0);
+        state.coins=typeof d.coins==='number'?Math.max(d.coins,state.coins||0):(state.coins||0);
         state.trophies=typeof d.trophies==='number'?d.trophies:(state.trophies||0);
         state.maxLevel=Math.max(state.maxLevel||0,d.maxLevel||0);
         if(typeof d.rankIndex==='number'&&d.rankIndex>(state.rankIndex||-1)){
