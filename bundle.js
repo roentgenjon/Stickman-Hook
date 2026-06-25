@@ -30865,7 +30865,7 @@
                       if(QS.state.playerName){for(var i=0;i<data.length;i++){if(data[i].name.toLowerCase()===QS.state.playerName.toLowerCase()){QS.state.lbPosition=i+1;break;}}}
                     }else{t.setState({lbData:data||[],lbLvl:[],lbRank:[]});}
                   });
-                  if(QS.state.playerName){QS.syncToCloud(function(){QS.loadFromCloud(function(){rerender();});});}
+                  if(QS.state.playerName){QS.syncToCloud(function(){rerender();});}
                 }
               }},s.showLB?'✕':'🏆 RANGLISTE'),
               h('button',{class:'levels-button button',onClick:function(){
