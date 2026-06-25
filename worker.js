@@ -121,8 +121,8 @@ async function handleRequest(request) {
         var key = 'player:' + name.toLowerCase();
         var existing = await PLAYERS.get(key, 'json') || {};
 
-        var trophies  = Math.max(0, Math.min(999999,  parseInt(body.trophies) || 0));
-        var coins     = Math.max(0, Math.min(99999999, parseInt(body.coins)    || 0));
+        var trophies  = Math.max(parseInt(body.trophies) || 0, existing.trophies || 0);
+        var coins     = Math.max(parseInt(body.coins)    || 0, existing.coins    || 0);
         var maxLevel  = Math.max(0, Math.min(99999,   parseInt(body.maxLevel)  || 0));
         var rankIndex = typeof body.rankIndex === 'number' ? Math.max(-1, Math.min(1099, body.rankIndex)) : (existing.rankIndex || -1);
 
