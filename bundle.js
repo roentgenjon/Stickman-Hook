@@ -30829,30 +30829,30 @@
           var hideSidebar=s.showQ||s.showLB||s.showAcc||isPlaying||levelSelectOpen||isShop;
           var curRankIdx=typeof QS.state.rankIndex==='number'?QS.state.rankIndex:-1;
           var nextRankIdx=curRankIdx+1;
-          var nextRank=nextRankIdx<=1099?QS.RANKS[nextRankIdx]:null;
+          var nextRank=nextRankIdx<=1149?QS.RANKS[nextRankIdx]:null;
           var canUpgrade=nextRank&&QS.state.coins>=nextRank.cost;
           var rerender=function(){t.setState({});};
           return h('div',null,
             hideSidebar?null:h('div',{class:'qs-btn-bar'},
-              h('button',{class:'levels-button button',onClick:function(){
+              h('button',{class:'levels-button',onClick:function(){
                 t.setState({showQ:false,showLB:false,showAcc:false});
-                var btns=document.querySelectorAll('.levels-button.button');
+                var btns=document.querySelectorAll('.levels-button');
                 for(var bi=0;bi<btns.length;bi++){var bt=btns[bi].textContent.trim();if(bt==='LEVELS'||bt==='SCHLIESSEN'){btns[bi].click();break;}}
               }},'📋 LEVELS'),
-              h('button',{class:'levels-button button',onClick:function(){
+              h('button',{class:'levels-button',onClick:function(){
                 var op=!s.showQ;
                 if(op)QS.checkQuests(rerender);
                 t.setState({showQ:op,showLB:false,showAcc:false,qcat:s.qcat!=null?s.qcat:0});
               }},s.showQ?'✕':'🎯 QUESTS'),
-              h('button',{class:'levels-button button',onClick:function(){
+              h('button',{class:'levels-button',onClick:function(){
                 t.setState({showQ:false,showLB:false,showAcc:false});
                 if(window._showMapMenu)window._showMapMenu();
               }},'🗺 MAPS'),
-              h('button',{class:'levels-button button',onClick:function(){
+              h('button',{class:'levels-button',onClick:function(){
                 t.setState({showQ:false,showLB:false,showAcc:false});
                 if(window._showCommunityMaps)window._showCommunityMaps();
               }},'🌍 KARTEN'),
-              h('button',{class:'levels-button button',onClick:function(){
+              h('button',{class:'levels-button',onClick:function(){
                 var op=!s.showLB;
                 t.setState({showLB:op,showQ:false,showAcc:false,lbData:null,lbLvl:null,lbRank:null,panel:'',msg:''});
                 if(op){
@@ -30868,7 +30868,7 @@
                   if(QS.state.playerName){QS.syncToCloud(function(){rerender();});}
                 }
               }},s.showLB?'✕':'🏆 RANGLISTE'),
-              h('button',{class:'levels-button button',onClick:function(){
+              h('button',{class:'levels-button',onClick:function(){
                 t.setState({showAcc:!s.showAcc,showQ:false,showLB:false,accPanel:'',accMsg:'',accNewName:'',accCurPin:'',accNewPin:'',accSubName:'',accSubPin:'',accMainPin:'',accSwitchTarget:null,accSwitchData:null,accSwitchPin:''});
               }},s.showAcc?'✕':'👤 KONTO')
             ),
