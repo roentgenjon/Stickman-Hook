@@ -30428,7 +30428,7 @@
       ];
       var RANKS = (function(){
         var r=[]; for(var i=0;i<1150;i++){
-          r.push({index:i, label:RANK_TIERS[Math.floor(i/10)]+' '+(i%10+1), cost:(i+1)*100});
+          r.push({index:i, label:RANK_TIERS[Math.floor(i/10)]+' '+(i%10+1), cost:(i+1)*250});
         } return r;
       })();
 

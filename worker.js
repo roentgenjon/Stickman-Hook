@@ -31,7 +31,7 @@ function getRankLabel(rankIndex) {
 }
 
 function getUpgradeCost(targetIndex) {
-    return (targetIndex+1)*100;
+    return (targetIndex+1)*250;
 }
 
 function respond(data, status) {
