@@ -30793,7 +30793,7 @@
       (function(){
         function QsUI(){
           qo.Component.call(this);
-          this.state={showQ:false,showLB:false,showAcc:false,qcat:0,lbData:null,lbLvl:null,lbTab:'level',reg:'',panel:'',msg:'',sto:'',samt:0,loginPin:'',loginPinRequired:false,loginPinData:null,accPanel:'',accMsg:'',accNewName:'',accCurPin:'',accNewPin:'',accSubName:'',accSubPin:'',accMainPin:'',accSwitchTarget:null,accSwitchData:null,accSwitchPin:''};
+          this.state={showQ:false,showLB:false,showAcc:false,qcat:0,lbData:null,lbLvl:null,lbRank:null,lbTab:'rank',reg:'',panel:'',msg:'',sto:'',samt:0,loginPin:'',loginPinRequired:false,loginPinData:null,accPanel:'',accMsg:'',accNewName:'',accCurPin:'',accNewPin:'',accSubName:'',accSubPin:'',accMainPin:'',accSwitchTarget:null,accSwitchData:null,accSwitchPin:''};
           window._QSUI=this;
         }
         QsUI.prototype=Object.create(qo.Component.prototype);
@@ -30812,7 +30812,8 @@
             QS.fetchLeaderboard(function(err,data){
               if(!err&&data){
                 var byLvl=[].concat(data).sort(function(a,b){return(b.maxLevel||0)-(a.maxLevel||0);});
-                t.setState({lbData:data,lbLvl:byLvl});
+                var byRank=[].concat(data).sort(function(a,b){return(b.rankIndex||-1)-(a.rankIndex||-1);});
+                t.setState({lbData:data,lbLvl:byLvl,lbRank:byRank});
               }
             });
           },30000);
@@ -30853,15 +30854,16 @@
               }},'🌍 KARTEN'),
               h('button',{class:'levels-button button',onClick:function(){
                 var op=!s.showLB;
-                t.setState({showLB:op,showQ:false,showAcc:false,lbData:null,lbLvl:null,panel:'',msg:''});
+                t.setState({showLB:op,showQ:false,showAcc:false,lbData:null,lbLvl:null,lbRank:null,panel:'',msg:''});
                 if(op){
                   QS.checkQuests(rerender);
                   QS.fetchLeaderboard(function(err,data){
                     if(!err&&data){
                       var byLvl=[].concat(data).sort(function(a,b){return(b.maxLevel||0)-(a.maxLevel||0);});
-                      t.setState({lbData:data,lbLvl:byLvl});
+                      var byRank=[].concat(data).sort(function(a,b){return(b.rankIndex||-1)-(a.rankIndex||-1);});
+                      t.setState({lbData:data,lbLvl:byLvl,lbRank:byRank});
                       if(QS.state.playerName){for(var i=0;i<data.length;i++){if(data[i].name.toLowerCase()===QS.state.playerName.toLowerCase()){QS.state.lbPosition=i+1;break;}}}
-                    }else{t.setState({lbData:data||[],lbLvl:[]});}
+                    }else{t.setState({lbData:data||[],lbLvl:[],lbRank:[]});}
                   });
                   if(QS.state.playerName){QS.syncToCloud(function(){QS.loadFromCloud(function(){rerender();});});}
                 }
@@ -30923,12 +30925,14 @@
                   QS.fetchLeaderboard(function(err,data){
                     if(!err&&data){
                       var byLvl=[].concat(data).sort(function(a,b){return(b.maxLevel||0)-(a.maxLevel||0);});
-                      t.setState({lbData:data,lbLvl:byLvl});
-                    }else{t.setState({lbData:[],lbLvl:[]});}
+                      var byRank=[].concat(data).sort(function(a,b){return(b.rankIndex||-1)-(a.rankIndex||-1);});
+                      t.setState({lbData:data,lbLvl:byLvl,lbRank:byRank});
+                    }else{t.setState({lbData:[],lbLvl:[],lbRank:[]});}
                   });
                 }},'🔄')
               ),
               h('div',{class:'qs-cats'},
+                h('button',{class:'qs-cat-btn'+(s.lbTab==='rank'?' qs-active':''),style:'border-bottom:3px solid #f1c40f',onClick:function(){t.setState({lbTab:'rank'});}},'🏅 Ränge'),
                 h('button',{class:'qs-cat-btn'+(s.lbTab==='level'?' qs-active':''),style:'border-bottom:3px solid #e67e22',onClick:function(){t.setState({lbTab:'level'});}},'📊 Level'),
                 h('button',{class:'qs-cat-btn'+(s.lbTab==='trophies'?' qs-active':''),style:'border-bottom:3px solid #9b59b6',onClick:function(){t.setState({lbTab:'trophies'});}},'🏆 Trophäen')
               ),
@@ -31031,7 +31035,7 @@
               ):null,
               h('div',{class:'qs-lb'},
                 (function(){
-                  var data=s.lbTab==='level'?s.lbLvl:s.lbData;
+                  var data=s.lbTab==='level'?s.lbLvl:(s.lbTab==='rank'?s.lbRank:s.lbData);
                   if(data===null)return h('div',{class:'qs-loading'},'Lade...');
                   if(!data.length)return h('div',{class:'qs-empty'},'Noch keine Einträge.');
                   return data.map(function(pl,idx){
@@ -31043,7 +31047,7 @@
                         h('span',{style:'font-family:sans-serif'},pl.name),
                         (pl.maxLevel||0)>0?h('span',{style:'font-size:10px;opacity:0.5;margin-left:4px'},'Lvl '+(pl.maxLevel||0)):null
                       ),
-                      s.lbTab==='level'?h('span',{class:'qs-lb-sc'},'📊 '+(pl.maxLevel||0)):h('span',{class:'qs-lb-sc'},'🏆 '+(pl.trophies||0))
+                      s.lbTab==='level'?h('span',{class:'qs-lb-sc'},'📊 '+(pl.maxLevel||0)):s.lbTab==='rank'?h('span',{class:'qs-lb-sc',style:'font-size:11px;'},pl.rank||'—'):h('span',{class:'qs-lb-sc'},'🏆 '+(pl.trophies||0))
                     );
                   });
                 })()
