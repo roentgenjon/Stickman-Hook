@@ -30407,7 +30407,7 @@
         return '' + n;
       }
 
-      // 1100 ranks in 110 tiers of 10
+      // 1150 ranks in 115 tiers of 10
       var RANK_TIERS=[
         '🪨 Stein','🥉 Bronze','⚙️ Eisen','🥈 Silber','🥇 Gold','🌿 Jade','💜 Amethyst','💙 Saphir','❤️ Rubin','💚 Smaragd',
         '💎 Diamant','🔮 Kristall','🧊 Eis','🔥 Feuer','⚡ Blitz','🌊 Wasser','☀️ Sonne','🌙 Mond','⭐ Stern','🌟 Supernova',
@@ -30419,10 +30419,15 @@
         '🚀 Rakete','🛸 Raumschiff','🌠 Sternschnuppe','🌑 Eclipse','💫 Pulsar','🌐 Universum','🌌 Andromeda','⚡ Quasar','🔭 Teleskop','🌟 Hypernova',
         '🔥 Inferno','🌊 Tsunami','⚡ Plasma','⚛️ Atom','🌈 Aurora','✨ Aura','🌪️ Hurrikan','🌑 Schatten','⚡ Titan','🔮 Götter',
         '👑 Elite','🏛️ Kaiser','🎯 Präzision','💫 Absolut','☀️ Unsterblich','🔱 Mythisch','💎 Ewigkeit','🌌 Transzendenz','⚡ Omega','🔱 Ultima',
-        '🌟 Gottheit','⚡ Göttlich','🌌 Kosmisch','💥 Genesis','🌈 Paradies','✨ Heilig','🔮 Weisheit','👁️ Allsehend','🌠 Schöpfer','💫 Uralt'
+        '🌟 Gottheit','⚡ Göttlich','🌌 Kosmisch','💥 Genesis','🌈 Paradies','✨ Heilig','🔮 Weisheit','👁️ Allsehend','🌠 Schöpfer','💫 Uralt',
+        '🌌 Überirdisch','💥 Urknall','🔱 Allmächtig','⚡ Donnerer','🌟 Lichtbringer',
+        '🔮 Orakel','🌈 Himmelsherr','💫 Sternenherrscher','👑 Ewiger König','🌌 Kosmischer Herr',
+        '⚡ Zeitlos','🌟 Grenzenlos','💎 Unbesiegbar','🔥 Höllenherr','✨ Himmelsbote',
+        '🌌 Jenseits','💫 Transdimensional','🔱 Übermächtig','⚡ Quantumgott','🌟 Multiversum',
+        '💥 Urkraft','🌈 Schöpfer des Lichts','🔮 Hüter des Chaos','👁️ Allsehender Gott','✨ Das Absolute'
       ];
       var RANKS = (function(){
-        var r=[]; for(var i=0;i<1100;i++){
+        var r=[]; for(var i=0;i<1150;i++){
           r.push({index:i, label:RANK_TIERS[Math.floor(i/10)]+' '+(i%10+1), cost:(i+1)*500});
         } return r;
       })();
@@ -30504,8 +30509,8 @@
       }
 
       function applyServerData(d) {
-        state.coins=typeof d.coins==='number'?Math.max(d.coins,state.coins||0):(state.coins||0);
-        state.trophies=typeof d.trophies==='number'?Math.max(d.trophies,state.trophies||0):(state.trophies||0);
+        state.coins=typeof d.coins==='number'?d.coins:(state.coins||0);
+        state.trophies=typeof d.trophies==='number'?d.trophies:(state.trophies||0);
         state.maxLevel=Math.max(state.maxLevel||0,d.maxLevel||0);
         if(typeof d.rankIndex==='number'&&d.rankIndex>(state.rankIndex||-1)){
           state.rankIndex=d.rankIndex; state.rank=d.rank||(RANKS[d.rankIndex]&&RANKS[d.rankIndex].label)||null;
@@ -30581,7 +30586,12 @@
       function syncToCloud(callback) {
         if (!isValidUrl(WORKER_URL)||!state.playerName) { if(callback) callback('no url/name',null); return; }
         fetch(WORKER_URL+'/api/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.playerName,trophies:state.trophies,coins:state.coins,rank:state.rank,rankIndex:state.rankIndex,maxLevel:state.maxLevel||0})})
-        .then(function(r){return r.json();}).then(function(d){if(callback)callback(null,d);}).catch(function(e){if(callback)callback(e,null);});
+        .then(function(r){return r.json();}).then(function(d){
+          if(d&&typeof d.bonusCoins==='number'&&d.bonusCoins>0){state.coins=(state.coins||0)+d.bonusCoins;state.coinsEarned=(state.coinsEarned||0)+d.bonusCoins;}
+          if(d&&typeof d.bonusTrophies==='number'&&d.bonusTrophies>0){state.trophies=(state.trophies||0)+d.bonusTrophies;}
+          save();
+          if(callback)callback(null,d);
+        }).catch(function(e){if(callback)callback(e,null);});
       }
 
       function fetchLeaderboard(callback) {

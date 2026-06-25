@@ -18,7 +18,12 @@ function getRankLabel(rankIndex) {
         '🚀 Rakete','🛸 Raumschiff','🌠 Sternschnuppe','🌑 Eclipse','💫 Pulsar','🌐 Universum','🌌 Andromeda','⚡ Quasar','🔭 Teleskop','🌟 Hypernova',
         '🔥 Inferno','🌊 Tsunami','⚡ Plasma','⚛️ Atom','🌈 Aurora','✨ Aura','🌪️ Hurrikan','🌑 Schatten','⚡ Titan','🔮 Götter',
         '👑 Elite','🏛️ Kaiser','🎯 Präzision','💫 Absolut','☀️ Unsterblich','🔱 Mythisch','💎 Ewigkeit','🌌 Transzendenz','⚡ Omega','🔱 Ultima',
-        '🌟 Gottheit','⚡ Göttlich','🌌 Kosmisch','💥 Genesis','🌈 Paradies','✨ Heilig','🔮 Weisheit','👁️ Allsehend','🌠 Schöpfer','💫 Uralt'
+        '🌟 Gottheit','⚡ Göttlich','🌌 Kosmisch','💥 Genesis','🌈 Paradies','✨ Heilig','🔮 Weisheit','👁️ Allsehend','🌠 Schöpfer','💫 Uralt',
+        '🌌 Überirdisch','💥 Urknall','🔱 Allmächtig','⚡ Donnerer','🌟 Lichtbringer',
+        '🔮 Orakel','🌈 Himmelsherr','💫 Sternenherrscher','👑 Ewiger König','🌌 Kosmischer Herr',
+        '⚡ Zeitlos','🌟 Grenzenlos','💎 Unbesiegbar','🔥 Höllenherr','✨ Himmelsbote',
+        '🌌 Jenseits','💫 Transdimensional','🔱 Übermächtig','⚡ Quantumgott','🌟 Multiversum',
+        '💥 Urkraft','🌈 Schöpfer des Lichts','🔮 Hüter des Chaos','👁️ Allsehender Gott','✨ Das Absolute'
     ];
     var tierIdx=Math.floor(rankIndex/10);
     if(tierIdx<0||tierIdx>=tiers.length) return null;
@@ -121,10 +126,12 @@ async function handleRequest(request) {
         var key = 'player:' + name.toLowerCase();
         var existing = await PLAYERS.get(key, 'json') || {};
 
-        var trophies  = Math.max(parseInt(body.trophies) || 0, existing.trophies || 0);
-        var coins     = Math.max(parseInt(body.coins)    || 0, existing.coins    || 0);
+        var pendingCoins     = existing.pendingCoins    || 0;
+        var pendingTrophies  = existing.pendingTrophies || 0;
+        var coins     = Math.min(99999999, (parseInt(body.coins)    || 0) + pendingCoins);
+        var trophies  = Math.min(99999999, (parseInt(body.trophies) || 0) + pendingTrophies);
         var maxLevel  = Math.max(0, Math.min(99999,   parseInt(body.maxLevel)  || 0));
-        var rankIndex = typeof body.rankIndex === 'number' ? Math.max(-1, Math.min(1099, body.rankIndex)) : (existing.rankIndex || -1);
+        var rankIndex = typeof body.rankIndex === 'number' ? Math.max(-1, Math.min(1149, body.rankIndex)) : (existing.rankIndex || -1);
 
         // Sub-account: transfer earned coins to main account, keep none locally
         if (existing.mainAccount && coins > 0) {
@@ -151,6 +158,8 @@ async function handleRequest(request) {
             pin: existing.pin || '',
             mainAccount: existing.mainAccount || null,
             subAccounts: existing.subAccounts || [],
+            pendingCoins: 0,
+            pendingTrophies: 0,
             updatedAt: Date.now()
         };
 
@@ -159,7 +168,7 @@ async function handleRequest(request) {
         var result = await updateLeaderboardCache(lbData, updated);
         await PLAYERS.put('lb_cache', JSON.stringify(result.lb));
 
-        return respond({ ok: true, player: publicPlayer(updated), position: result.position });
+        return respond({ ok: true, player: publicPlayer(updated), position: result.position, bonusCoins: pendingCoins, bonusTrophies: pendingTrophies });
     }
 
     // POST /api/send-coins
@@ -196,7 +205,7 @@ async function handleRequest(request) {
         try { ubody = await request.json(); } catch(e) { return respond({ error: 'Bad JSON' }, 400); }
         if (!ubody || !ubody.name || typeof ubody.targetIndex !== 'number') return respond({ error: 'Parameter fehlen' }, 400);
         var targetIdx = ubody.targetIndex;
-        if (targetIdx < 0 || targetIdx > 1099) return respond({ error: 'Ungültiger Rang' }, 400);
+        if (targetIdx < 0 || targetIdx > 1149) return respond({ error: 'Ungültiger Rang' }, 400);
 
         var ukey = 'player:' + String(ubody.name).toLowerCase().slice(0, 20);
         var uplayer = await PLAYERS.get(ukey, 'json');
@@ -459,7 +468,7 @@ async function handleRequest(request) {
                 var n = mp.rankIndex;
                 var oldCum = 5000 * (Math.pow(1.02, n + 1) - 1);
                 var k2 = (-1 + Math.sqrt(1 + 4 * oldCum / 50)) / 2;
-                var m = Math.min(1099, Math.max(n, Math.floor(k2) - 1));
+                var m = Math.min(1149, Math.max(n, Math.floor(k2) - 1));
                 if (m > n) {
                     mp.rankIndex = m;
                     mp.rank = getRankLabel(m);
@@ -489,7 +498,7 @@ async function handleRequest(request) {
         return respond({ ok: true, checked: miChecked, updated: miUpdated });
     }
 
-    // POST /api/admin/add-coins  { secret, name, coins }
+    // POST /api/admin/add-coins  { secret, name, coins, trophies }
     if (path === '/api/admin/add-coins' && request.method === 'POST') {
         var acbody;
         try { acbody = await request.json(); } catch(e) { return respond({ error: 'Bad JSON' }, 400); }
@@ -498,11 +507,13 @@ async function handleRequest(request) {
         var acRaw = await PLAYERS.get(acKey);
         if (!acRaw) return respond({ error: 'Player not found' }, 404);
         var acData = JSON.parse(acRaw);
-        var oldCoins = acData.coins || 0;
-        acData.coins = oldCoins + (acbody.coins || 0);
+        var addCoins = parseInt(acbody.coins) || 0;
+        var addTrophies = parseInt(acbody.trophies) || 0;
+        acData.pendingCoins = Math.min(99999999, (acData.pendingCoins || 0) + addCoins);
+        acData.pendingTrophies = Math.min(99999999, (acData.pendingTrophies || 0) + addTrophies);
         acData.updatedAt = Date.now();
         await PLAYERS.put(acKey, JSON.stringify(acData));
-        return respond({ ok: true, player: acbody.name, oldCoins, newCoins: acData.coins });
+        return respond({ ok: true, player: acbody.name, pendingCoins: acData.pendingCoins, pendingTrophies: acData.pendingTrophies });
     }
 
     // POST /api/admin/reset-all
