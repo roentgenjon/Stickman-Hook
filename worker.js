@@ -127,6 +127,25 @@ async function handleRequest(request) {
         var maxLevel  = Math.max(0, Math.min(99999,   parseInt(body.maxLevel)  || 0));
         var rankIndex = typeof body.rankIndex === 'number' ? Math.max(-1, Math.min(1149, body.rankIndex)) : (existing.rankIndex || -1);
 
+        var effectiveMaxLevel = Math.max(maxLevel, existing.maxLevel || 0);
+        var effectiveRankIndex = Math.max(rankIndex, existing.rankIndex || -1);
+        var hasBonus = pendingCoins > 0 || pendingTrophies > 0;
+
+        // Skip all KV writes if nothing changed and no bonus pending
+        if (!hasBonus && existing.name &&
+            coins === (existing.coins || 0) &&
+            trophies === (existing.trophies || 0) &&
+            effectiveMaxLevel === (existing.maxLevel || 0) &&
+            effectiveRankIndex === (existing.rankIndex || -1) &&
+            !existing.mainAccount) {
+            var lbCacheRO = await PLAYERS.get('lb_cache', 'json') || [];
+            var posRO = -1;
+            for (var pi = 0; pi < lbCacheRO.length; pi++) {
+                if (lbCacheRO[pi].name.toLowerCase() === name.toLowerCase()) { posRO = pi + 1; break; }
+            }
+            return respond({ ok: true, player: publicPlayer(existing), position: posRO > 0 ? posRO : 999999, bonusCoins: 0, bonusTrophies: 0 });
+        }
+
         // Sub-account: transfer earned coins to main account, keep none locally
         if (existing.mainAccount && coins > 0) {
             var mainKey = 'player:' + existing.mainAccount.toLowerCase();
@@ -146,9 +165,9 @@ async function handleRequest(request) {
             name: name,
             trophies: trophies,
             coins: coins,
-            maxLevel: Math.max(maxLevel, existing.maxLevel || 0),
-            rankIndex: Math.max(rankIndex, existing.rankIndex || -1),
-            rank: getRankLabel(Math.max(rankIndex, existing.rankIndex || -1)),
+            maxLevel: effectiveMaxLevel,
+            rankIndex: effectiveRankIndex,
+            rank: getRankLabel(effectiveRankIndex),
             pin: existing.pin || '',
             mainAccount: existing.mainAccount || null,
             subAccounts: existing.subAccounts || [],
@@ -158,9 +177,25 @@ async function handleRequest(request) {
         };
 
         await PLAYERS.put(key, JSON.stringify(updated));
-        var lbData = await PLAYERS.get('lb_cache', 'json') || [];
-        var result = await updateLeaderboardCache(lbData, updated);
-        await PLAYERS.put('lb_cache', JSON.stringify(result.lb));
+
+        // Only update lb_cache if ranking-relevant data changed
+        var lbRelevantChanged = !existing.name ||
+            trophies !== (existing.trophies || 0) ||
+            effectiveMaxLevel !== (existing.maxLevel || 0) ||
+            effectiveRankIndex !== (existing.rankIndex || -1);
+        var lbData, result;
+        if (lbRelevantChanged) {
+            lbData = await PLAYERS.get('lb_cache', 'json') || [];
+            result = await updateLeaderboardCache(lbData, updated);
+            await PLAYERS.put('lb_cache', JSON.stringify(result.lb));
+        } else {
+            lbData = await PLAYERS.get('lb_cache', 'json') || [];
+            var posOnly = -1;
+            for (var pj = 0; pj < lbData.length; pj++) {
+                if (lbData[pj].name.toLowerCase() === name.toLowerCase()) { posOnly = pj + 1; break; }
+            }
+            result = { position: posOnly > 0 ? posOnly : 999999 };
+        }
 
         return respond({ ok: true, player: publicPlayer(updated), position: result.position, bonusCoins: pendingCoins, bonusTrophies: pendingTrophies });
     }
@@ -188,8 +223,12 @@ async function handleRequest(request) {
         sender.updatedAt    = Date.now();
         recipient.updatedAt = Date.now();
 
-        await PLAYERS.put(fromKey, JSON.stringify(sender));
-        await PLAYERS.put(toKey,   JSON.stringify(recipient));
+        try {
+            await PLAYERS.put(fromKey, JSON.stringify(sender));
+            await PLAYERS.put(toKey,   JSON.stringify(recipient));
+        } catch(e) {
+            return respond({ error: 'Server überlastet, bitte später versuchen' }, 503);
+        }
         return respond({ ok: true, newBalance: sender.coins });
     }
 

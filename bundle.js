@@ -30583,8 +30583,11 @@
 
       function isValidUrl(url) { return url&&url.length>0&&url.indexOf('PLACEHOLDER')===-1; }
 
-      function syncToCloud(callback) {
+      function syncToCloud(callback, force) {
         if (!isValidUrl(WORKER_URL)||!state.playerName) { if(callback) callback('no url/name',null); return; }
+        var now=Date.now(), COOLDOWN=2*60*1000;
+        if(!force&&state._lastSync&&(now-state._lastSync)<COOLDOWN){if(callback)callback(null,null);return;}
+        state._lastSync=now; save();
         fetch(WORKER_URL+'/api/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.playerName,trophies:state.trophies,coins:state.coins,rank:state.rank,rankIndex:state.rankIndex,maxLevel:state.maxLevel||0})})
         .then(function(r){return r.json();}).then(function(d){
           if(d&&typeof d.bonusCoins==='number'&&d.bonusCoins>0){state.coins=(state.coins||0)+d.bonusCoins;state.coinsEarned=(state.coinsEarned||0)+d.bonusCoins;}
@@ -30878,7 +30881,7 @@
                 h('span',{style:'display:inline-flex;align-items:center;gap:3px;'},h('span',{class:'mc'}),QS.fmtNum(QS.state.coins)),
                 h('span',null,'🏆 '+QS.state.trophies),
                 h('span',{class:'qs-qcount'},QS.state.questsDone+'/'+QS.QUESTS.length),
-                Object.keys(QS.state.ready||{}).length>0?h('button',{class:'qs-collect-btn',style:'padding:4px 8px;font-size:11px;',onClick:function(){QS.collectAllReady();QS.checkQuests(rerender);QS.syncToCloud(function(){});rerender();}},'⬇ Alle ('+Object.keys(QS.state.ready||{}).length+')'):null,
+                Object.keys(QS.state.ready||{}).length>0?h('button',{class:'qs-collect-btn',style:'padding:4px 8px;font-size:11px;',onClick:function(){QS.collectAllReady();QS.checkQuests(rerender);QS.syncToCloud(function(){},true);rerender();}},'⬇ Alle ('+Object.keys(QS.state.ready||{}).length+')'):null,
                 h('button',{class:'qs-act-btn',style:'font-size:11px;padding:4px 8px;'+(QS.state.autoCollect?'background:#27ae60;color:white;':''),onClick:function(){QS.toggleAutoCollect();QS.checkQuests(rerender);rerender();}},QS.state.autoCollect?'Auto ✓':'Auto ○')
               ),
               h('div',{class:'qs-cats'},QS.CATS.map(function(cat,ci){
@@ -30905,7 +30908,7 @@
                       )
                     ),
                     dn?h('span',{class:'qs-check'},'✓')
-                      :rdy?h('button',{class:'qs-collect-btn',onClick:function(){QS.collectQuest(q.id);QS.checkQuests(rerender);QS.syncToCloud(function(){});rerender();}},'⬇ Abholen!')
+                      :rdy?h('button',{class:'qs-collect-btn',onClick:function(){QS.collectQuest(q.id);QS.checkQuests(rerender);QS.syncToCloud(function(){},true);rerender();}},'⬇ Abholen!')
                       :h('div',{class:'qs-prog'},
                         h('div',{class:'qs-bar'},h('div',{class:'qs-fill',style:'width:'+pct+'%'})),
                         h('span',{class:'qs-prog-txt'},QS.fmtNum(Math.min(pr,q.target))+'/'+QS.fmtNum(q.target))
@@ -30950,7 +30953,7 @@
                         if(err){t.setState({msg:'Falsche PIN'});QS.logoutAccount();return;}
                         QS.applyServerData(d);
                         QS.checkQuests(rerender);
-                        QS.syncToCloud(function(){});
+                        QS.syncToCloud(function(){},true);
                         t.setState({loginPinRequired:false,loginPinData:null,loginPin:'',msg:'✓ Willkommen zurück, '+n+'!'});
                         rerender();
                       });
@@ -30979,13 +30982,13 @@
                         } else {
                           QS.applyServerData(d);
                           QS.checkQuests(rerender);
-                          QS.syncToCloud(function(){});
+                          QS.syncToCloud(function(){},true);
                           t.setState({msg:'✓ Willkommen zurück, '+d.name+'!'});
                           rerender();
                         }
                       } else {
                         QS.checkQuests(rerender);
-                        QS.syncToCloud(function(){});
+                        QS.syncToCloud(function(){},true);
                         t.setState({msg:'✓ Account erstellt für '+n+'!'});
                         rerender();
                       }
@@ -31027,7 +31030,7 @@
                     if(!canUpgrade)return;
                     QS.upgradeRank(function(err){
                       if(err)t.setState({msg:'Fehler: '+String(err)});
-                      else{QS.checkQuests(rerender);QS.syncToCloud(function(){});t.setState({msg:'✓ '+QS.state.rank+' freigeschaltet!',panel:''});}
+                      else{QS.checkQuests(rerender);QS.syncToCloud(function(){},true);t.setState({msg:'✓ '+QS.state.rank+' freigeschaltet!',panel:''});}
                     });
                   }},canUpgrade?'Rang upgraden 🚀':'Nicht genug Münzen'),
                   s.msg?h('p',{class:'qs-msg'},s.msg):null
