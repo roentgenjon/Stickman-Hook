@@ -19,7 +19,7 @@ function getRankLabel(rankIndex) {
         '🔥 Inferno','🌊 Tsunami','⚡ Plasma','⚛️ Atom','🌈 Aurora','✨ Aura','🌪️ Hurrikan','🌑 Schatten','⚡ Titan','🔮 Götter',
         '👑 Elite','🏛️ Kaiser','🎯 Präzision','💫 Absolut','☀️ Unsterblich','🔱 Mythisch','💎 Ewigkeit','🌌 Transzendenz','⚡ Omega','🔱 Ultima',
         '🌟 Gottheit','⚡ Göttlich','🌌 Kosmisch','💥 Genesis','🌈 Paradies','✨ Heilig','🔮 Weisheit','👁️ Allsehend','🌠 Schöpfer','💫 Uralt',
-        '🌌 Überirdisch','💥 Urknall','🔱 Allmächtig','⚡ Donnerer','🌟 Lichtbringer',
+        '🌌 Überirdisch','💥 Urknall','🔱 Allmächtig','⚡ Donnerer','🏆 Pro',
         '🔮 Orakel','🌈 Himmelsherr','💫 Sternenherrscher','👑 Ewiger König','🌌 Kosmischer Herr',
         '⚡ Zeitlos','🌟 Grenzenlos','💎 Unbesiegbar','🔥 Höllenherr','✨ Himmelsbote',
         '🌌 Jenseits','💫 Transdimensional','🔱 Übermächtig','⚡ Quantumgott','🌟 Multiversum',
@@ -31,7 +31,7 @@ function getRankLabel(rankIndex) {
 }
 
 function getUpgradeCost(targetIndex) {
-    return (targetIndex+1)*500;
+    return (targetIndex+1)*100;
 }
 
 function respond(data, status) {

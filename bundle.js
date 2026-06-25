@@ -30420,7 +30420,7 @@
         '🔥 Inferno','🌊 Tsunami','⚡ Plasma','⚛️ Atom','🌈 Aurora','✨ Aura','🌪️ Hurrikan','🌑 Schatten','⚡ Titan','🔮 Götter',
         '👑 Elite','🏛️ Kaiser','🎯 Präzision','💫 Absolut','☀️ Unsterblich','🔱 Mythisch','💎 Ewigkeit','🌌 Transzendenz','⚡ Omega','🔱 Ultima',
         '🌟 Gottheit','⚡ Göttlich','🌌 Kosmisch','💥 Genesis','🌈 Paradies','✨ Heilig','🔮 Weisheit','👁️ Allsehend','🌠 Schöpfer','💫 Uralt',
-        '🌌 Überirdisch','💥 Urknall','🔱 Allmächtig','⚡ Donnerer','🌟 Lichtbringer',
+        '🌌 Überirdisch','💥 Urknall','🔱 Allmächtig','⚡ Donnerer','🏆 Pro',
         '🔮 Orakel','🌈 Himmelsherr','💫 Sternenherrscher','👑 Ewiger König','🌌 Kosmischer Herr',
         '⚡ Zeitlos','🌟 Grenzenlos','💎 Unbesiegbar','🔥 Höllenherr','✨ Himmelsbote',
         '🌌 Jenseits','💫 Transdimensional','🔱 Übermächtig','⚡ Quantumgott','🌟 Multiversum',
@@ -30428,7 +30428,7 @@
       ];
       var RANKS = (function(){
         var r=[]; for(var i=0;i<1150;i++){
-          r.push({index:i, label:RANK_TIERS[Math.floor(i/10)]+' '+(i%10+1), cost:(i+1)*500});
+          r.push({index:i, label:RANK_TIERS[Math.floor(i/10)]+' '+(i%10+1), cost:(i+1)*100});
         } return r;
       })();
 
