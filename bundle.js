@@ -30642,7 +30642,7 @@
         if(state.coins<rank.cost){if(callback)callback('not enough coins',null);return;}
         state.coins-=rank.cost; state.rankIndex=newIdx; state.rank=rank.label; save();
         fetch(WORKER_URL+'/api/upgrade-rank',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.playerName,targetIndex:newIdx})})
-        .then(function(r){return r.json();}).then(function(d){if(d&&d.ok){state.coins=d.player.coins;save();}if(callback)callback(null,d);}).catch(function(e){if(callback)callback(e,null);});
+        .then(function(r){return r.json();}).then(function(d){if(d&&d.ok){save();}if(callback)callback(null,d);}).catch(function(e){if(callback)callback(e,null);});
       }
       function resetAll(callback) {
         var n=state.playerName;
@@ -30921,7 +30921,7 @@
                 h('span',null,'🏆 '+QS.state.trophies),
                 QS.state.lbPosition<999999?h('span',null,'#'+QS.state.lbPosition):null,
                 h('button',{class:'qs-act-btn',style:'margin-left:auto;font-size:14px;padding:4px 8px;',onClick:function(){
-                  t.setState({lbData:null,lbLvl:null});
+                  t.setState({lbData:null,lbLvl:null,lbRank:null});
                   QS.fetchLeaderboard(function(err,data){
                     if(!err&&data){
                       var byLvl=[].concat(data).sort(function(a,b){return(b.maxLevel||0)-(a.maxLevel||0);});
@@ -31210,19 +31210,14 @@
       })();
 
       load();
-      // Auto-check quests and sync existing progress after game loads
       window.addEventListener('load', function() {
         setTimeout(function() {
           if (!window._QS) return;
           var qs = window._QS;
           if (qs.state.playerName) {
-            // Push locally-earned coins to server first so they survive reload,
-            // then load authoritative server state, then check quests.
             qs.syncToCloud(function() {
-              qs.loadFromCloud(function() {
-                qs.checkQuests(function() {
-                  if (window._QSUI) window._QSUI.setState({});
-                });
+              qs.checkQuests(function() {
+                if (window._QSUI) window._QSUI.setState({});
               });
             });
           } else {
