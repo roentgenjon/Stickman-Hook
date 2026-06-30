@@ -146,58 +146,62 @@ async function handleRequest(request) {
             return respond({ ok: true, player: publicPlayer(existing), position: posRO > 0 ? posRO : 999999, bonusCoins: 0, bonusTrophies: 0 });
         }
 
-        // Sub-account: transfer earned coins to main account, keep none locally
-        if (existing.mainAccount && coins > 0) {
-            var mainKey = 'player:' + existing.mainAccount.toLowerCase();
-            var mainAcc = await PLAYERS.get(mainKey, 'json');
-            if (mainAcc) {
-                mainAcc.coins = Math.min(99999999, (mainAcc.coins || 0) + coins);
-                mainAcc.updatedAt = Date.now();
-                await PLAYERS.put(mainKey, JSON.stringify(mainAcc));
-                var mlb = await PLAYERS.get('lb_cache', 'json') || [];
-                var mr = await updateLeaderboardCache(mlb, mainAcc);
-                await PLAYERS.put('lb_cache', JSON.stringify(mr.lb));
+        try {
+            // Sub-account: transfer earned coins to main account, keep none locally
+            if (existing.mainAccount && coins > 0) {
+                var mainKey = 'player:' + existing.mainAccount.toLowerCase();
+                var mainAcc = await PLAYERS.get(mainKey, 'json');
+                if (mainAcc) {
+                    mainAcc.coins = Math.min(99999999, (mainAcc.coins || 0) + coins);
+                    mainAcc.updatedAt = Date.now();
+                    await PLAYERS.put(mainKey, JSON.stringify(mainAcc));
+                    var mlb = await PLAYERS.get('lb_cache', 'json') || [];
+                    var mr = await updateLeaderboardCache(mlb, mainAcc);
+                    await PLAYERS.put('lb_cache', JSON.stringify(mr.lb));
+                }
+                coins = 0;
             }
-            coins = 0;
-        }
 
-        var updated = {
-            name: name,
-            trophies: trophies,
-            coins: coins,
-            maxLevel: effectiveMaxLevel,
-            rankIndex: effectiveRankIndex,
-            rank: getRankLabel(effectiveRankIndex),
-            pin: existing.pin || '',
-            mainAccount: existing.mainAccount || null,
-            subAccounts: existing.subAccounts || [],
-            pendingCoins: 0,
-            pendingTrophies: 0,
-            updatedAt: Date.now()
-        };
+            var updated = {
+                name: name,
+                trophies: trophies,
+                coins: coins,
+                maxLevel: effectiveMaxLevel,
+                rankIndex: effectiveRankIndex,
+                rank: getRankLabel(effectiveRankIndex),
+                pin: existing.pin || '',
+                mainAccount: existing.mainAccount || null,
+                subAccounts: existing.subAccounts || [],
+                pendingCoins: 0,
+                pendingTrophies: 0,
+                updatedAt: Date.now()
+            };
 
-        await PLAYERS.put(key, JSON.stringify(updated));
+            await PLAYERS.put(key, JSON.stringify(updated));
 
-        // Only update lb_cache if ranking-relevant data changed
-        var lbRelevantChanged = !existing.name ||
-            trophies !== (existing.trophies || 0) ||
-            effectiveMaxLevel !== (existing.maxLevel || 0) ||
-            effectiveRankIndex !== (existing.rankIndex || -1);
-        var lbData, result;
-        if (lbRelevantChanged) {
-            lbData = await PLAYERS.get('lb_cache', 'json') || [];
-            result = await updateLeaderboardCache(lbData, updated);
-            await PLAYERS.put('lb_cache', JSON.stringify(result.lb));
-        } else {
-            lbData = await PLAYERS.get('lb_cache', 'json') || [];
-            var posOnly = -1;
-            for (var pj = 0; pj < lbData.length; pj++) {
-                if (lbData[pj].name.toLowerCase() === name.toLowerCase()) { posOnly = pj + 1; break; }
+            // Only update lb_cache if ranking-relevant data changed
+            var lbRelevantChanged = !existing.name ||
+                trophies !== (existing.trophies || 0) ||
+                effectiveMaxLevel !== (existing.maxLevel || 0) ||
+                effectiveRankIndex !== (existing.rankIndex || -1);
+            var lbData, result;
+            if (lbRelevantChanged) {
+                lbData = await PLAYERS.get('lb_cache', 'json') || [];
+                result = await updateLeaderboardCache(lbData, updated);
+                await PLAYERS.put('lb_cache', JSON.stringify(result.lb));
+            } else {
+                lbData = await PLAYERS.get('lb_cache', 'json') || [];
+                var posOnly = -1;
+                for (var pj = 0; pj < lbData.length; pj++) {
+                    if (lbData[pj].name.toLowerCase() === name.toLowerCase()) { posOnly = pj + 1; break; }
+                }
+                result = { position: posOnly > 0 ? posOnly : 999999 };
             }
-            result = { position: posOnly > 0 ? posOnly : 999999 };
-        }
 
-        return respond({ ok: true, player: publicPlayer(updated), position: result.position, bonusCoins: pendingCoins, bonusTrophies: pendingTrophies });
+            return respond({ ok: true, player: publicPlayer(updated), position: result.position, bonusCoins: pendingCoins, bonusTrophies: pendingTrophies });
+        } catch(e) {
+            return respond({ error: 'Server überlastet, bitte später versuchen' }, 503);
+        }
     }
 
     // POST /api/send-coins
@@ -255,10 +259,14 @@ async function handleRequest(request) {
         uplayer.rank      = getRankLabel(targetIdx);
         uplayer.updatedAt = Date.now();
 
-        await PLAYERS.put(ukey, JSON.stringify(uplayer));
-        var ulbData = await PLAYERS.get('lb_cache', 'json') || [];
-        var uResult = await updateLeaderboardCache(ulbData, uplayer);
-        await PLAYERS.put('lb_cache', JSON.stringify(uResult.lb));
+        try {
+            await PLAYERS.put(ukey, JSON.stringify(uplayer));
+            var ulbData = await PLAYERS.get('lb_cache', 'json') || [];
+            var uResult = await updateLeaderboardCache(ulbData, uplayer);
+            await PLAYERS.put('lb_cache', JSON.stringify(uResult.lb));
+        } catch(e) {
+            return respond({ error: 'Server überlastet, bitte später versuchen' }, 503);
+        }
 
         return respond({ ok: true, player: publicPlayer(uplayer) });
     }
