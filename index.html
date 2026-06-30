@@ -24,11 +24,19 @@
         width: 100vw;
         height: 100vh;
         background-color: black;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+        -webkit-tap-highlight-color: transparent;
+        overscroll-behavior: none;
       }
       canvas {
         display: block;
         width: 100%;
         height: auto;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: none;
       }
 
       .mc {
@@ -80,6 +88,7 @@
         bottom: 0;
         overflow-y: auto;
         overflow-x: hidden;
+        overscroll-behavior: contain;
         padding: 16px;
         display: flex;
         flex-wrap: wrap;
@@ -133,6 +142,7 @@
         background: rgba(0, 4, 60, 0.96);
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
         display: flex;
         flex-direction: column;
         gap: 0;
@@ -152,6 +162,7 @@
       .qs-cats, .qs-list, .qs-lb {
         pointer-events: all;
         -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
       }
       .qs-topbar {
         display: flex;
