@@ -30490,7 +30490,7 @@
       for (i = 0; i < 1100; i++) { var rl=RANKS[i]; QUESTS.push({ id: 'rng_'+i, cat: 5, title: rl.label+' kaufen', desc: 'Kaufe das Rang-Upgrade '+rl.label+'.', type: 'rank_level', target: i, reward_coins: (i+1)*10, reward_trophies: Math.floor(i/110)+1 }); }
 
       function makeDefaultState() {
-        return { coins:0, coinsEarned:0, trophies:0, questsDone:0, done:{}, ready:{}, progress:{}, autoCollect:false, playerName:'', rank:null, rankIndex:-1, maxLevel:0, lbViews:0, sentCoins:0, recvCoins:0, sentToPlayers:[], recvFromPlayers:[], lbPosition:999999, mainAccount:null, subAccounts:[], hasPin:false, questBaseline:null };
+        return { coins:0, coinsEarned:0, trophies:0, questsDone:0, done:{}, ready:{}, progress:{}, autoCollect:false, playerName:'', rank:null, rankIndex:-1, maxLevel:0, lbViews:0, sentCoins:0, recvCoins:0, sentToPlayers:[], recvFromPlayers:[], lbPosition:999999, mainAccount:null, subAccounts:[], hasPin:false, questBaseline:null, multiplierLevel:0 };
       }
       var state = makeDefaultState();
       var STORAGE_KEY = 'STICKMANHOOK_qs';
@@ -30570,7 +30570,9 @@
           state.progress[quest.id] = prog;
           if (met) {
             if (state.autoCollect) {
-              state.done[quest.id]=true; state.coins+=quest.reward_coins; state.coinsEarned+=quest.reward_coins; state.trophies+=quest.reward_trophies; state.questsDone+=1; effQuestsDone+=1;
+              var mult=1+(state.multiplierLevel||0)*0.1;
+              var rc=Math.round(quest.reward_coins*mult), rt=quest.reward_trophies>0?Math.round(quest.reward_trophies*mult):0;
+              state.done[quest.id]=true; state.coins+=rc; state.coinsEarned+=rc; state.trophies+=rt; state.questsDone+=1; effQuestsDone+=1;
             } else {
               state.ready[quest.id]=true;
             }
@@ -30752,9 +30754,11 @@
         var quest = null;
         for (var ci=0; ci<QUESTS.length; ci++) { if(QUESTS[ci].id===questId){quest=QUESTS[ci];break;} }
         if (!quest) return null;
+        var mult=1+(state.multiplierLevel||0)*0.1;
+        var rc=Math.round(quest.reward_coins*mult), rt=quest.reward_trophies>0?Math.round(quest.reward_trophies*mult):0;
         state.done[questId]=true; delete state.ready[questId];
-        state.coins+=quest.reward_coins; state.coinsEarned+=quest.reward_coins;
-        state.trophies+=quest.reward_trophies; state.questsDone+=1;
+        state.coins+=rc; state.coinsEarned+=rc;
+        state.trophies+=rt; state.questsDone+=1;
         save(); return quest;
       }
       function collectAllReady() {
@@ -30768,7 +30772,11 @@
         save();
       }
 
-      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save, applyServerData:applyServerData, loadServerData:loadServerData, verifyPin:verifyPin, renameAccount:renameAccount, setPinAccount:setPinAccount, createSubAccount:createSubAccount, deleteAccount:deleteAccount, logoutAccount:logoutAccount, switchToAccount:switchToAccount, resetQuests:resetQuests, collectQuest:collectQuest, collectAllReady:collectAllReady, toggleAutoCollect:toggleAutoCollect };
+      function buyMultiplier() {
+        if (state.coins < 100000) return false;
+        state.coins -= 100000; state.multiplierLevel = (state.multiplierLevel||0) + 1; save(); return true;
+      }
+      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save, applyServerData:applyServerData, loadServerData:loadServerData, verifyPin:verifyPin, renameAccount:renameAccount, setPinAccount:setPinAccount, createSubAccount:createSubAccount, deleteAccount:deleteAccount, logoutAccount:logoutAccount, switchToAccount:switchToAccount, resetQuests:resetQuests, collectQuest:collectQuest, collectAllReady:collectAllReady, toggleAutoCollect:toggleAutoCollect, buyMultiplier:buyMultiplier };
       window._gameAPI = {
         playCustomLevel: function(levelData) {
           if(!Sc||!Sc.instance){return;}
@@ -30882,7 +30890,16 @@
                 h('span',null,'🏆 '+QS.state.trophies),
                 h('span',{class:'qs-qcount'},QS.state.questsDone+'/'+QS.QUESTS.length),
                 Object.keys(QS.state.ready||{}).length>0?h('button',{class:'qs-collect-btn',style:'padding:4px 8px;font-size:11px;',onClick:function(){QS.collectAllReady();QS.checkQuests(rerender);QS.syncToCloud(function(){},true);rerender();}},'⬇ Alle ('+Object.keys(QS.state.ready||{}).length+')'):null,
-                h('button',{class:'qs-act-btn',style:'font-size:11px;padding:4px 8px;'+(QS.state.autoCollect?'background:#27ae60;color:white;':''),onClick:function(){QS.toggleAutoCollect();QS.checkQuests(rerender);rerender();}},QS.state.autoCollect?'Auto ✓':'Auto ○')
+                h('button',{class:'qs-act-btn',style:'font-size:11px;padding:4px 8px;'+(QS.state.autoCollect?'background:#27ae60;color:white;':''),onClick:function(){QS.toggleAutoCollect();QS.checkQuests(rerender);rerender();}},QS.state.autoCollect?'Auto ✓':'Auto ○'),
+                (function(){
+                  var ml=QS.state.multiplierLevel||0;
+                  var cur=Math.round((1+ml*0.1)*100), nxt=cur+10;
+                  var canBuy=QS.state.coins>=100000;
+                  return h('button',{class:'qs-act-btn',style:'font-size:10px;padding:4px 7px;white-space:nowrap;'+(canBuy?'border-color:rgba(241,196,15,0.7);':'opacity:0.4;'),onClick:function(){
+                    if(!canBuy)return;
+                    QS.state.coins-=100000; QS.state.multiplierLevel=(ml+1); QS.save(); QS.syncToCloud(function(){},true); rerender();
+                  }},'×'+(cur/100).toFixed(1)+' ➜ ×'+(nxt/100).toFixed(1)+' 💫100K');
+                })()
               ),
               h('div',{class:'qs-cats'},QS.CATS.map(function(cat,ci){
                 var catQuests=QS.QUESTS.filter(function(q){return q.cat===ci;});
