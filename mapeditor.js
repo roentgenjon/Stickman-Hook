@@ -303,7 +303,7 @@
       if (flSX < cw) { ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.fillRect(flSX, 0, cw - flSX, ch); }
 
       // Major grid (0.25 steps)
-      ctx.lineWidth = 0.5;
+      ctx.lineWidth = 0.05;
       var mgStart = Math.floor(viewX / 0.25) * 0.25;
       for (var gx = mgStart; gx < viewX + 1.05; gx += 0.25) {
         if (gx < -0.001) continue;
@@ -321,7 +321,7 @@
         ctx.fillText(gy.toFixed(2), 2, py > 10 ? py - 3 : py + 11);
       }
       // Minor grid (SNAP steps)
-      ctx.strokeStyle = 'rgba(255,255,255,0.03)'; ctx.lineWidth = 0.5;
+      ctx.strokeStyle = 'rgba(255,255,255,0.03)'; ctx.lineWidth = 0.05;
       var msStart = Math.floor(viewX / SNAP) * SNAP;
       for (var gx2 = msStart; gx2 < viewX + 1.05; gx2 += SNAP) {
         if (Math.abs(Math.round(gx2 / 0.25) * 0.25 - gx2) < 0.001) continue;
