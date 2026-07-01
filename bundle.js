@@ -30585,7 +30585,7 @@
 
       function syncToCloud(callback, force) {
         if (!isValidUrl(WORKER_URL)||!state.playerName) { if(callback) callback('no url/name',null); return; }
-        var now=Date.now(), COOLDOWN=2*60*1000;
+        var now=Date.now(), COOLDOWN=5*60*1000;
         if(!force&&state._lastSync&&(now-state._lastSync)<COOLDOWN){if(callback)callback(null,null);return;}
         state._lastSync=now; save();
         fetch(WORKER_URL+'/api/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.playerName,trophies:state.trophies,coins:state.coins,rank:state.rank,rankIndex:state.rankIndex,maxLevel:state.maxLevel||0})})
@@ -31226,6 +31226,17 @@
           } else {
             qs.checkQuests(function() {});
           }
+          // Automatischer Sync alle 5 Minuten: Browser → Datenbank
+          setInterval(function() {
+            if (!window._QS || !window._QS.state.playerName) return;
+            window._QS.syncToCloud(function(err, d) {
+              if (d && typeof d.bonusCoins === 'number' && d.bonusCoins > 0) {
+                window._QS.checkQuests(function() {
+                  if (window._QSUI) window._QSUI.setState({});
+                });
+              }
+            }, true);
+          }, 5 * 60 * 1000);
         }, 3000);
       });
     })();
