@@ -28274,7 +28274,7 @@
         os = n.n(is);
 
     function as(t) {
-        return !t.condition || (t.condition.level <= Sc.instance.level + 1 || !(!t.condition.ad && !t.condition.shortcut) && (Sc.instance.playerInfos && Sc.instance.playerInfos.unlockedSkins && Sc.instance.playerInfos.unlockedSkins.includes(t.id)))
+        return !t.condition || (t.condition.level <= Sc.instance.level + 1 || !(!(t.condition.ad || t.condition.coins) && !t.condition.shortcut) && (Sc.instance.playerInfos && Sc.instance.playerInfos.unlockedSkins && Sc.instance.playerInfos.unlockedSkins.includes(t.id)))
     }
 
     function ss() {
@@ -28305,11 +28305,12 @@
         }, {
             id: "CHAR_Dragon",
             name: "Dragon",
-            type: "rewarded",
+            type: "coin",
             thumbnail: Ja.a,
             texture: "stickman_dragon_texture",
             atlas: "stickman_dragon_json",
-            description: "Watch 1 video",
+            condition: { coins: 500000 },
+            description: "500K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28473,11 +28474,12 @@
         }, {
             id: "CHAR_Burger",
             name: "Burger",
-            type: "rewarded",
+            type: "coin",
             thumbnail: va.a,
             texture: "stickman_burger_texture",
             atlas: "stickman_burger_json",
-            description: "Watch 1 video",
+            condition: { coins: 250000 },
+            description: "250K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28489,11 +28491,12 @@
         }, {
             id: "CHAR_Cactus",
             name: "Cactus",
-            type: "rewarded",
+            type: "coin",
             thumbnail: _a.a,
             texture: "stickman_cactus_texture",
             atlas: "stickman_cactus_json",
-            description: "Watch 1 video",
+            condition: { coins: 300000 },
+            description: "300K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 2,
@@ -28505,11 +28508,12 @@
         }, {
             id: "CHAR_Corgi",
             name: "Corgi",
-            type: "rewarded",
+            type: "coin",
             thumbnail: Ta.a,
             texture: "stickman_corgi_texture",
             atlas: "stickman_corgi_json",
-            description: "Watch 1 video",
+            condition: { coins: 400000 },
+            description: "400K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28521,11 +28525,12 @@
         }, {
             id: "CHAR_Unicorn",
             name: "Unicorn",
-            type: "rewarded",
+            type: "coin",
             thumbnail: Ia.a,
             texture: "stickman_unicorn_texture",
             atlas: "stickman_unicorn_json",
-            description: "Watch 1 video",
+            condition: { coins: 600000 },
+            description: "600K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28537,11 +28542,12 @@
         }, {
             id: "CHAR_Banana",
             name: "Banana",
-            type: "rewarded",
+            type: "coin",
             thumbnail: Fa.a,
             texture: "stickman_banana_texture",
             atlas: "stickman_banana_json",
-            description: "Watch 1 video",
+            condition: { coins: 200000 },
+            description: "200K Münzen",
             frames: {
                 spawn: 2,
                 hooked0: 4,
@@ -28553,11 +28559,12 @@
         }, {
             id: "CHAR_Ninja",
             name: "Ninja",
-            type: "rewarded",
+            type: "coin",
             thumbnail: Ua.a,
             texture: "stickman_ninja_texture",
             atlas: "stickman_ninja_json",
-            description: "Watch 1 video",
+            condition: { coins: 500000 },
+            description: "500K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28569,11 +28576,12 @@
         }, {
             id: "AN_Sheep",
             name: "Sheep",
-            type: "rewarded",
+            type: "coin",
             thumbnail: ja.a,
             texture: "stickman_sheep_texture",
             atlas: "stickman_sheep_json",
-            description: "Watch 1 video",
+            condition: { coins: 200000 },
+            description: "200K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28585,11 +28593,12 @@
         }, {
             id: "v03_CHAR_Panda",
             name: "Panda",
-            type: "rewarded",
+            type: "coin",
             thumbnail: Ga.a,
             texture: "stickman_panda_texture",
             atlas: "stickman_panda_json",
-            description: "Watch 1 video",
+            condition: { coins: 350000 },
+            description: "350K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28601,11 +28610,12 @@
         }, {
             id: "CHAR_RobotMan",
             name: "Robot",
-            type: "rewarded",
+            type: "coin",
             thumbnail: Va.a,
             texture: "stickman_robot_texture",
             atlas: "stickman_robot_json",
-            description: "Watch 1 video",
+            condition: { coins: 750000 },
+            description: "750K Münzen",
             frames: {
                 spawn: 3,
                 hooked0: 2,
@@ -28617,11 +28627,12 @@
         }, {
             id: "CHAR_TikiMan",
             name: "Tiki",
-            type: "rewarded",
+            type: "coin",
             thumbnail: $a.a,
             texture: "stickman_tikiman_texture",
             atlas: "stickman_tikiman_json",
-            description: "Watch 1 video",
+            condition: { coins: 300000 },
+            description: "300K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28632,12 +28643,13 @@
             }
         }, {
             id: "CHAR_HotDog",
-            name: "Tiki",
-            type: "rewarded",
+            name: "HotDog",
+            type: "coin",
             thumbnail: es.a,
             texture: "stickman_hotdog_texture",
             atlas: "stickman_hotdog_json",
-            description: "Watch 1 video",
+            condition: { coins: 200000 },
+            description: "200K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28649,11 +28661,12 @@
         }, {
             id: "CHAR_LemonMan",
             name: "LemonMan",
-            type: "rewarded",
+            type: "coin",
             thumbnail: rs.a,
             texture: "stickman_lemonman_texture",
             atlas: "stickman_lemonman_json",
-            description: "Watch 1 video",
+            condition: { coins: 350000 },
+            description: "350K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28665,11 +28678,12 @@
         }, {
             id: "CHAR_Plant",
             name: "PlantMonster",
-            type: "rewarded",
+            type: "coin",
             thumbnail: os.a,
             texture: "stickman_plantmonster_texture",
             atlas: "stickman_plantmonster_json",
-            description: "Watch 1 video",
+            condition: { coins: 450000 },
+            description: "450K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -29782,7 +29796,7 @@
     };
 
     function hc(t) {
-        return t.condition && t.condition.level ? "LVL ".concat(t.condition.level) : t.condition && t.condition.ad ? "Video" : t.condition && t.condition.shortcut ? "Add icon" : void 0
+        return t.condition && t.condition.level ? "LVL ".concat(t.condition.level) : t.condition && t.condition.ad ? "Video" : t.condition && t.condition.coins ? (t.condition.coins>=1000000?(t.condition.coins/1000000).toFixed(1)+"M":Math.round(t.condition.coins/1000)+"K")+" 🪙" : t.condition && t.condition.shortcut ? "Add icon" : void 0
     }
     var cc = function(t) {
             function e() {
@@ -29814,7 +29828,7 @@
                             locked: !e,
                             type: t.type,
                             loading: !e && "rewarded" === t.type && !i && Sc.instance.features.rewarded,
-                            disabled: !e && "rewarded" === t.type && !Sc.instance.features.rewarded
+                            disabled: !e && "rewarded" === t.type && !Sc.instance.features.rewarded || !e && "coin" === t.type && (!window._QS || !window._QS.state.playerName)
                         })
                     }))
                 }
@@ -29842,9 +29856,9 @@
             }]), e
         }(qo.Component),
         pc = [{
-            name: "Watch Videos",
+            name: "Mit Münzen kaufen",
             filter: function(t) {
-                return "rewarded" === t.type
+                return "coin" === t.type
             }
         }, {
             name: "Finish Levels",
@@ -29894,14 +29908,29 @@
                 key: "onSelectSkin",
                 value: function(t) {
                     var e = this;
-                    as(t) ? Sc.instance.playerSkin === t ? Sc.instance.gotoNextLevel() : Sc.instance.playerSkin = t : t.condition && t.condition.ad && Sc.instance.eventEmitter.emit("requestRewarded", {
-                        skin: t,
-                        onComplete: function() {
-                            Sc.instance.eventEmitter.emit("skinUnlocked", t), e.forceUpdate()
+                    if (as(t)) {
+                        Sc.instance.playerSkin === t ? Sc.instance.gotoNextLevel() : Sc.instance.playerSkin = t;
+                    } else if (t.condition && t.condition.ad) {
+                        Sc.instance.eventEmitter.emit("requestRewarded", { skin: t, onComplete: function() { Sc.instance.eventEmitter.emit("skinUnlocked", t); e.forceUpdate(); } });
+                    } else if (t.condition && t.condition.coins && window._QS) {
+                        var qs = window._QS;
+                        if (!qs.state.playerName) {
+                            alert('Bitte zuerst im Quest-System registrieren!');
+                        } else if (qs.state.coins < t.condition.coins) {
+                            alert('Nicht genug Münzen!\nDu brauchst ' + t.condition.coins.toLocaleString('de-DE') + ' Münzen.');
+                        } else {
+                            qs.state.coins -= t.condition.coins;
+                            if (!Sc.instance.playerInfos.unlockedSkins) Sc.instance.playerInfos.unlockedSkins = [];
+                            Sc.instance.playerInfos.unlockedSkins.push(t.id);
+                            Pc('STICKMANHOOK_unlockedSkins', Sc.instance.playerInfos.unlockedSkins);
+                            qs.save();
+                            qs.syncToCloud(function(){}, true);
+                            Sc.instance.playerSkin = t;
+                            Sc.instance.eventEmitter.emit("skinUnlocked", t);
+                            e.forceUpdate();
                         }
-                    }), this.setState({
-                        clickedSkin: t
-                    })
+                    }
+                    this.setState({ clickedSkin: t });
                 }
             }, {
                 key: "render",
