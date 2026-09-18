@@ -28309,8 +28309,8 @@
             thumbnail: Ja.a,
             texture: "stickman_dragon_texture",
             atlas: "stickman_dragon_json",
-            condition: { coins: 500000 },
-            description: "500K Münzen",
+            condition: { coins: 250000 },
+            description: "250K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28472,14 +28472,109 @@
                 victory: 2
             }
         }, {
+            id: "CHAR_Champion",
+            name: "Champion",
+            type: "level",
+            thumbnail: Ha.a,
+            texture: "stickman_king_texture",
+            atlas: "stickman_king_json",
+            condition: {
+                level: 200
+            },
+            description: "Finish Level 200",
+            frames: {
+                spawn: 4,
+                hooked0: 3,
+                hooked1: 1,
+                hooked2: 0,
+                ball: 5,
+                victory: 2
+            }
+        }, {
+            id: "CHAR_Legend",
+            name: "Legend",
+            type: "level",
+            thumbnail: Ba.a,
+            texture: "stickman_rainbow_texture",
+            atlas: "stickman_rainbow_json",
+            condition: {
+                level: 250
+            },
+            description: "Finish Level 250",
+            frames: {
+                spawn: 4,
+                hooked0: 3,
+                hooked1: 1,
+                hooked2: 0,
+                ball: 5,
+                victory: 2
+            }
+        }, {
+            id: "CHAR_Master",
+            name: "Master",
+            type: "level",
+            thumbnail: Ya.a,
+            texture: "stickman_super_texture",
+            atlas: "stickman_super_json",
+            condition: {
+                level: 300
+            },
+            description: "Finish Level 300",
+            frames: {
+                spawn: 4,
+                hooked0: 3,
+                hooked1: 1,
+                hooked2: 0,
+                ball: 5,
+                victory: 2
+            }
+        }, {
+            id: "CHAR_Elite",
+            name: "Elite",
+            type: "level",
+            thumbnail: Ea.a,
+            texture: "stickman_angel_texture",
+            atlas: "stickman_angel_json",
+            condition: {
+                level: 400
+            },
+            description: "Finish Level 400",
+            frames: {
+                spawn: 4,
+                hooked0: 3,
+                hooked1: 1,
+                hooked2: 0,
+                ball: 5,
+                victory: 2
+            }
+        }, {
+            id: "CHAR_Godlike",
+            name: "Godlike",
+            type: "level",
+            thumbnail: Pa.a,
+            texture: "stickman_evil_texture",
+            atlas: "stickman_evil_json",
+            condition: {
+                level: 500
+            },
+            description: "Finish Level 500",
+            frames: {
+                spawn: 4,
+                hooked0: 3,
+                hooked1: 1,
+                hooked2: 0,
+                ball: 5,
+                victory: 2
+            }
+        }, {
             id: "CHAR_Burger",
             name: "Burger",
             type: "coin",
             thumbnail: va.a,
             texture: "stickman_burger_texture",
             atlas: "stickman_burger_json",
-            condition: { coins: 250000 },
-            description: "250K Münzen",
+            condition: { coins: 125000 },
+            description: "125K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28495,8 +28590,8 @@
             thumbnail: _a.a,
             texture: "stickman_cactus_texture",
             atlas: "stickman_cactus_json",
-            condition: { coins: 300000 },
-            description: "300K Münzen",
+            condition: { coins: 150000 },
+            description: "150K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 2,
@@ -28512,8 +28607,8 @@
             thumbnail: Ta.a,
             texture: "stickman_corgi_texture",
             atlas: "stickman_corgi_json",
-            condition: { coins: 400000 },
-            description: "400K Münzen",
+            condition: { coins: 200000 },
+            description: "200K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28529,8 +28624,8 @@
             thumbnail: Ia.a,
             texture: "stickman_unicorn_texture",
             atlas: "stickman_unicorn_json",
-            condition: { coins: 600000 },
-            description: "600K Münzen",
+            condition: { coins: 300000 },
+            description: "300K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28546,8 +28641,8 @@
             thumbnail: Fa.a,
             texture: "stickman_banana_texture",
             atlas: "stickman_banana_json",
-            condition: { coins: 200000 },
-            description: "200K Münzen",
+            condition: { coins: 100000 },
+            description: "100K Münzen",
             frames: {
                 spawn: 2,
                 hooked0: 4,
@@ -28563,8 +28658,8 @@
             thumbnail: Ua.a,
             texture: "stickman_ninja_texture",
             atlas: "stickman_ninja_json",
-            condition: { coins: 500000 },
-            description: "500K Münzen",
+            condition: { coins: 250000 },
+            description: "250K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28580,8 +28675,8 @@
             thumbnail: ja.a,
             texture: "stickman_sheep_texture",
             atlas: "stickman_sheep_json",
-            condition: { coins: 200000 },
-            description: "200K Münzen",
+            condition: { coins: 100000 },
+            description: "100K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28597,8 +28692,8 @@
             thumbnail: Ga.a,
             texture: "stickman_panda_texture",
             atlas: "stickman_panda_json",
-            condition: { coins: 350000 },
-            description: "350K Münzen",
+            condition: { coins: 175000 },
+            description: "175K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28614,8 +28709,8 @@
             thumbnail: Va.a,
             texture: "stickman_robot_texture",
             atlas: "stickman_robot_json",
-            condition: { coins: 750000 },
-            description: "750K Münzen",
+            condition: { coins: 375000 },
+            description: "375K Münzen",
             frames: {
                 spawn: 3,
                 hooked0: 2,
@@ -28631,8 +28726,8 @@
             thumbnail: $a.a,
             texture: "stickman_tikiman_texture",
             atlas: "stickman_tikiman_json",
-            condition: { coins: 300000 },
-            description: "300K Münzen",
+            condition: { coins: 150000 },
+            description: "150K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28648,8 +28743,8 @@
             thumbnail: es.a,
             texture: "stickman_hotdog_texture",
             atlas: "stickman_hotdog_json",
-            condition: { coins: 200000 },
-            description: "200K Münzen",
+            condition: { coins: 100000 },
+            description: "100K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28665,8 +28760,8 @@
             thumbnail: rs.a,
             texture: "stickman_lemonman_texture",
             atlas: "stickman_lemonman_json",
-            condition: { coins: 350000 },
-            description: "350K Münzen",
+            condition: { coins: 175000 },
+            description: "175K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
@@ -28682,8 +28777,8 @@
             thumbnail: os.a,
             texture: "stickman_plantmonster_texture",
             atlas: "stickman_plantmonster_json",
-            condition: { coins: 450000 },
-            description: "450K Münzen",
+            condition: { coins: 225000 },
+            description: "225K Münzen",
             frames: {
                 spawn: 4,
                 hooked0: 3,
