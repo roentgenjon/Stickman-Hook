@@ -28787,6 +28787,206 @@
                 ball: 5,
                 victory: 2
             }
+        }, {
+            id: "CHAR_Titan",
+            name: "Titan",
+            type: "level",
+            thumbnail: Ya.a,
+            texture: "stickman_super_texture",
+            atlas: "stickman_super_json",
+            condition: { level: 600 },
+            description: "Finish Level 600",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_Phantom",
+            name: "Phantom",
+            type: "level",
+            thumbnail: Pa.a,
+            texture: "stickman_evil_texture",
+            atlas: "stickman_evil_json",
+            condition: { level: 700 },
+            description: "Finish Level 700",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_Shadow",
+            name: "Shadow",
+            type: "level",
+            thumbnail: Oa.a,
+            texture: "stickman_wesh_texture",
+            atlas: "stickman_wesh_json",
+            condition: { level: 750 },
+            description: "Finish Level 750",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_Storm",
+            name: "Storm",
+            type: "level",
+            thumbnail: Ba.a,
+            texture: "stickman_rainbow_texture",
+            atlas: "stickman_rainbow_json",
+            condition: { level: 800 },
+            description: "Finish Level 800",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_Blaze",
+            name: "Blaze",
+            type: "level",
+            thumbnail: Ea.a,
+            texture: "stickman_angel_texture",
+            atlas: "stickman_angel_json",
+            condition: { level: 850 },
+            description: "Finish Level 850",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_Frost",
+            name: "Frost",
+            type: "level",
+            thumbnail: Ha.a,
+            texture: "stickman_king_texture",
+            atlas: "stickman_king_json",
+            condition: { level: 900 },
+            description: "Finish Level 900",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_Venom",
+            name: "Venom",
+            type: "level",
+            thumbnail: ga.a,
+            texture: "stickman_momie_texture",
+            atlas: "stickman_momie_json",
+            condition: { level: 950 },
+            description: "Finish Level 950",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_Immortal",
+            name: "Immortal",
+            type: "level",
+            thumbnail: Ya.a,
+            texture: "stickman_super_texture",
+            atlas: "stickman_super_json",
+            condition: { level: 1000 },
+            description: "Finish Level 1000",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_Eternal",
+            name: "Eternal",
+            type: "level",
+            thumbnail: Ea.a,
+            texture: "stickman_angel_texture",
+            atlas: "stickman_angel_json",
+            condition: { level: 1100 },
+            description: "Finish Level 1100",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_Infinity",
+            name: "Infinity",
+            type: "level",
+            thumbnail: Pa.a,
+            texture: "stickman_evil_texture",
+            atlas: "stickman_evil_json",
+            condition: { level: 1200 },
+            description: "Finish Level 1200",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_COIN_Gold",
+            name: "Gold",
+            type: "coin",
+            thumbnail: Ha.a,
+            texture: "stickman_king_texture",
+            atlas: "stickman_king_json",
+            condition: { coins: 12000 },
+            description: "12K Münzen",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_COIN_Ghost",
+            name: "Ghost",
+            type: "coin",
+            thumbnail: Ea.a,
+            texture: "stickman_angel_texture",
+            atlas: "stickman_angel_json",
+            condition: { coins: 18000 },
+            description: "18K Münzen",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_COIN_Neon",
+            name: "Neon",
+            type: "coin",
+            thumbnail: Ba.a,
+            texture: "stickman_rainbow_texture",
+            atlas: "stickman_rainbow_json",
+            condition: { coins: 22000 },
+            description: "22K Münzen",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_COIN_Dark",
+            name: "Dark",
+            type: "coin",
+            thumbnail: Pa.a,
+            texture: "stickman_evil_texture",
+            atlas: "stickman_evil_json",
+            condition: { coins: 28000 },
+            description: "28K Münzen",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_COIN_Ice",
+            name: "Ice",
+            type: "coin",
+            thumbnail: Ya.a,
+            texture: "stickman_super_texture",
+            atlas: "stickman_super_json",
+            condition: { coins: 16000 },
+            description: "16K Münzen",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_COIN_Fire",
+            name: "Fire",
+            type: "coin",
+            thumbnail: Oa.a,
+            texture: "stickman_wesh_texture",
+            atlas: "stickman_wesh_json",
+            condition: { coins: 20000 },
+            description: "20K Münzen",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_COIN_Crystal",
+            name: "Crystal",
+            type: "coin",
+            thumbnail: ga.a,
+            texture: "stickman_momie_texture",
+            atlas: "stickman_momie_json",
+            condition: { coins: 45000 },
+            description: "45K Münzen",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_COIN_Demon",
+            name: "Demon",
+            type: "coin",
+            thumbnail: xa.a,
+            texture: "stickman_plant_texture",
+            atlas: "stickman_plant_json",
+            condition: { coins: 38000 },
+            description: "38K Münzen",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_COIN_Thunder",
+            name: "Thunder",
+            type: "coin",
+            thumbnail: Ba.a,
+            texture: "stickman_rainbow_texture",
+            atlas: "stickman_rainbow_json",
+            condition: { coins: 14000 },
+            description: "14K Münzen",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
+        }, {
+            id: "CHAR_COIN_Galaxy",
+            name: "Galaxy",
+            type: "coin",
+            thumbnail: Ya.a,
+            texture: "stickman_super_texture",
+            atlas: "stickman_super_json",
+            condition: { coins: 50000 },
+            description: "50K Münzen",
+            frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
         }],
         hs = As,
         cs = function(t) {
