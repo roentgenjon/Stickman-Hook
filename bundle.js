@@ -28165,7 +28165,7 @@
                     n.hook && (n.speed.multiplyScalar(oa), n.angularVelocity = 20 * n.speed.x, n.parent.removeChild(n.rope), n.hook = null, n.hookPullRemaining = 0, n.gotoFrame("ball"), n.scale.x = n.scale.y)
                 }, n.onHit = function(t) {
                     n.hookPullRemaining = 0, n.hook || (n.gotoFrame("ball"), n.angularVelocity = 20 * n.speed.x)
-                }, n.skin = t, n.sprite = new fo(sa(n.skin).animations[t.id]), n.sprite.anchor.set(.5, .5), n.rope = new Jr, n.rope.lineStyle(.002, 16777215).moveTo(0, 0).lineTo(1, 0), n.on("added", function(t) {
+                }, n.skin = t, n.sprite = new fo(sa(n.skin).animations[t.id]), n.sprite.anchor.set(.5, .5), n.sprite.tint = t.tint !== undefined ? t.tint : 0xFFFFFF, n.rope = new Jr, n.rope.lineStyle(.002, 16777215).moveTo(0, 0).lineTo(1, 0), n.on("added", function(t) {
                     n.trail = new ea(v()(n));
                     var e = n.parent.getChildIndex(v()(n));
                     n.parent.addChildAt(n.trail, e)
@@ -28478,6 +28478,7 @@
             thumbnail: Ha.a,
             texture: "stickman_king_texture",
             atlas: "stickman_king_json",
+            tint: 0xFFD700,
             condition: {
                 level: 200
             },
@@ -28497,6 +28498,7 @@
             thumbnail: Ba.a,
             texture: "stickman_rainbow_texture",
             atlas: "stickman_rainbow_json",
+            tint: 0xFF69B4,
             condition: {
                 level: 250
             },
@@ -28516,6 +28518,7 @@
             thumbnail: Ya.a,
             texture: "stickman_super_texture",
             atlas: "stickman_super_json",
+            tint: 0x00BFFF,
             condition: {
                 level: 300
             },
@@ -28535,6 +28538,7 @@
             thumbnail: Ea.a,
             texture: "stickman_angel_texture",
             atlas: "stickman_angel_json",
+            tint: 0x7FFF00,
             condition: {
                 level: 400
             },
@@ -28554,6 +28558,7 @@
             thumbnail: Pa.a,
             texture: "stickman_evil_texture",
             atlas: "stickman_evil_json",
+            tint: 0xFF4500,
             condition: {
                 level: 500
             },
@@ -28794,6 +28799,7 @@
             thumbnail: Ya.a,
             texture: "stickman_super_texture",
             atlas: "stickman_super_json",
+            tint: 0xC0C0C0,
             condition: { level: 600 },
             description: "Finish Level 600",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28804,6 +28810,7 @@
             thumbnail: Pa.a,
             texture: "stickman_evil_texture",
             atlas: "stickman_evil_json",
+            tint: 0x9900CC,
             condition: { level: 700 },
             description: "Finish Level 700",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28814,6 +28821,7 @@
             thumbnail: Oa.a,
             texture: "stickman_wesh_texture",
             atlas: "stickman_wesh_json",
+            tint: 0x334455,
             condition: { level: 750 },
             description: "Finish Level 750",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28824,6 +28832,7 @@
             thumbnail: Ba.a,
             texture: "stickman_rainbow_texture",
             atlas: "stickman_rainbow_json",
+            tint: 0x0066FF,
             condition: { level: 800 },
             description: "Finish Level 800",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28834,6 +28843,7 @@
             thumbnail: Ea.a,
             texture: "stickman_angel_texture",
             atlas: "stickman_angel_json",
+            tint: 0xFF6600,
             condition: { level: 850 },
             description: "Finish Level 850",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28844,6 +28854,7 @@
             thumbnail: Ha.a,
             texture: "stickman_king_texture",
             atlas: "stickman_king_json",
+            tint: 0xAAEEFF,
             condition: { level: 900 },
             description: "Finish Level 900",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28854,6 +28865,7 @@
             thumbnail: ga.a,
             texture: "stickman_momie_texture",
             atlas: "stickman_momie_json",
+            tint: 0x00CC00,
             condition: { level: 950 },
             description: "Finish Level 950",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28864,6 +28876,7 @@
             thumbnail: Ya.a,
             texture: "stickman_super_texture",
             atlas: "stickman_super_json",
+            tint: 0xFFCC00,
             condition: { level: 1000 },
             description: "Finish Level 1000",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28874,6 +28887,7 @@
             thumbnail: Ea.a,
             texture: "stickman_angel_texture",
             atlas: "stickman_angel_json",
+            tint: 0xFF88CC,
             condition: { level: 1100 },
             description: "Finish Level 1100",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28884,6 +28898,7 @@
             thumbnail: Pa.a,
             texture: "stickman_evil_texture",
             atlas: "stickman_evil_json",
+            tint: 0x2200AA,
             condition: { level: 1200 },
             description: "Finish Level 1200",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28894,6 +28909,7 @@
             thumbnail: Ha.a,
             texture: "stickman_king_texture",
             atlas: "stickman_king_json",
+            tint: 0xFFD700,
             condition: { coins: 12000 },
             description: "12K Münzen",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28904,6 +28920,7 @@
             thumbnail: Ea.a,
             texture: "stickman_angel_texture",
             atlas: "stickman_angel_json",
+            tint: 0xCCEEFF,
             condition: { coins: 18000 },
             description: "18K Münzen",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28914,6 +28931,7 @@
             thumbnail: Ba.a,
             texture: "stickman_rainbow_texture",
             atlas: "stickman_rainbow_json",
+            tint: 0x00FF88,
             condition: { coins: 22000 },
             description: "22K Münzen",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28924,6 +28942,7 @@
             thumbnail: Pa.a,
             texture: "stickman_evil_texture",
             atlas: "stickman_evil_json",
+            tint: 0x4422AA,
             condition: { coins: 28000 },
             description: "28K Münzen",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28934,6 +28953,7 @@
             thumbnail: Ya.a,
             texture: "stickman_super_texture",
             atlas: "stickman_super_json",
+            tint: 0x88DDFF,
             condition: { coins: 16000 },
             description: "16K Münzen",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28944,6 +28964,7 @@
             thumbnail: Oa.a,
             texture: "stickman_wesh_texture",
             atlas: "stickman_wesh_json",
+            tint: 0xFF4400,
             condition: { coins: 20000 },
             description: "20K Münzen",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28954,6 +28975,7 @@
             thumbnail: ga.a,
             texture: "stickman_momie_texture",
             atlas: "stickman_momie_json",
+            tint: 0x44FFEE,
             condition: { coins: 45000 },
             description: "45K Münzen",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28964,6 +28986,7 @@
             thumbnail: xa.a,
             texture: "stickman_plant_texture",
             atlas: "stickman_plant_json",
+            tint: 0xFF0044,
             condition: { coins: 38000 },
             description: "38K Münzen",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28974,6 +28997,7 @@
             thumbnail: Ba.a,
             texture: "stickman_rainbow_texture",
             atlas: "stickman_rainbow_json",
+            tint: 0xFFFF00,
             condition: { coins: 14000 },
             description: "14K Münzen",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
@@ -28984,6 +29008,7 @@
             thumbnail: Ya.a,
             texture: "stickman_super_texture",
             atlas: "stickman_super_json",
+            tint: 0xAA00FF,
             condition: { coins: 50000 },
             description: "50K Münzen",
             frames: { spawn: 4, hooked0: 3, hooked1: 1, hooked2: 0, ball: 5, victory: 2 }
