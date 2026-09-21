@@ -31242,12 +31242,21 @@
                 h('button',{class:'qs-act-btn',style:'font-size:11px;padding:4px 8px;'+(QS.state.autoCollect?'background:#27ae60;color:white;':''),onClick:function(){QS.toggleAutoCollect();QS.checkQuests(rerender);rerender();}},QS.state.autoCollect?'Auto ✓':'Auto ○'),
                 (function(){
                   var ml=QS.state.multiplierLevel||0;
-                  var cur=Math.round((1+ml*0.1)*100), nxt=cur+10;
-                  var canBuy=QS.state.coins>=100000;
-                  return h('button',{class:'qs-act-btn',style:'font-size:10px;padding:4px 7px;white-space:nowrap;'+(canBuy?'border-color:rgba(241,196,15,0.7);':'opacity:0.4;'),onClick:function(){
-                    if(!canBuy)return;
-                    QS.state.coins-=100000; QS.state.multiplierLevel=(ml+1); QS.save(); QS.syncToCloud(function(){},true); rerender();
-                  }},'×'+(cur/100).toFixed(1)+' ➜ ×'+(nxt/100).toFixed(1)+' 💫100K');
+                  var cur=Math.round((1+ml*0.1)*100);
+                  function buyN(n){
+                    var cost=n*100000;
+                    if(QS.state.coins<cost)return;
+                    QS.state.coins-=cost; QS.state.multiplierLevel=(ml+n); QS.save(); QS.syncToCloud(function(){},true); rerender();
+                  }
+                  return h('span',{style:'display:flex;align-items:center;gap:3px;'},
+                    h('span',{style:'font-size:10px;color:rgba(255,255,255,0.6);white-space:nowrap;'},'×'+(cur/100).toFixed(1)+' 💫'),
+                    [1,5,10].map(function(n){
+                      var cost=n*100000;
+                      var can=QS.state.coins>=cost;
+                      var label=n===1?'100K':n===5?'500K':'1M';
+                      return h('button',{key:n,class:'qs-act-btn',style:'font-size:10px;padding:3px 6px;white-space:nowrap;'+(can?'border-color:rgba(241,196,15,0.7);':'opacity:0.35;'),onClick:function(){buyN(n);}},'+'+n+' ('+label+')');
+                    })
+                  );
                 })()
               ),
               h('div',{class:'qs-cats'},QS.CATS.map(function(cat,ci){
