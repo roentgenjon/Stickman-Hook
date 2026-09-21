@@ -30998,6 +30998,19 @@
         fetch(WORKER_URL+'/api/upgrade-rank',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.playerName,targetIndex:newIdx})})
         .then(function(r){return r.json();}).then(function(d){if(d&&d.ok){save();}if(callback)callback(null,d);}).catch(function(e){if(callback)callback(e,null);});
       }
+      function upgradeRankN(n, callback) {
+        if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
+        var curIdx=(typeof state.rankIndex==='number'&&state.rankIndex>=0)?state.rankIndex:-1;
+        var startIdx=curIdx+1;
+        var endIdx=Math.min(startIdx+n-1, 1099);
+        if(startIdx>1099){if(callback)callback('max rank reached',null);return;}
+        var totalCost=0;
+        for(var i=startIdx;i<=endIdx;i++){totalCost+=RANKS[i].cost;}
+        if(state.coins<totalCost){if(callback)callback('not enough coins',null);return;}
+        state.coins-=totalCost; state.rankIndex=endIdx; state.rank=RANKS[endIdx].label; save();
+        fetch(WORKER_URL+'/api/upgrade-rank',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.playerName,targetIndex:endIdx})})
+        .then(function(r){return r.json();}).then(function(d){if(d&&d.ok){save();}if(callback)callback(null,d);}).catch(function(e){if(callback)callback(e,null);});
+      }
       function resetAll(callback) {
         var n=state.playerName;
         var fresh=makeDefaultState(); for(var k in fresh){if(Object.prototype.hasOwnProperty.call(fresh,k))state[k]=fresh[k];}
@@ -31125,7 +31138,7 @@
         if (state.coins < 100000) return false;
         state.coins -= 100000; state.multiplierLevel = (state.multiplierLevel||0) + 1; save(); return true;
       }
-      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save, applyServerData:applyServerData, loadServerData:loadServerData, verifyPin:verifyPin, renameAccount:renameAccount, setPinAccount:setPinAccount, createSubAccount:createSubAccount, deleteAccount:deleteAccount, logoutAccount:logoutAccount, switchToAccount:switchToAccount, resetQuests:resetQuests, collectQuest:collectQuest, collectAllReady:collectAllReady, toggleAutoCollect:toggleAutoCollect, buyMultiplier:buyMultiplier };
+      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, upgradeRankN:upgradeRankN, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save, applyServerData:applyServerData, loadServerData:loadServerData, verifyPin:verifyPin, renameAccount:renameAccount, setPinAccount:setPinAccount, createSubAccount:createSubAccount, deleteAccount:deleteAccount, logoutAccount:logoutAccount, switchToAccount:switchToAccount, resetQuests:resetQuests, collectQuest:collectQuest, collectAllReady:collectAllReady, toggleAutoCollect:toggleAutoCollect, buyMultiplier:buyMultiplier };
       window._gameAPI = {
         playCustomLevel: function(levelData) {
           if(!Sc||!Sc.instance){return;}
@@ -31397,17 +31410,23 @@
                 curRankIdx>=0?h('div',{class:'qs-lb-rnk',style:'margin-bottom:6px'},'Aktuell: '+QS.state.rank):null,
                 nextRank?h('div',null,
                   h('div',null,'Nächster Rang: '+nextRank.label),
-                  h('div',{style:'font-size:11px;opacity:0.7;margin:4px 0;display:flex;align-items:center;gap:3px;flex-wrap:wrap;'},'Kosten: '+QS.fmtNum(nextRank.cost),h('span',{class:'mc'}),' (Guthaben: '+QS.fmtNum(QS.state.coins),h('span',{class:'mc'}),')'),
-                  h('div',{style:'font-size:10px;opacity:0.5;margin-bottom:6px'},
-                    'Tier '+(Math.floor(nextRankIdx/10)+1)+' — '+RANK_TIERS[Math.floor(nextRankIdx/10)].replace(/^\S+\s/,'')
+                  h('div',{style:'font-size:11px;opacity:0.7;margin:4px 0;display:flex;align-items:center;gap:3px;flex-wrap:wrap;'},'Guthaben: '+QS.fmtNum(QS.state.coins),h('span',{class:'mc'})),
+                  h('div',{style:'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;'},
+                    [1,5,10,100].map(function(n){
+                      var endIdx=Math.min(nextRankIdx+n-1,1099);
+                      var totalCost=0;
+                      for(var i=nextRankIdx;i<=endIdx;i++){totalCost+=QS.RANKS[i].cost;}
+                      var actualN=endIdx-nextRankIdx+1;
+                      var can=QS.state.coins>=totalCost&&nextRankIdx<=1099;
+                      return h('button',{key:n,class:'qs-send-btn',disabled:!can,style:'font-size:11px;padding:7px 10px;'+(can?'':'opacity:0.4;cursor:not-allowed;'),onClick:function(){
+                        if(!can)return;
+                        QS.upgradeRankN(actualN,function(err){
+                          if(err)t.setState({msg:'Fehler: '+String(err)});
+                          else{QS.checkQuests(rerender);QS.syncToCloud(function(){},true);t.setState({msg:'✓ '+QS.state.rank+' freigeschaltet!',panel:''});}
+                        });
+                      }},'+'+actualN+' ('+QS.fmtNum(totalCost)+' 🪙)');
+                    })
                   ),
-                  h('button',{class:'qs-send-btn',disabled:!canUpgrade,style:canUpgrade?'':'opacity:0.4',onClick:function(){
-                    if(!canUpgrade)return;
-                    QS.upgradeRank(function(err){
-                      if(err)t.setState({msg:'Fehler: '+String(err)});
-                      else{QS.checkQuests(rerender);QS.syncToCloud(function(){},true);t.setState({msg:'✓ '+QS.state.rank+' freigeschaltet!',panel:''});}
-                    });
-                  }},canUpgrade?'Rang upgraden 🚀':'Nicht genug Münzen'),
                   s.msg?h('p',{class:'qs-msg'},s.msg):null
                 ):h('p',null,'👑 Maximaler Rang erreicht!')
               ):null,
