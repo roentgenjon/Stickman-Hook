@@ -31250,10 +31250,10 @@
                   }
                   return h('span',{style:'display:flex;align-items:center;gap:3px;'},
                     h('span',{style:'font-size:10px;color:rgba(255,255,255,0.6);white-space:nowrap;'},'×'+(cur/100).toFixed(1)+' 💫'),
-                    [1,5,10].map(function(n){
+                    [1,5,10,100].map(function(n){
                       var cost=n*100000;
                       var can=QS.state.coins>=cost;
-                      var label=n===1?'100K':n===5?'500K':'1M';
+                      var label=n===1?'100K':n===5?'500K':n===10?'1M':'10M';
                       return h('button',{key:n,class:'qs-act-btn',style:'font-size:10px;padding:3px 6px;white-space:nowrap;'+(can?'border-color:rgba(241,196,15,0.7);':'opacity:0.35;'),onClick:function(){buyN(n);}},'+'+n+' ('+label+')');
                     })
                   );
