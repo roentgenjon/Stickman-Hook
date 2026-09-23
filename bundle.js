@@ -30756,7 +30756,7 @@
         return '' + n;
       }
 
-      // 1150 ranks in 115 tiers of 10
+      // 10000 ranks in 1000 tiers of 10
       var RANK_TIERS=[
         '🪨 Stein','🥉 Bronze','⚙️ Eisen','🥈 Silber','🥇 Gold','🌿 Jade','💜 Amethyst','💙 Saphir','❤️ Rubin','💚 Smaragd',
         '💎 Diamant','🔮 Kristall','🧊 Eis','🔥 Feuer','⚡ Blitz','🌊 Wasser','☀️ Sonne','🌙 Mond','⭐ Stern','🌟 Supernova',
@@ -30769,14 +30769,98 @@
         '🔥 Inferno','🌊 Tsunami','⚡ Plasma','⚛️ Atom','🌈 Aurora','✨ Aura','🌪️ Hurrikan','🌑 Schatten','⚡ Titan','🔮 Götter',
         '👑 Elite','🏛️ Kaiser','🎯 Präzision','💫 Absolut','☀️ Unsterblich','🔱 Mythisch','💎 Ewigkeit','🌌 Transzendenz','⚡ Omega','🔱 Ultima',
         '🌟 Gottheit','⚡ Göttlich','🌌 Kosmisch','💥 Genesis','🌈 Paradies','✨ Heilig','🔮 Weisheit','👁️ Allsehend','🌠 Schöpfer','💫 Uralt',
-        '🌌 Überirdisch','💥 Urknall','🔱 Allmächtig','⚡ Donnerer','🏆 Pro',
-        '🔮 Orakel','🌈 Himmelsherr','💫 Sternenherrscher','👑 Ewiger König','🌌 Kosmischer Herr',
-        '⚡ Zeitlos','🌟 Grenzenlos','💎 Unbesiegbar','🔥 Höllenherr','✨ Himmelsbote',
-        '🌌 Jenseits','💫 Transdimensional','🔱 Übermächtig','⚡ Quantumgott','🌟 Multiversum',
-        '💥 Urkraft','🌈 Schöpfer des Lichts','🔮 Hüter des Chaos','👁️ Allsehender Gott','✨ Das Absolute'
+        '🌌 Überirdisch','💥 Urknall','🔱 Allmächtig','⚡ Donnerer','🏆 Pro','🔮 Orakel','🌈 Himmelsherr','💫 Sternenherrscher','👑 Ewiger König','🌌 Kosmischer Herr',
+        '⚡ Zeitlos','🌟 Grenzenlos','💎 Unbesiegbar','🔥 Höllenherr','✨ Himmelsbote','🌌 Jenseits','💫 Transdimensional','🔱 Übermächtig','⚡ Quantumgott','🌟 Multiversum',
+        '💥 Urkraft','🌈 Schöpfer des Lichts','🔮 Hüter des Chaos','👁️ Allsehender Gott','✨ Das Absolute','💎 Alexandrit','🔮 Turmalin','💙 Aquamarin II','🌕 Mondstein','🔵 Labradorit',
+        '🖤 Obsidian','💠 Zirkon','💚 Fluorit','💜 Azurit','🔴 Rhodonit','🟠 Morganit','💛 Kunzit','🔵 Spinell','🟢 Prehnit','💎 Peridot',
+        '⚪ Andalusit','💜 Tansanit','🔴 Chrysoberyll','💙 Kornerupin','🌕 Citrin','🖤 Hämatit','⚙️ Pyrit','🟢 Epidot','🟠 Serpentin','💛 Karneol',
+        '🔵 Lazurit','⚪ Selenit','💎 Moldavit','🔮 Charoit','💙 Diopsid','⭐ Neutronenstern','🌑 Schwarzes Loch','⚪ Weißer Zwerg','🔴 Roter Riese','✨ Gasnebel',
+        '🌌 Dunkle Materie','💥 Singularität','🔮 Photon','⚡ Neutrino','💫 Antimaterie','⚡ Gammastrahlung','📡 Magnetfeld','🌌 Raumzeit','⏱️ Zeitdilatation','🔭 Relativität',
+        '⚛️ Quantenfluktuation','🌟 Pulsarwind','💥 Magnetar','🌌 Ereignishorizont','⭐ Akkretionsscheibe','🌌 Kosmischer Staub','⚡ Plasmawolke','🌟 Protostern','💫 Brauner Zwerg','🌑 Dunkler Nebel',
+        '⭐ Kugelhaufen','🌌 Elliptische Galaxis','💥 Supernovarest','🔮 Magnetosphäre','⚡ Koronales Loch','⚡ Zeus','🌊 Poseidon','🔥 Hades','☀️ Apollo','🌙 Artemis',
+        '🌿 Demeter','💫 Hermes II','⚔️ Ares II','🔨 Hephaistos','🍇 Dionysos','🏛️ Athena II','💕 Aphrodite II','🌩️ Zeus Donnerer','🌊 Meeresherrscher','💀 Totenherrscher',
+        '☀️ Sonnengott','🌙 Mondgöttin','🌿 Erdgöttin','🔨 Schmiedegott','🍇 Weingott','🌈 Freya','🌀 Loki Trickster','☀️ Baldur Strahlend','⚔️ Tyr Tapfer','🌉 Heimdall Wächter',
+        '🌸 Frigg Weise','❄️ Skadi Jägerin','🌊 Njord Seegott','🔮 Mimir Wissend','🎵 Bragi Sänger','⚡ Thor II','🔱 Odin II','🌈 Bifrost','🐍 Jörmungandr','🐺 Fenrir',
+        '💀 Hel Totengöttin','🌳 Yggdrasil','⚔️ Valkyrje','🏹 Ullr Bogengott','🌊 Aegir Meeresriese','☀️ Ra Sonnengott','🐺 Anubis Totenwächter','🌿 Osiris Unterwelt','🦅 Horus Himmelsgott','🌙 Isis Zauberin',
+        '⚡ Seth Sturm','🦉 Thoth Weisheit','🐱 Bastet Schutz','🐊 Sobek Macht','🌟 Amun Schöpfer','☀️ Aten Sonnenscheibe','🌊 Nun Urwasser','🌺 Hathor Liebe','🌙 Khonsu Mond','⚡ Sekhmet Löwin',
+        '⚡ Indra Himmelsgott','💙 Vishnu Erhalter','🔱 Shiva Zerstörer','🌺 Brahma Schöpfer','💀 Kali Göttin','🗡️ Durga Kriegerin','🐘 Ganesha Glück','💫 Krishna Hirt','🐒 Hanuman Treue','🏹 Rama Held',
+        '🌊 Varuna Wasser','🔥 Agni Feuer','🌬️ Vayu Wind','☀️ Surya Sonne','🌙 Chandra Mond','⚔️ Achilles','🌊 Odysseus','💪 Herakles','🗡️ Perseus','🛡️ Theseus',
+        '⚔️ Beowulf','🗡️ Siegfried','🏹 Roland','👑 Artus','⚔️ Lancelot','🔮 Merlin','🏹 Robin Hood','⚔️ Cuchulainn','🗡️ Rostam','🏹 Arjuna',
+        '🌟 Gilgamesh','💪 Samson','⭐ David','⚔️ Hektor','🛡️ Ajax','⚔️ Excalibur','🔨 Mjolnir','🗡️ Gungnir','⚔️ Durandal','🗡️ Gram',
+        '⚔️ Joyeuse','🗡️ Fragarach','⚔️ Kusanagi','🗡️ Zulfiqar','⚔️ Caliburn','🗡️ Caladbolg','⚔️ Dainsleif','🗡️ Hrunting','⚔️ Tyrfing','🗡️ Skofnung',
+        '⚔️ Curtana','🗡️ Hauteclere','⚔️ Nagelring','🌟 Claíomh Solais','⚔️ Durendal','🏺 Ägypten','🏛️ Rom','🌿 Griechenland','🏰 Babylon','⚔️ Assyrien',
+        '🌙 Persien','🐉 Altes China','🌸 Altes Japan','☀️ Azteken','🌿 Maya','🌄 Inka','⚡ Wikinger','🚢 Karthago','⚔️ Sparta','🏛️ Athen',
+        '🗡️ Troja','🌾 Sumer','📜 Akkad','🌊 Harappa','☀️ Kush','🏺 Pyramide','🏟️ Kolosseum','🏛️ Pantheon','🏛️ Akropolis','🌿 Stonehenge',
+        '🏔️ Machu Picchu','🌿 Angkor','🏛️ Parthenon','🏯 Burg','⛩️ Tempel II','⛪ Kathedrale','🏰 Festung','🗼 Zitadelle','🔰 Obelisk','🏺 Ziggurat',
+        '💻 Cyber','🌐 Matrix','🔥 Firewall','🔧 Algorithmus','🖥️ Mainframe','💾 Hacker','🤖 Android','🦾 Roboter','🧠 KI','🦠 Virus',
+        '🌐 Netzwerk','📡 Interface','⚙️ Protokoll','🖥️ Server','💻 Terminal','💾 Code','🔢 Binary','🔣 Hexadezimal','⚡ Quantencomputer','🔮 Virtuell',
+        '🔴 Scharlach','❤️ Karmesin','💜 Purpur','🟣 Violett II','💙 Indigo II','🔵 Kobaltblau','🟢 Smaragdgrün II','🟠 Zinnoberrot','💗 Magenta II','🟡 Ocker',
+        '⚪ Elfenbein','🌕 Perlweiß','🔴 Korallrot','💙 Aquamarin III','🟢 Türkisgrün','💛 Goldgelb','🟡 Bernsteingelb','🟤 Kupferbraun','🟤 Bronzebraun','⚪ Silbergrau',
+        '🌊 Tiefseegott','🌊 Meereswächter','🌊 Wellenbrecher','🌊 Marianengrab','👑 Ozeankönig','🐉 Leviathan','🦑 Kraken','🌊 Tidenherr','🌊 Abyssus','🐉 Meeresdrache',
+        '🪸 Korallenwächter','🧜 Meerjungfrau','🪸 Korallenriff','🌊 Meeresströmung','🌊 Poseidons Thron','🌊 Neptuns Reich','⭐ Seestern','👑 Korallenkönig','💎 Tiefseeperle','🌊 Ozeanwächter',
+        '🌲 Waldgeist','🌳 Urwald','🌲 Baumriese','👑 Waldkönig','🌿 Mooswald','🌴 Dschungel','🌿 Sumpfgeist','🌨️ Tundra','🌲 Taiga','🌿 Mangrove',
+        '🎋 Bambuswächter','🌸 Pflanzengeist','🌿 Naturkraft','🌿 Grüner Mann','🏰 Waldschloss','🪨 Felsenwächter','🏔️ Berggeist','🌵 Wüstengeist','🌾 Steppenwächter','🌿 Urwaldgeist',
+        '🌸 Frühlingserwachen','☀️ Sommerglut','🍂 Herbststurm','❄️ Winterfrost','⛄ Schneesturm','⛈️ Gewitternacht','🌊 Sturmflut','🧊 Eiszeit','🌋 Vulkanwinter','🌡️ Hitzewelle',
+        '🌑 Mitternacht','🌅 Morgenrot','🌇 Abenddämmerung','🌫️ Nebelnacht','🌙 Mondnacht','🌩️ Blitzgewitter','🌪️ Superzelle','🌊 Springflut','❄️ Permafrost','☀️ Sonnensturm',
+        '🐻 Grizzly','🦊 Polarfuchs','🐆 Schneeleopard','🦎 Komodo','🐊 Krokodil','🐍 Kobra','🦅 Kondor','🦏 Nashornkäfer','🐟 Barrakuda','🐋 Blauwal',
+        '🦍 Gorilla','🐆 Jaguar','🐆 Gepard','🦁 Hyäne','🦦 Erdmännchen','🦩 Flamingo','🦅 Pelikan','🦢 Albatros','🦜 Papagei','🦢 Schwan',
+        '🐦 Kolibri','🦜 Tucan','🦚 Pfau','🦩 Kranich','🐦 Rabe','🦉 Eule','🦅 Habicht','🦅 Falk','🐦 Lyrenvogel','🦜 Paradiesvogel',
+        '🦅 Rotmilan','🦆 Eisvogel','🦅 Seeadler','🦆 Stelzenläufer','🦩 Sichler','🦉 Uhu','🐦 Dohle','🦅 Wespenbussard','🦆 Tauchente','🦜 Kakadu',
+        '🔥 Zorn','⚡ Rage','🌪️ Furor','🏆 Ehrgeiz','⚔️ Mut','🛡️ Tapferkeit','🙏 Glaube','🌟 Hoffnung','😊 Freude','🕊️ Frieden',
+        '❤️ Leidenschaft','💪 Entschlossenheit','🏃 Beharrlichkeit','🏔️ Ausdauer','☯️ Gleichmut','🧘 Ruhe','🌊 Stille','👁️ Wachheit','💎 Klarheit','🔮 Einsicht',
+        '🔮 Stein der Weisen','⚗️ Großes Werk','💊 Elixir','⚗️ Transmutation','💧 Destillation','🔥 Koagulation','⚗️ Kalkination','☁️ Sublimation','🌑 Nigredo','🔴 Rubedo',
+        '🛡️ Paladin','⚔️ Barbar','🗡️ Hexer','💀 Nekromant','🎵 Bard','🌿 Druide','⚔️ Berserker','🏟️ Gladiator','🥷 Ninja','⚔️ Samurai',
+        '⚔️ Ronin','👑 Shogun','🏛️ Legionär','🏹 Bogenschütze','🗡️ Drachentöter','🔪 Monsterjäger','🧛 Vampirjäger','👻 Geisterjäger','👹 Dämonentöter','🧙 Zaubermeister',
+        '👑 König','👸 Königin','🤴 Prinz','👸 Prinzessin','🏰 Herzog','💒 Herzogin','🎖️ Graf','👒 Gräfin','🏅 Baron','🏰 Marquis',
+        '⚜️ Fürst','🏰 Zar','👑 Zarin','🏺 Pharao','🌙 Sultan','☪️ Kalif','🌙 Emir','🏹 Khan','⚔️ Shogun II','🗡️ Daimyo',
+        '⚛️ Relativitätstheorie','🔬 Quantenphysik','🌡️ Thermodynamik','⚡ Elektromagnetismus','💥 Kernfusion','☢️ Kernspaltung','🌌 Gravitationswellen','🌌 Parallelwelten','🔬 Nanotechnologie','🧬 Biotechnologie',
+        '🧬 Genforschung','🧠 Neurowissenschaft','🤖 Kybernetik','🦾 Robotik II','🧠 KI Gott','💻 Quantencomputer II','🚀 Raumfahrt II','🌌 Raumzeitkrümmung','⚛️ Supersymmetrie','🔮 Quantenverschränkung',
+        '🎼 Symphonie','🎭 Oper','🎵 Konzert','🎹 Sonate','🎵 Fuge','🎵 Requiem','🎹 Nocturne','🎵 Rhapsodie','🎵 Kantate','🎵 Ballade',
+        '🎨 Gemälde','🗿 Skulptur','🎨 Mosaik','🎨 Fresko','✍️ Kalligraphie','🎨 Gravur','📖 Illumination','🖼️ Ikone','🎨 Meisterwerk','✨ Kunstwerk',
+        '🐉 Drache II','🦄 Einhorn','🦅 Greif','🐲 Wyvern','🐍 Basilisk','🦁 Manticore','🐍 Hydra','🦁 Chimäre','🗿 Sphinx','👁️ Zyklop',
+        '🐂 Minotaurus','🐴 Zentaur','🐐 Satyr','🦅 Harpy','🐍 Gorgon','🧜 Melusine','💧 Nix','🌊 Rusalka','💧 Undine','🌬️ Sylph',
+        '🌲 Waldtroll','🗿 Riese','⚡ Titan III','🗿 Golem','🧪 Homunkulus','😱 Banshee','👻 Wraith','💀 Lich','🦇 Vampir','🐺 Werwolf',
+        '🌀 Hexerei','🔮 Beschwörung','💀 Nekromantie','🔥 Elementarmagie','⚡ Runenzauber','🔣 Runen','📌 Sigil','🔵 Mandala','🧿 Talisman','💫 Amulett',
+        '⭕ Bannkreis','⭐ Pentagramm','🔮 Ritual','📜 Pakt','⏱️ Zeitmagie','🌌 Traummagie','🌊 Wassermagie','🔥 Feuermagie','🌿 Erdmagie','💨 Luftmagie',
+        '🌊 Odyssee','🙏 Pilgerfahrt','⚔️ Kreuzzug','🗺️ Entdeckungsreise','⛵ Weltumsegelung','🏔️ Expedition','🐪 Karawane','🏕️ Nomade','🚶 Wanderer','🗺️ Abenteurer',
+        '🔭 Erkunder','🌱 Pionier','💡 Visionär','📜 Prophet','👁️ Seher II','📚 Gelehrter','💭 Philosoph','💡 Denker','🔬 Erfinder','🎓 Weiser II',
+        '⬇️ Schwerkraft II','🧲 Magnetismus','⚡ Elektrizität','☢️ Atomkraft','☀️ Sonnenkraft','🌬️ Windkraft','💧 Wasserkraft','🌋 Geothermie','💥 Kernfusion II','🔮 Dunkle Kraft',
+        '💪 Willenskraft','🧠 Geisteskraft','💪 Körperkraft','❤️ Herzkraft','🔮 Seelenkraft','🌱 Lebenskraft','✨ Schöpferkraft','💥 Zerstörerkraft','💚 Heilende Kraft','🚫 Verbotene Kraft',
+        '⛩️ Shinto','🌸 Sakura','🏯 Shogun III','🥷 Kunoichi','🐉 Ryuu','🌊 Umi','🌙 Tsuki','☀️ Taiyou','🌿 Mori','🏔️ Yama',
+        '⛩️ Torii','🌸 Hanami','🎋 Bambusgeist','🌊 Wellenmeister','🐉 Ostdrache','🌙 Mondpfad','☀️ Aufgehende Sonne','🌿 Bambuswald','🏯 Burggeist','🗾 Inselgeist',
+        '🏴‍☠️ Pirat','⚓ Anker','🗺️ Schatzkarte','⚔️ Entermesser','🌊 Piratenbucht','🏴‍☠️ Totenkopf','⚓ Hochseekapitän','🗺️ Schatzinsel','⚔️ Freibeuter','🌊 Seeräuber',
+        '🏴‍☠️ Kaper','⚓ Bukanier','🗺️ Korsair','⚔️ Seefahrer','🌊 Flibustier','🏴‍☠️ Piratenkaiser','⚓ Meeresräuber','🗺️ Schatzjäger','⚔️ Unterwasserschatz','🌊 Meeresstürmer',
+        '⚔️ Mittelalter','🏰 Ritterburg','🛡️ Söldner','⚔️ Turnierkämpfer','🏰 Burgherr','🛡️ Kreuzritter','⚔️ Lanzenstecher','🏰 Schlossherr','🛡️ Panzerreiter','⚔️ Schwertmeister',
+        '🏰 Burggraf','🛡️ Pferderitter','⚔️ Infanterist','🏰 Kastellan','🛡️ Schildträger','⚔️ Helmschmied','🏰 Mauerbrecher','🛡️ Festungsherr','⚔️ Feldherr','🏰 Belagerungsmeister',
+        '📚 Sokrates','📜 Platon','📚 Aristoteles','📜 Konfuzius','📚 Laozi','📜 Epiktet','📚 Marc Aurel','📜 Seneca','📚 Nietzsche','📜 Kant',
+        '📚 Descartes','📜 Spinoza','📚 Leibniz','📜 Hegel','📚 Schopenhauer','📜 Kierkegaard','📚 Camus','📜 Sartre','📚 Wittgenstein','📜 Heidegger',
+        '📚 Ilias','📖 Odyssee III','📚 Aeneis','📖 Beowulf II','📚 Edda','📖 Nibelungenlied','📚 Faust','📖 Divina Commedia','📚 Paradise Lost','📖 Don Quijote',
+        '📚 Gilgamesh II','📖 Mahabharata','📚 Ramayana','📖 Shahnama','📚 Sundiata','📖 Genji Monogatari','📚 Canterbury Tales','📖 Roland II','📚 Artuslegende','📖 Gralssuche',
+        '⭐ Orion','⭐ Kassiopeia','⭐ Ursa Major','⭐ Ursa Minor','⭐ Andromeda II','⭐ Perseus II','⭐ Herkules Stern','⭐ Draco','⭐ Leo','⭐ Scorpius',
+        '⭐ Aquarius','⭐ Sagittarius','⭐ Gemini','⭐ Taurus','⭐ Virgo','⭐ Libra','⭐ Capricornus','⭐ Aries','⭐ Cancer','⭐ Pisces',
+        '🥊 Karate','🥋 Judo','🥊 Kung Fu','🥋 Taekwondo','🥊 BJJ','🥋 Kickboxen','🥊 Muay Thai','🥋 Sumo','🥊 Boxen','🥋 Wrestling',
+        '🥊 Capoeira','🥋 Savate','🥊 Ninjutsu','🥋 Aikido','🥊 Krav Maga','🥋 Hapkido','🥊 Wushu','🥋 Silat','🥊 Escrima','🥋 Sambo',
+        '🔤 Fehu','🔤 Uruz','🔤 Thurisaz','🔤 Ansuz','🔤 Raidho','🔤 Kenaz','🔤 Gebo','🔤 Wunjo','🔤 Hagalaz','🔤 Nauthiz',
+        '🔤 Isa','🔤 Jera','🔤 Eihwaz','🔤 Perthro','🔤 Algiz','🔤 Sowilo','🔤 Tiwaz','🔤 Berkano','🔤 Ehwaz','🔤 Mannaz',
+        '♈ Widder','♉ Stier','♊ Zwillinge','♋ Krebs','♌ Löwe II','♍ Jungfrau','♎ Waage','♏ Skorpion','♐ Schütze','♑ Steinbock',
+        '♒ Wassermann','♓ Fische','✨ Transzendent','💎 Vollkommen','🌟 Makellos','🔱 Unfehlbar','☀️ Unsterblicher','🔥 Ewige Flamme','🌌 Letzte Grenze','✨ Absolutes Licht',
+        '🌑 Ewiger Dunkel','🌌 Unendliches Reich','🌟 Allumfassend','⚡ Uralte Macht','🔮 Primordialer Gott','👑 Kosmischer Kaiser','🌟 Ewiger Wächter','⏱️ Zeitloser Herrscher','👑 Unsterblicher König','🌌 Grenzenloser Geist',
+        '✨ Allmächtiger Schöpfer','🔱 Heiliger Kaiser','⚛️ Quanten','🌌 Parallelwelt','💫 Multidimensional','🌟 Jenseits des Lichts','💥 Vor dem Urknall','⏱️ Jenseits der Zeit','🔄 Ewige Wiederkehr','🌌 Zyklisches Universum',
+        '💥 Kosmische Katastrophe','🌡️ Waermetod','🔮 Omega Punkt','🔄 Alpha und Omega','🌌 Anfang und Ende','0️⃣ Nullpunkt','🌌 Leeres Reich','💫 Reines Sein','🌑 Absolutes Nichts','🔮 Goettliches Paradox',
+        '🌀 Heiliges Chaos','📐 Urordnung','🌌 Urform','⚡ Urprinzip','💥 Urenergie','🔮 Urgeist','⚛️ Urmaterie','🌌 Urraum','⏱️ Urzeit','💥 Urkraft II',
+        '🌌 Erste Ursache','🔮 Hoechste Realitaet','🌟 Unvergaenglich','💎 Unzerstoerbar','⚡ Unbesiegbar II','🔮 Unbezwingbar','🌌 Unermesslich','✨ Unaufhaltsam','💫 Undurchdringlich','🌟 Unwandelbar',
+        '⚡ Unentrinnbar','🔱 Unergründlich','🌟 Überragend','💥 Überirdisch II','🌌 Übermenschlich','✨ Überwältigend','🔮 Übernatürlich','👑 Allherrschend','🌟 Allwissend','💫 Allgegenwärtig',
+        '⚡ Allüberwältigend','✨ Alles','🏆 Unsterbliche Ehre','⭐ Ewiger Ruhm','🥇 Legendärer Rang','🏅 Mythischer Status','🎖️ Kosmische Würde','🏆 Göttlicher Titel','⭐ Heiliger Rang','🥇 Erhabener Status',
+        '🏅 Absoluter Meister','🎖️ Ewiger Meister','🏆 Schöpfer der Schöpfer','⭐ Herrscher der Götter','🥇 König der Könige','🏅 Höchster Wächter','🎖️ Das Letzte','🔮 Überseele','🌌 Kosmobewusstsein','💫 Astralkörper',
+        '⚡ Ätherisches Wesen','✨ Jenseitiges Wesen','🌟 Lichtgestalt','💥 Dunkelgestalt','🌌 Zwischenraum','⚛️ Voidwatcher','🔱 Grenzwächter','🌟 Dimensionswächter','💫 Zeitreisender','⚡ Parallelläufer',
+        '✨ Schattenläufer','🔮 Lichtläufer','🌌 Realitätsbrecher','💥 Weltenzerstörer','🌟 Weltenerschaffer','⚡ Universumshüter','✨ Urwächter','🎮 God Mode','🎯 Perfect Score','🏆 S-Rang',
+        '⭐ SSS-Rang','💯 Perfektionist','🎮 Letzter Boss','🏆 Endgame','⭐ Max Level','💯 True Ending','🎮 Ultimate Mode','🏆 Achievement Hunter','⭐ Speedrunner','💯 No-Hit Run',
+        '🎮 Completionist','🏆 World Record','🌟 Das Licht','💥 Die Kraft','🌌 Der Geist','⚡ Der Blitz II','✨ Die Schönheit','🔮 Das Wissen','💫 Die Weisheit II','⚛️ Die Seele',
+        '🔱 Die Macht','🌟 Das Schicksal','💥 Der Tod','🌌 Das Leben','✨ Die Liebe','🏋️ Gewichtheben','🤸 Akrobat','⛷️ Skiläufer','🏊 Schwimmer','🚴 Radfahrer',
+        '🏇 Reiter','🤼 Ringer','🥇 Olympier','🏆 Weltmeister','🎯 Schütze II','⛳ Golfer','🎾 Tennisspieler','🏐 Volleyballer','🏈 Footballer','🎿 Snowboarder'
       ];
       var RANKS = (function(){
-        var r=[]; for(var i=0;i<1150;i++){
+        var r=[]; for(var i=0;i<10000;i++){
           r.push({index:i, label:RANK_TIERS[Math.floor(i/10)]+' '+(i%10+1), cost:(i+1)*250});
         } return r;
       })();
@@ -30914,7 +30998,7 @@
           else if (quest.type==='unique_recv')  { prog=effRecvPlayers; met=prog>=quest.target; }
           else if (quest.type==='lb_position')  { prog=state.lbPosition; met=state.lbPosition<=quest.target; }
           else if (quest.type==='has_rank')     { prog=state.rankIndex>=0?1:0; met=state.rankIndex>=0; }
-          else if (quest.type==='all_ranks')    { prog=state.rankIndex+1; met=state.rankIndex>=1099; }
+          else if (quest.type==='all_ranks')    { prog=state.rankIndex+1; met=state.rankIndex>=9999; }
           else if (quest.type==='rank_level')   { prog=state.rankIndex+1; met=state.rankIndex>=quest.target; }
           state.progress[quest.id] = prog;
           if (met) {
@@ -30991,7 +31075,7 @@
       function upgradeRank(callback) {
         if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
         var newIdx=(typeof state.rankIndex==='number'&&state.rankIndex>=0)?state.rankIndex+1:0;
-        if(newIdx>1099){if(callback)callback('max rank reached',null);return;}
+        if(newIdx>9999){if(callback)callback('max rank reached',null);return;}
         var rank=RANKS[newIdx];
         if(state.coins<rank.cost){if(callback)callback('not enough coins',null);return;}
         state.coins-=rank.cost; state.rankIndex=newIdx; state.rank=rank.label; save();
@@ -31002,8 +31086,8 @@
         if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
         var curIdx=(typeof state.rankIndex==='number'&&state.rankIndex>=0)?state.rankIndex:-1;
         var startIdx=curIdx+1;
-        var endIdx=Math.min(startIdx+n-1, 1099);
-        if(startIdx>1099){if(callback)callback('max rank reached',null);return;}
+        var endIdx=Math.min(startIdx+n-1, 9999);
+        if(startIdx>9999){if(callback)callback('max rank reached',null);return;}
         var totalCost=0;
         for(var i=startIdx;i<=endIdx;i++){totalCost+=RANKS[i].cost;}
         if(state.coins<totalCost){if(callback)callback('not enough coins',null);return;}
@@ -31103,7 +31187,7 @@
           var qr=QUESTS[qi], alreadyMet=false;
           if(qr.type==='has_name')    alreadyMet=!!(state.playerName&&state.playerName.length>0);
           else if(qr.type==='has_rank')    alreadyMet=state.rankIndex>=0;
-          else if(qr.type==='all_ranks')   alreadyMet=state.rankIndex>=1099;
+          else if(qr.type==='all_ranks')   alreadyMet=state.rankIndex>=9999;
           else if(qr.type==='rank_level')  alreadyMet=state.rankIndex>=qr.target;
           else if(qr.type==='lb_position') alreadyMet=state.lbPosition<=qr.target;
           if(alreadyMet) state.done[qr.id]=true;
@@ -31202,7 +31286,7 @@
           var hideSidebar=s.showQ||s.showLB||s.showAcc||isPlaying||levelSelectOpen||isShop;
           var curRankIdx=typeof QS.state.rankIndex==='number'?QS.state.rankIndex:-1;
           var nextRankIdx=curRankIdx+1;
-          var nextRank=nextRankIdx<=1149?QS.RANKS[nextRankIdx]:null;
+          var nextRank=nextRankIdx<=9999?QS.RANKS[nextRankIdx]:null;
           var canUpgrade=nextRank&&QS.state.coins>=nextRank.cost;
           var rerender=function(){t.setState({});};
           return h('div',null,
