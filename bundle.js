@@ -31347,10 +31347,10 @@
                   }
                   return h('span',{style:'display:flex;align-items:center;gap:3px;'},
                     h('span',{style:'font-size:10px;color:rgba(255,255,255,0.6);white-space:nowrap;'},'×'+(cur/100).toFixed(1)+' 💫'),
-                    [1,5,10,100].map(function(n){
+                    [1,5,10,100,1000].map(function(n){
                       var cost=n*100000;
                       var can=QS.state.coins>=cost;
-                      var label=n===1?'100K':n===5?'500K':n===10?'1M':'10M';
+                      var label=n===1?'100K':n===5?'500K':n===10?'1M':n===100?'10M':'100M';
                       return h('button',{key:n,class:'qs-act-btn',style:'font-size:10px;padding:3px 6px;white-space:nowrap;'+(can?'border-color:rgba(241,196,15,0.7);':'opacity:0.35;'),onClick:function(){buyN(n);}},'+'+n+' ('+label+')');
                     })
                   );
@@ -31496,12 +31496,12 @@
                   h('div',null,'Nächster Rang: '+nextRank.label),
                   h('div',{style:'font-size:11px;opacity:0.7;margin:4px 0;display:flex;align-items:center;gap:3px;flex-wrap:wrap;'},'Guthaben: '+QS.fmtNum(QS.state.coins),h('span',{class:'mc'})),
                   h('div',{style:'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;'},
-                    [1,5,10,100].map(function(n){
-                      var endIdx=Math.min(nextRankIdx+n-1,1099);
+                    [1,5,10,100,1000].map(function(n){
+                      var endIdx=Math.min(nextRankIdx+n-1,9999);
                       var totalCost=0;
                       for(var i=nextRankIdx;i<=endIdx;i++){totalCost+=QS.RANKS[i].cost;}
                       var actualN=endIdx-nextRankIdx+1;
-                      var can=QS.state.coins>=totalCost&&nextRankIdx<=1099;
+                      var can=QS.state.coins>=totalCost&&nextRankIdx<=9999;
                       return h('button',{key:n,class:'qs-send-btn',disabled:!can,style:'font-size:11px;padding:7px 10px;'+(can?'':'opacity:0.4;cursor:not-allowed;'),onClick:function(){
                         if(!can)return;
                         QS.upgradeRankN(actualN,function(err){
