@@ -110,8 +110,12 @@ function getRankLabel(rankIndex) {
         '🏇 Reiter','🤼 Ringer','🥇 Olympier','🏆 Weltmeister','🎯 Schütze II','⛳ Golfer','🎾 Tennisspieler','🏐 Volleyballer','🏈 Footballer','🎿 Snowboarder'
     ];
     var tierIdx=Math.floor(rankIndex/10);
-    if(tierIdx<0||tierIdx>=tiers.length) return null;
-    return tiers[tierIdx]+' '+(rankIndex%10+1);
+    var era=Math.floor(tierIdx/1000);
+    var baseTierIdx=tierIdx%1000;
+    if(baseTierIdx<0||baseTierIdx>=tiers.length) return null;
+    var base=tiers[baseTierIdx];
+    var tierName=era===0?base:('⭐ Epoche '+(era+1)+': '+base);
+    return tierName+' '+(rankIndex%10+1);
 }
 
 function getUpgradeCost(targetIndex) {

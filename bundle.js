@@ -30859,11 +30859,14 @@
         '🔱 Die Macht','🌟 Das Schicksal','💥 Der Tod','🌌 Das Leben','✨ Die Liebe','🏋️ Gewichtheben','🤸 Akrobat','⛷️ Skiläufer','🏊 Schwimmer','🚴 Radfahrer',
         '🏇 Reiter','🤼 Ringer','🥇 Olympier','🏆 Weltmeister','🎯 Schütze II','⛳ Golfer','🎾 Tennisspieler','🏐 Volleyballer','🏈 Footballer','🎿 Snowboarder'
       ];
-      var RANKS = (function(){
-        var r=[]; for(var i=0;i<10000;i++){
-          r.push({index:i, label:RANK_TIERS[Math.floor(i/10)]+' '+(i%10+1), cost:(i+1)*250});
-        } return r;
-      })();
+      function getRankLabel(idx){
+        var tierIdx=Math.floor(idx/10),level=idx%10+1;
+        var era=Math.floor(tierIdx/1000),base=RANK_TIERS[tierIdx%1000];
+        return (era===0?base:('⭐ Epoche '+(era+1)+': '+base))+' '+level;
+      }
+      // O(1) sum: Σ(i+1)*250 for i=start..end = 125*(start+end+2)*(end-start+1)
+      function sumRankCosts(start,end){return 125*(start+end+2)*(end-start+1);}
+      var RANKS=new Proxy({},{get:function(_,p){var i=+p;if(i!==i||p==='length')return undefined;return{index:i,label:getRankLabel(i),cost:(i+1)*250};}});
 
       var CATS = [
         { id: 'explorer',  label: '\u{1F5FA}️ Abenteurer', color: '#e67e22' },
@@ -30896,7 +30899,7 @@
         QUESTS.push({ id: 'cha_'+i, cat: 2, title: fmtNum(t)+' Trophäen sammeln', desc: 'Sammle insgesamt '+fmtNum(t)+' Trophäen.', type: 'trophies', target: t, reward_coins: Math.ceil(30*Math.pow(1.0042,i)), reward_trophies: 0 });
       }
       // Cat 3: Master - quests done (1000 quests)
-      var questTargets = makeMilestones(1, 9999, 1000);
+      var questTargets = makeMilestones(1, 9999999, 1000);
       for (i = 0; i < 1000; i++) {
         t = questTargets[i];
         QUESTS.push({ id: 'mas_'+i, cat: 3, title: t+' Quests abschließen', desc: 'Schließe '+t+' Quests ab.', type: 'quests_done', target: t, reward_coins: Math.ceil(20*Math.pow(1.0042,i)), reward_trophies: Math.floor(i/80)+1 });
@@ -30998,7 +31001,7 @@
           else if (quest.type==='unique_recv')  { prog=effRecvPlayers; met=prog>=quest.target; }
           else if (quest.type==='lb_position')  { prog=state.lbPosition; met=state.lbPosition<=quest.target; }
           else if (quest.type==='has_rank')     { prog=state.rankIndex>=0?1:0; met=state.rankIndex>=0; }
-          else if (quest.type==='all_ranks')    { prog=state.rankIndex+1; met=state.rankIndex>=9999; }
+          else if (quest.type==='all_ranks')    { prog=state.rankIndex+1; met=state.rankIndex>=9999999; }
           else if (quest.type==='rank_level')   { prog=state.rankIndex+1; met=state.rankIndex>=quest.target; }
           state.progress[quest.id] = prog;
           if (met) {
@@ -31075,7 +31078,7 @@
       function upgradeRank(callback) {
         if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
         var newIdx=(typeof state.rankIndex==='number'&&state.rankIndex>=0)?state.rankIndex+1:0;
-        if(newIdx>9999){if(callback)callback('max rank reached',null);return;}
+        if(newIdx>9999999){if(callback)callback('max rank reached',null);return;}
         var rank=RANKS[newIdx];
         if(state.coins<rank.cost){if(callback)callback('not enough coins',null);return;}
         state.coins-=rank.cost; state.rankIndex=newIdx; state.rank=rank.label; save();
@@ -31086,12 +31089,11 @@
         if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
         var curIdx=(typeof state.rankIndex==='number'&&state.rankIndex>=0)?state.rankIndex:-1;
         var startIdx=curIdx+1;
-        var endIdx=Math.min(startIdx+n-1, 9999);
-        if(startIdx>9999){if(callback)callback('max rank reached',null);return;}
-        var totalCost=0;
-        for(var i=startIdx;i<=endIdx;i++){totalCost+=RANKS[i].cost;}
+        var endIdx=Math.min(startIdx+n-1, 9999999);
+        if(startIdx>9999999){if(callback)callback('max rank reached',null);return;}
+        var totalCost=sumRankCosts(startIdx,endIdx);
         if(state.coins<totalCost){if(callback)callback('not enough coins',null);return;}
-        state.coins-=totalCost; state.rankIndex=endIdx; state.rank=RANKS[endIdx].label; save();
+        state.coins-=totalCost; state.rankIndex=endIdx; state.rank=getRankLabel(endIdx); save();
         fetch(WORKER_URL+'/api/upgrade-rank',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.playerName,targetIndex:endIdx})})
         .then(function(r){return r.json();}).then(function(d){if(d&&d.ok){save();}if(callback)callback(null,d);}).catch(function(e){if(callback)callback(e,null);});
       }
@@ -31187,7 +31189,7 @@
           var qr=QUESTS[qi], alreadyMet=false;
           if(qr.type==='has_name')    alreadyMet=!!(state.playerName&&state.playerName.length>0);
           else if(qr.type==='has_rank')    alreadyMet=state.rankIndex>=0;
-          else if(qr.type==='all_ranks')   alreadyMet=state.rankIndex>=9999;
+          else if(qr.type==='all_ranks')   alreadyMet=state.rankIndex>=9999999;
           else if(qr.type==='rank_level')  alreadyMet=state.rankIndex>=qr.target;
           else if(qr.type==='lb_position') alreadyMet=state.lbPosition<=qr.target;
           if(alreadyMet) state.done[qr.id]=true;
@@ -31222,7 +31224,7 @@
         if (state.coins < 100000) return false;
         state.coins -= 100000; state.multiplierLevel = (state.multiplierLevel||0) + 1; save(); return true;
       }
-      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, upgradeRankN:upgradeRankN, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save, applyServerData:applyServerData, loadServerData:loadServerData, verifyPin:verifyPin, renameAccount:renameAccount, setPinAccount:setPinAccount, createSubAccount:createSubAccount, deleteAccount:deleteAccount, logoutAccount:logoutAccount, switchToAccount:switchToAccount, resetQuests:resetQuests, collectQuest:collectQuest, collectAllReady:collectAllReady, toggleAutoCollect:toggleAutoCollect, buyMultiplier:buyMultiplier };
+      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, upgradeRankN:upgradeRankN,sumRankCosts:sumRankCosts,getRankLabel:getRankLabel, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save, applyServerData:applyServerData, loadServerData:loadServerData, verifyPin:verifyPin, renameAccount:renameAccount, setPinAccount:setPinAccount, createSubAccount:createSubAccount, deleteAccount:deleteAccount, logoutAccount:logoutAccount, switchToAccount:switchToAccount, resetQuests:resetQuests, collectQuest:collectQuest, collectAllReady:collectAllReady, toggleAutoCollect:toggleAutoCollect, buyMultiplier:buyMultiplier };
       window._gameAPI = {
         playCustomLevel: function(levelData) {
           if(!Sc||!Sc.instance){return;}
@@ -31286,7 +31288,7 @@
           var hideSidebar=s.showQ||s.showLB||s.showAcc||isPlaying||levelSelectOpen||isShop;
           var curRankIdx=typeof QS.state.rankIndex==='number'?QS.state.rankIndex:-1;
           var nextRankIdx=curRankIdx+1;
-          var nextRank=nextRankIdx<=9999?QS.RANKS[nextRankIdx]:null;
+          var nextRank=nextRankIdx<=9999999?QS.RANKS[nextRankIdx]:null;
           var canUpgrade=nextRank&&QS.state.coins>=nextRank.cost;
           var rerender=function(){t.setState({});};
           return h('div',null,
@@ -31497,11 +31499,10 @@
                   h('div',{style:'font-size:11px;opacity:0.7;margin:4px 0;display:flex;align-items:center;gap:3px;flex-wrap:wrap;'},'Guthaben: '+QS.fmtNum(QS.state.coins),h('span',{class:'mc'})),
                   h('div',{style:'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;'},
                     [1,5,10,100,1000].map(function(n){
-                      var endIdx=Math.min(nextRankIdx+n-1,9999);
-                      var totalCost=0;
-                      for(var i=nextRankIdx;i<=endIdx;i++){totalCost+=QS.RANKS[i].cost;}
+                      var endIdx=Math.min(nextRankIdx+n-1,9999999);
+                      var totalCost=QS.sumRankCosts(nextRankIdx,endIdx);
                       var actualN=endIdx-nextRankIdx+1;
-                      var can=QS.state.coins>=totalCost&&nextRankIdx<=9999;
+                      var can=QS.state.coins>=totalCost&&nextRankIdx<=9999999;
                       return h('button',{key:n,class:'qs-send-btn',disabled:!can,style:'font-size:11px;padding:7px 10px;'+(can?'':'opacity:0.4;cursor:not-allowed;'),onClick:function(){
                         if(!can)return;
                         QS.upgradeRankN(actualN,function(err){
