@@ -298,7 +298,7 @@ async function handleRequest(request) {
         try { sbody = await request.json(); } catch(e) { return respond({ error: 'Bad JSON' }, 400); }
         if (!sbody || !sbody.from || !sbody.to || !sbody.amount) return respond({ error: 'Parameter fehlen' }, 400);
         var amount = parseInt(sbody.amount);
-        if (!amount || amount <= 0 || amount > 10000000) return respond({ error: 'Ungültiger Betrag' }, 400);
+        if (!amount || amount <= 0 || amount > 1e15) return respond({ error: 'Ungültiger Betrag' }, 400);
 
         var fromKey = 'player:' + String(sbody.from).toLowerCase().slice(0, 20);
         var toKey   = 'player:' + String(sbody.to).toLowerCase().slice(0, 20);

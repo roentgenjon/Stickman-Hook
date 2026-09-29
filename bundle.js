@@ -30758,6 +30758,19 @@
         if (n >= 1e3)  return (Math.floor(n / 100)  / 10) + 'K';
         return '' + n;
       }
+      function parseAmount(s){
+        s=String(s||'').trim().replace(',','.');
+        var m=s.match(/^(\d+\.?\d*)\s*([KkMmBbTtQq][Aa]?)?$/);
+        if(!m) return 0;
+        var n=parseFloat(m[1]);
+        var suf=(m[2]||'').toUpperCase();
+        if(suf==='K')n*=1e3;
+        else if(suf==='M')n*=1e6;
+        else if(suf==='B')n*=1e9;
+        else if(suf==='T')n*=1e12;
+        else if(suf==='QA')n*=1e15;
+        return Math.floor(n)||0;
+      }
 
       // 10000 ranks in 1000 tiers of 10
       var RANK_TIERS=[
@@ -31286,7 +31299,7 @@
         if (state.coins < 100000) return false;
         state.coins -= 100000; state.multiplierLevel = (state.multiplierLevel||0) + 1; save(); return true;
       }
-      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, upgradeRankN:upgradeRankN,sumRankCosts:sumRankCosts,getRankLabel:getRankLabel,getRankQuest:getRankQuest,RANK_QUEST_COUNT:RANK_QUEST_COUNT, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save, applyServerData:applyServerData, loadServerData:loadServerData, verifyPin:verifyPin, renameAccount:renameAccount, setPinAccount:setPinAccount, createSubAccount:createSubAccount, deleteAccount:deleteAccount, logoutAccount:logoutAccount, switchToAccount:switchToAccount, resetQuests:resetQuests, collectQuest:collectQuest, collectAllReady:collectAllReady, toggleAutoCollect:toggleAutoCollect, buyMultiplier:buyMultiplier };
+      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, upgradeRankN:upgradeRankN,sumRankCosts:sumRankCosts,getRankLabel:getRankLabel,getRankQuest:getRankQuest,RANK_QUEST_COUNT:RANK_QUEST_COUNT, resetAll:resetAll, fmtNum:fmtNum, parseAmount:parseAmount, load:load, save:save, applyServerData:applyServerData, loadServerData:loadServerData, verifyPin:verifyPin, renameAccount:renameAccount, setPinAccount:setPinAccount, createSubAccount:createSubAccount, deleteAccount:deleteAccount, logoutAccount:logoutAccount, switchToAccount:switchToAccount, resetQuests:resetQuests, collectQuest:collectQuest, collectAllReady:collectAllReady, toggleAutoCollect:toggleAutoCollect, buyMultiplier:buyMultiplier };
       window._gameAPI = {
         playCustomLevel: function(levelData) {
           if(!Sc||!Sc.instance){return;}
@@ -31543,7 +31556,7 @@
               ):null,
               s.panel==='send'?h('div',{class:'qs-panel'},
                 h('input',{class:'qs-input',id:'qs-sto',placeholder:'Spielername',maxLength:20,onInput:function(e){t.setState({sto:e.target.value});}}),
-                h('input',{class:'qs-input qs-num',id:'qs-samt',type:'number',placeholder:'Betrag',min:'1',onInput:function(e){t.setState({samt:parseInt(e.target.value)||0});}}),
+                h('input',{class:'qs-input qs-num',id:'qs-samt',type:'text',placeholder:'Betrag (z.B. 1M)',onInput:function(e){t.setState({samt:QS.parseAmount(e.target.value)});}}),
                 h('button',{class:'qs-send-btn',onClick:function(){
                   var tn=(s.sto||'').trim(),amt=s.samt||0;
                   if(!tn||amt<1){t.setState({msg:'Name und Betrag eingeben!'});return;}
