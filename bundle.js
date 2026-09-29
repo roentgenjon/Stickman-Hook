@@ -30751,18 +30751,21 @@
       }
 
       function fmtNum(n) {
-        if (n >= 1e21) return (Math.floor(n / 1e20) / 10) + 'Sx';
-        if (n >= 1e18) return (Math.floor(n / 1e17) / 10) + 'Qi';
-        if (n >= 1e15) return (Math.floor(n / 1e14) / 10) + 'Qa';
-        if (n >= 1e12) return (Math.floor(n / 1e11) / 10) + 'T';
-        if (n >= 1e9)  return (Math.floor(n / 1e8)  / 10) + 'B';
-        if (n >= 1e6)  return (Math.floor(n / 1e5)  / 10) + 'M';
-        if (n >= 1e3)  return (Math.floor(n / 100)  / 10) + 'K';
-        return '' + n;
+        var tiers=[
+          [1e27,'Oc'],[1e24,'Sp'],[1e21,'Sx'],[1e18,'Qi'],[1e15,'Qa'],
+          [1e12,'T'],[1e9,'B'],[1e6,'M'],[1e3,'K']
+        ];
+        for(var _i=0;_i<tiers.length;_i++){
+          if(n>=tiers[_i][0]){
+            var _v=Math.round(n/tiers[_i][0]*10)/10;
+            return _v+tiers[_i][1];
+          }
+        }
+        return ''+n;
       }
       function parseAmount(s){
         s=String(s||'').trim().replace(',','.');
-        var m=s.match(/^(\d+\.?\d*)\s*([KkMmBbTtQqSs][AaIiXx]?)?$/);
+        var m=s.match(/^(\d+\.?\d*)\s*([KkMmBbTtQqSsOo][AaIiXxPpCc]?)?$/);
         if(!m) return 0;
         var n=parseFloat(m[1]);
         var suf=(m[2]||'').toUpperCase();
@@ -30773,6 +30776,8 @@
         else if(suf==='QA')n*=1e15;
         else if(suf==='QI')n*=1e18;
         else if(suf==='SX')n*=1e21;
+        else if(suf==='SP')n*=1e24;
+        else if(suf==='OC')n*=1e27;
         return Math.floor(n)||0;
       }
 
@@ -31554,7 +31559,7 @@
                 h('div',{class:'qs-me-name'},QS.state.rank?QS.state.rank+' ':'',h('span',{style:'font-family:sans-serif'},QS.state.playerName)),
                 QS.state.lbPosition<999999?h('div',{class:'qs-me-pos'},'#'+QS.state.lbPosition+' in der Rangliste'):null
               ),
-              QS.state.playerName?h('div',{class:'qs-actions'},
+              QS.state.playerName?h('div',{class:'qs-actions',style:'flex-wrap:wrap;'},
                 h('button',{class:'qs-act-btn',style:'display:inline-flex;align-items:center;gap:5px;',onClick:function(){t.setState({panel:s.panel==='send'?'':'send',msg:'',sto:'',samt:0});}},h('span',{class:'mc'}),'Senden'),
                 h('button',{class:'qs-act-btn',onClick:function(){t.setState({panel:s.panel==='rank'?'':'rank',msg:'',sto:'',samt:0});}},'🏅 Rang'),
                 null
