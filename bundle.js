@@ -30751,6 +30751,8 @@
       }
 
       function fmtNum(n) {
+        if (n >= 1e21) return (Math.floor(n / 1e20) / 10) + 'Sx';
+        if (n >= 1e18) return (Math.floor(n / 1e17) / 10) + 'Qi';
         if (n >= 1e15) return (Math.floor(n / 1e14) / 10) + 'Qa';
         if (n >= 1e12) return (Math.floor(n / 1e11) / 10) + 'T';
         if (n >= 1e9)  return (Math.floor(n / 1e8)  / 10) + 'B';
@@ -30760,7 +30762,7 @@
       }
       function parseAmount(s){
         s=String(s||'').trim().replace(',','.');
-        var m=s.match(/^(\d+\.?\d*)\s*([KkMmBbTtQq][Aa]?)?$/);
+        var m=s.match(/^(\d+\.?\d*)\s*([KkMmBbTtQqSs][AaIiXx]?)?$/);
         if(!m) return 0;
         var n=parseFloat(m[1]);
         var suf=(m[2]||'').toUpperCase();
@@ -30769,6 +30771,8 @@
         else if(suf==='B')n*=1e9;
         else if(suf==='T')n*=1e12;
         else if(suf==='QA')n*=1e15;
+        else if(suf==='QI')n*=1e18;
+        else if(suf==='SX')n*=1e21;
         return Math.floor(n)||0;
       }
 
