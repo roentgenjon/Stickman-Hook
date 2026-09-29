@@ -31393,7 +31393,7 @@
               h('div',{class:'qs-topbar'},
                 h('button',{class:'qs-close',onClick:function(){t.setState({showQ:false});}},'✕'),
                 h('span',{style:'display:inline-flex;align-items:center;gap:3px;'},h('span',{class:'mc'}),QS.fmtNum(QS.state.coins)),
-                h('span',null,'🏆 '+QS.state.trophies),
+                h('span',null,'🏆 '+QS.fmtNum(QS.state.trophies)),
                 h('span',{class:'qs-qcount'},QS.state.questsDone+'/'+QS.QUESTS.length),
                 Object.keys(QS.state.ready||{}).length>0?h('button',{class:'qs-collect-btn',style:'padding:4px 8px;font-size:11px;',onClick:function(){QS.collectAllReady();QS.checkQuests(rerender);QS.syncToCloud(function(){},true);rerender();}},'⬇ Alle ('+Object.keys(QS.state.ready||{}).length+')'):null,
                 h('button',{class:'qs-act-btn',style:'font-size:11px;padding:4px 8px;'+(QS.state.autoCollect?'background:#27ae60;color:white;':''),onClick:function(){QS.toggleAutoCollect();QS.checkQuests(rerender);rerender();}},QS.state.autoCollect?'Auto ✓':'Auto ○'),
@@ -31453,7 +31453,7 @@
               h('div',{class:'qs-topbar'},
                 h('button',{class:'qs-close',onClick:function(){t.setState({showLB:false,panel:'',msg:'',sto:'',samt:0});}},'✕'),
                 h('span',{style:'display:inline-flex;align-items:center;gap:3px;'},h('span',{class:'mc'}),QS.fmtNum(QS.state.coins)),
-                h('span',null,'🏆 '+QS.state.trophies),
+                h('span',null,'🏆 '+QS.fmtNum(QS.state.trophies)),
                 QS.state.lbPosition<999999?h('span',null,'#'+QS.state.lbPosition):null,
                 h('button',{class:'qs-act-btn',style:'margin-left:auto;font-size:14px;padding:4px 8px;',onClick:function(){
                   t.setState({lbData:null,lbLvl:null,lbRank:null});
