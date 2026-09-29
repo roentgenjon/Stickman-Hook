@@ -30116,7 +30116,7 @@
     };
 
     function hc(t) {
-        return t.condition && t.condition.level ? "LVL ".concat(t.condition.level) : t.condition && t.condition.ad ? "Video" : t.condition && t.condition.coins ? (t.condition.coins>=1000000?(t.condition.coins/1000000).toFixed(1)+"M":Math.round(t.condition.coins/1000)+"K")+" 🪙" : t.condition && t.condition.shortcut ? "Add icon" : void 0
+        return t.condition && t.condition.level ? "LVL ".concat(t.condition.level) : t.condition && t.condition.ad ? "Video" : t.condition && t.condition.coins ? fmtNum(t.condition.coins)+" 🪙" : t.condition && t.condition.shortcut ? "Add icon" : void 0
     }
     var cc = function(t) {
             function e() {
@@ -30751,8 +30751,11 @@
       }
 
       function fmtNum(n) {
-        if (n >= 1000000) return (Math.floor(n / 100000) / 10) + 'M';
-        if (n >= 1000) return (Math.floor(n / 100) / 10) + 'K';
+        if (n >= 1e15) return (Math.floor(n / 1e14) / 10) + 'Qa';
+        if (n >= 1e12) return (Math.floor(n / 1e11) / 10) + 'T';
+        if (n >= 1e9)  return (Math.floor(n / 1e8)  / 10) + 'B';
+        if (n >= 1e6)  return (Math.floor(n / 1e5)  / 10) + 'M';
+        if (n >= 1e3)  return (Math.floor(n / 100)  / 10) + 'K';
         return '' + n;
       }
 
