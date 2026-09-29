@@ -30758,7 +30758,7 @@
         for(var _i=0;_i<tiers.length;_i++){
           if(n>=tiers[_i][0]){
             var _v=Math.round(n/tiers[_i][0]*10)/10;
-            return _v+tiers[_i][1];
+            return _v+' '+tiers[_i][1];
           }
         }
         return ''+n;
