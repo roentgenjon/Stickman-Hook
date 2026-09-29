@@ -31053,18 +31053,20 @@
             newly.push(quest);
           }
         }
-        // Check rank quests efficiently — only up to player's current rank
+        // Check rank quests — _rqNext pointer avoids re-iterating already-processed quests
+        if(typeof state._rqNext==='undefined') state._rqNext=Math.min(state.rankIndex+1,RANK_QUEST_COUNT);
         var _rkEnd=Math.min(state.rankIndex+1, RANK_QUEST_COUNT-1);
-        for(var _rq=0;_rq<=_rkEnd;_rq++){
+        for(var _rq=state._rqNext;_rq<=_rkEnd;_rq++){
           var _rqid='rng_'+_rq;
-          if(state.done[_rqid]||state.ready[_rqid]) continue;
+          if(state.done[_rqid]||state.ready[_rqid]){state._rqNext=_rq+1;continue;}
           state.progress[_rqid]=state.rankIndex+1;
           var _rqst=getRankQuest(_rq);
           if(state.autoCollect){
             var _mult=1+(state.multiplierLevel||0)*0.1;
             var _rc=Math.round(_rqst.reward_coins*_mult),_rt=_rqst.reward_trophies>0?Math.round(_rqst.reward_trophies*_mult):0;
             state.done[_rqid]=true;state.coins+=_rc;state.coinsEarned+=_rc;state.trophies+=_rt;state.questsDone+=1;effQuestsDone+=1;
-          } else { state.ready[_rqid]=true; newly.push(_rqst); }
+            state._rqNext=_rq+1;
+          } else { state.ready[_rqid]=true; newly.push(_rqst); state._rqNext=_rq+1; }
         }
         save();
         if (typeof callback==='function') callback(newly);
@@ -31244,10 +31246,12 @@
           else if(qr.type==='lb_position') alreadyMet=state.lbPosition<=qr.target;
           if(alreadyMet) state.done[qr.id]=true;
         }
-        // Mark already-met rank quests as done
-        for(var _rri=0;_rri<=Math.min(state.rankIndex,RANK_QUEST_COUNT-1);_rri++){
+        // Mark already-met rank quests as done and advance the pointer
+        var _rqNxt=Math.min(state.rankIndex+1,RANK_QUEST_COUNT);
+        for(var _rri=0;_rri<_rqNxt;_rri++){
           state.done['rng_'+_rri]=true;
         }
+        state._rqNext=_rqNxt;
         save();
       }
 
