@@ -210,10 +210,10 @@ async function handleRequest(request) {
 
         var pendingCoins     = existing.pendingCoins    || 0;
         var pendingTrophies  = existing.pendingTrophies || 0;
-        var coins     = Math.min(99999999, (parseInt(body.coins)    || 0) + pendingCoins);
-        var trophies  = Math.min(99999999, (parseInt(body.trophies) || 0) + pendingTrophies);
-        var maxLevel  = Math.max(0, Math.min(99999,   parseInt(body.maxLevel)  || 0));
-        var rankIndex = typeof body.rankIndex === 'number' ? Math.max(-1, Math.min(1149, body.rankIndex)) : (existing.rankIndex || -1);
+        var coins     = Math.min(1e15, (parseInt(body.coins)    || 0) + pendingCoins);
+        var trophies  = Math.min(1e15, (parseInt(body.trophies) || 0) + pendingTrophies);
+        var maxLevel  = Math.max(0, Math.min(9999999, parseInt(body.maxLevel)  || 0));
+        var rankIndex = typeof body.rankIndex === 'number' ? Math.max(-1, Math.min(9999999, body.rankIndex)) : (existing.rankIndex || -1);
 
         var effectiveMaxLevel = Math.max(maxLevel, existing.maxLevel || 0);
         var effectiveRankIndex = Math.max(rankIndex, existing.rankIndex || -1);
@@ -240,7 +240,7 @@ async function handleRequest(request) {
                 var mainKey = 'player:' + existing.mainAccount.toLowerCase();
                 var mainAcc = await PLAYERS.get(mainKey, 'json');
                 if (mainAcc) {
-                    mainAcc.coins = Math.min(99999999, (mainAcc.coins || 0) + coins);
+                    mainAcc.coins = Math.min(1e15, (mainAcc.coins || 0) + coins);
                     mainAcc.updatedAt = Date.now();
                     await PLAYERS.put(mainKey, JSON.stringify(mainAcc));
                     var mlb = await PLAYERS.get('lb_cache', 'json') || [];
@@ -638,8 +638,8 @@ async function handleRequest(request) {
         var acData = JSON.parse(acRaw);
         var addCoins = parseInt(acbody.coins) || 0;
         var addTrophies = parseInt(acbody.trophies) || 0;
-        acData.pendingCoins = Math.min(99999999, (acData.pendingCoins || 0) + addCoins);
-        acData.pendingTrophies = Math.min(99999999, (acData.pendingTrophies || 0) + addTrophies);
+        acData.pendingCoins = Math.min(1e15, (acData.pendingCoins || 0) + addCoins);
+        acData.pendingTrophies = Math.min(1e15, (acData.pendingTrophies || 0) + addTrophies);
         acData.updatedAt = Date.now();
         await PLAYERS.put(acKey, JSON.stringify(acData));
         return respond({ ok: true, player: acbody.name, pendingCoins: acData.pendingCoins, pendingTrophies: acData.pendingTrophies });
