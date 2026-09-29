@@ -31532,7 +31532,7 @@
                         h('span',{style:'font-family:sans-serif'},pl.name),
                         (pl.maxLevel||0)>0?h('span',{style:'font-size:10px;opacity:0.5;margin-left:4px'},'Lvl '+(pl.maxLevel||0)):null
                       ),
-                      s.lbTab==='level'?h('span',{class:'qs-lb-sc'},'📊 '+(pl.maxLevel||0)):s.lbTab==='rank'?h('span',{class:'qs-lb-sc',style:'font-size:11px;'},pl.rank||'—'):h('span',{class:'qs-lb-sc'},'🏆 '+(pl.trophies||0))
+                      s.lbTab==='level'?h('span',{class:'qs-lb-sc'},'📊 '+QS.fmtNum(pl.maxLevel||0)):s.lbTab==='rank'?h('span',{class:'qs-lb-sc',style:'font-size:11px;'},pl.rank||'—'):h('span',{class:'qs-lb-sc'},'🏆 '+QS.fmtNum(pl.trophies||0))
                     );
                   });
                 })()
