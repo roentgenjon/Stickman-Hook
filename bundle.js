@@ -11349,7 +11349,7 @@
             h: .04,
             rotation: 3.141592653589793
         }, {
-            x: .87699999999999994,
+            x: .876999999999999994,
             y: .04558515283842797,
             w: .15,
             h: .04,
@@ -12128,7 +12128,7 @@
             h: .04,
             rotation: 3.9269908169872414
         }, {
-            x: 2.7439999999999988,
+            x: 2.74399999999999988,
             y: .18745346068051033,
             w: .15,
             h: .04,
@@ -14292,7 +14292,7 @@
             rotation: -.6108652381980153
         }, {
             name: "A_Wall45",
-            x: 1.51899999999999968,
+            x: 1.518999999999999968,
             y: .7707357697690961,
             rotation: -.6108652381980153
         }, {
@@ -14785,7 +14785,7 @@
             rotation: .7853981633974483
         }, {
             name: "A_Wall45",
-            x: .246999999999999972,
+            x: .2469999999999999972,
             y: .08727140664445693,
             rotation: -.2617993877991494
         }, {
@@ -30955,7 +30955,7 @@
         QUESTS.push({ id: 'cha_'+i, cat: 2, title: fmtNum(t)+' Trophäen sammeln', desc: 'Sammle insgesamt '+fmtNum(t)+' Trophäen.', type: 'trophies', target: t, reward_coins: Math.ceil(30*Math.pow(1.0042,i)), reward_trophies: 0 });
       }
       // Cat 3: Master - quests done (1000 quests)
-      var questTargets = makeMilestones(1, 99999999, 1000);
+      var questTargets = makeMilestones(1, 999999999, 1000);
       for (i = 0; i < 1000; i++) {
         t = questTargets[i];
         QUESTS.push({ id: 'mas_'+i, cat: 3, title: t+' Quests abschließen', desc: 'Schließe '+t+' Quests ab.', type: 'quests_done', target: t, reward_coins: Math.ceil(20*Math.pow(1.0042,i)), reward_trophies: Math.floor(i/80)+1 });
@@ -31057,7 +31057,7 @@
           else if (quest.type==='unique_recv')  { prog=effRecvPlayers; met=prog>=quest.target; }
           else if (quest.type==='lb_position')  { prog=state.lbPosition; met=state.lbPosition<=quest.target; }
           else if (quest.type==='has_rank')     { prog=state.rankIndex>=0?1:0; met=state.rankIndex>=0; }
-          else if (quest.type==='all_ranks')    { prog=state.rankIndex+1; met=state.rankIndex>=99999999; }
+          else if (quest.type==='all_ranks')    { prog=state.rankIndex+1; met=state.rankIndex>=999999999; }
           state.progress[quest.id] = prog;
           if (met) {
             if (state.autoCollect) {
@@ -31148,7 +31148,7 @@
       function upgradeRank(callback) {
         if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
         var newIdx=(typeof state.rankIndex==='number'&&state.rankIndex>=0)?state.rankIndex+1:0;
-        if(newIdx>99999999){if(callback)callback('max rank reached',null);return;}
+        if(newIdx>999999999){if(callback)callback('max rank reached',null);return;}
         var rank=RANKS[newIdx];
         if(state.coins<rank.cost){if(callback)callback('not enough coins',null);return;}
         state.coins-=rank.cost; state.rankIndex=newIdx; state.rank=rank.label; save();
@@ -31159,8 +31159,8 @@
         if(!isValidUrl(WORKER_URL)||!state.playerName){if(callback)callback('not registered',null);return;}
         var curIdx=(typeof state.rankIndex==='number'&&state.rankIndex>=0)?state.rankIndex:-1;
         var startIdx=curIdx+1;
-        var endIdx=Math.min(startIdx+n-1, 99999999);
-        if(startIdx>99999999){if(callback)callback('max rank reached',null);return;}
+        var endIdx=Math.min(startIdx+n-1, 999999999);
+        if(startIdx>999999999){if(callback)callback('max rank reached',null);return;}
         var totalCost=sumRankCosts(startIdx,endIdx);
         if(state.coins<totalCost){if(callback)callback('not enough coins',null);return;}
         state.coins-=totalCost; state.rankIndex=endIdx; state.rank=getRankLabel(endIdx); save();
@@ -31259,7 +31259,7 @@
           var qr=BASE_QUESTS[qi], alreadyMet=false;
           if(qr.type==='has_name')    alreadyMet=!!(state.playerName&&state.playerName.length>0);
           else if(qr.type==='has_rank')    alreadyMet=state.rankIndex>=0;
-          else if(qr.type==='all_ranks')   alreadyMet=state.rankIndex>=99999999;
+          else if(qr.type==='all_ranks')   alreadyMet=state.rankIndex>=999999999;
           else if(qr.type==='lb_position') alreadyMet=state.lbPosition<=qr.target;
           if(alreadyMet) state.done[qr.id]=true;
         }
@@ -31367,7 +31367,7 @@
           var hideSidebar=s.showQ||s.showLB||s.showAcc||isPlaying||levelSelectOpen||isShop;
           var curRankIdx=typeof QS.state.rankIndex==='number'?QS.state.rankIndex:-1;
           var nextRankIdx=curRankIdx+1;
-          var nextRank=nextRankIdx<=99999999?QS.RANKS[nextRankIdx]:null;
+          var nextRank=nextRankIdx<=999999999?QS.RANKS[nextRankIdx]:null;
           var canUpgrade=nextRank&&QS.state.coins>=nextRank.cost;
           var rerender=function(){t.setState({});};
           return h('div',null,
@@ -31579,10 +31579,10 @@
                   h('div',{style:'font-size:11px;opacity:0.7;margin:4px 0;display:flex;align-items:center;gap:3px;flex-wrap:wrap;'},'Guthaben: '+QS.fmtNum(QS.state.coins),h('span',{class:'mc'})),
                   h('div',{style:'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;'},
                     [1,5,10,100,1000,10000,100000,1000000,1000000000].map(function(n){
-                      var endIdx=Math.min(nextRankIdx+n-1,99999999);
+                      var endIdx=Math.min(nextRankIdx+n-1,999999999);
                       var totalCost=QS.sumRankCosts(nextRankIdx,endIdx);
                       var actualN=endIdx-nextRankIdx+1;
-                      var can=QS.state.coins>=totalCost&&nextRankIdx<=99999999;
+                      var can=QS.state.coins>=totalCost&&nextRankIdx<=999999999;
                       return h('button',{key:n,class:'qs-send-btn',disabled:!can,style:'font-size:11px;padding:7px 10px;'+(can?'':'opacity:0.4;cursor:not-allowed;'),onClick:function(){
                         if(!can)return;
                         QS.upgradeRankN(actualN,function(err){

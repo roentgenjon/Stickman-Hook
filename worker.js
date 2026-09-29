@@ -212,8 +212,8 @@ async function handleRequest(request) {
         var pendingTrophies  = existing.pendingTrophies || 0;
         var coins     = Math.min(1e21, (parseFloat(body.coins)    || 0) + pendingCoins);
         var trophies  = Math.min(1e21, (parseFloat(body.trophies) || 0) + pendingTrophies);
-        var maxLevel  = Math.max(0, Math.min(99999999, parseInt(body.maxLevel)  || 0));
-        var rankIndex = typeof body.rankIndex === 'number' ? Math.max(-1, Math.min(99999999, body.rankIndex)) : (existing.rankIndex || -1);
+        var maxLevel  = Math.max(0, Math.min(999999999, parseInt(body.maxLevel)  || 0));
+        var rankIndex = typeof body.rankIndex === 'number' ? Math.max(-1, Math.min(999999999, body.rankIndex)) : (existing.rankIndex || -1);
 
         var effectiveMaxLevel = Math.max(maxLevel, existing.maxLevel || 0);
         var effectiveRankIndex = Math.max(rankIndex, existing.rankIndex || -1);
