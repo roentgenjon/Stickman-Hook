@@ -31426,14 +31426,15 @@
                     if(QS.state.coins<cost)return;
                     QS.state.coins-=cost; QS.state.multiplierLevel=(ml+n); QS.save(); QS.syncToCloud(function(){},true); rerender();
                   }
-                  return h('span',{style:'display:flex;align-items:center;gap:3px;'},
+                  return h('div',{style:'display:flex;flex-direction:column;gap:3px;'},
                     h('span',{style:'font-size:10px;color:rgba(255,255,255,0.6);white-space:nowrap;'},'×'+(cur/100).toFixed(1)+' 💫'),
-                    [1,5,10,100,1000,10000,100000,1000000,1000000000].map(function(n){
-                      var cost=n*100000;
-                      var can=QS.state.coins>=cost;
-                      var label=n===1?'100K':n===5?'500K':n===10?'1M':n===100?'10M':n===1000?'100M':n===10000?'1B':n===100000?'10B':n===1000000?'100B':'100T';
-                      return h('button',{key:n,class:'qs-act-btn',style:'font-size:10px;padding:3px 6px;white-space:nowrap;'+(can?'border-color:rgba(241,196,15,0.7);':'opacity:0.35;'),onClick:function(){buyN(n);}},'+'+n+' ('+label+')');
-                    })
+                    h('div',{style:'display:flex;flex-wrap:wrap;gap:3px;'},
+                      [1,5,10,100,1000,10000,100000,1e6,1e9,1e12,1e15,1e18,1e21].map(function(n){
+                        var cost=n*100000;
+                        var can=QS.state.coins>=cost;
+                        return h('button',{key:n,class:'qs-act-btn',style:'font-size:10px;padding:3px 6px;white-space:nowrap;'+(can?'border-color:rgba(241,196,15,0.7);':'opacity:0.35;'),onClick:function(){buyN(n);}},'+'+QS.fmtNum(n)+' ('+QS.fmtNum(cost)+')');
+                      })
+                    )
                   );
                 })()
               ),
