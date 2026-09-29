@@ -31003,6 +31003,16 @@
             for (var k in defaults) { if (Object.prototype.hasOwnProperty.call(defaults,k)) state[k]=defaults[k]; }
           }
         } catch(e) {}
+        // Strip stale rng_* entries from state.done (old resetQuests format; _rqNext pointer is used instead)
+        var _hasDoneRng=false;
+        for(var _dk in state.done){if(_dk.slice(0,4)==='rng_'){_hasDoneRng=true;break;}}
+        if(_hasDoneRng){
+          var _newDone={};
+          for(var _dk2 in state.done){if(_dk2.slice(0,4)!=='rng_')_newDone[_dk2]=state.done[_dk2];}
+          state.done=_newDone;
+          if(typeof state._rqNext==='undefined') state._rqNext=Math.min(state.rankIndex+1,RANK_QUEST_COUNT);
+          save();
+        }
       }
 
       function applyServerData(d) {
@@ -31268,11 +31278,8 @@
           else if(qr.type==='lb_position') alreadyMet=state.lbPosition<=qr.target;
           if(alreadyMet) state.done[qr.id]=true;
         }
-        // Mark already-met rank quests as done and advance the pointer
+        // Advance the pointer past already-met rank quests (no individual done-flags needed)
         var _rqNxt=Math.min(state.rankIndex+1,RANK_QUEST_COUNT);
-        for(var _rri=0;_rri<_rqNxt;_rri++){
-          state.done['rng_'+_rri]=true;
-        }
         state._rqNext=_rqNxt;
         save();
       }
