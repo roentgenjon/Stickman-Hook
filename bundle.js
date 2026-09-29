@@ -30880,7 +30880,43 @@
         { id: 'rang',      label: '\u{1F3C5} Rang',             color: '#9b59b6' }
       ];
 
-      var QUESTS = [];
+      var BASE_QUESTS = [];
+      var RANK_QUEST_COUNT = 1000000;
+      var QUESTS_RANK_OFFSET = 0; // set after non-rank pushes
+      function getRankQuest(i){
+        var lbl=getRankLabel(i);
+        return{id:'rng_'+i,cat:5,title:lbl+' kaufen',desc:'Kaufe das Rang-Upgrade '+lbl+'.',
+               type:'rank_level',target:i,
+               reward_coins:(i+1)*10,
+               reward_trophies:Math.floor(i/110)+1};
+      }
+      var QUESTS=new Proxy(BASE_QUESTS,{
+        get:function(target,prop){
+          if(prop==='length') return QUESTS_RANK_OFFSET+RANK_QUEST_COUNT;
+          if(prop==='push') return function(){
+            for(var _i=0;_i<arguments.length;_i++) BASE_QUESTS.push(arguments[_i]);
+            return QUESTS_RANK_OFFSET+RANK_QUEST_COUNT;
+          };
+          if(prop==='filter') return function(fn){
+            var r=[];
+            for(var _i=0;_i<QUESTS_RANK_OFFSET;_i++) if(fn(BASE_QUESTS[_i])) r.push(BASE_QUESTS[_i]);
+            var cr=(typeof state!=='undefined'&&state)?state.rankIndex:-1;
+            if(cr<0)cr=-1;
+            var ws=Math.max(0,cr-3),we=Math.min(RANK_QUEST_COUNT-1,cr+200);
+            for(var _j=ws;_j<=we;_j++){var _q=getRankQuest(_j);if(fn(_q))r.push(_q);}
+            return r;
+          };
+          var idx=+prop;
+          if(idx===idx&&idx>=0){
+            if(idx<QUESTS_RANK_OFFSET) return BASE_QUESTS[idx];
+            var ri=idx-QUESTS_RANK_OFFSET;
+            if(ri<RANK_QUEST_COUNT) return getRankQuest(ri);
+            return undefined;
+          }
+          return target[prop];
+        },
+        set:function(t,p,v){t[p]=v;return true;}
+      });
       var i, t;
 
       // Cat 0: Explorer - level milestones
@@ -30926,7 +30962,7 @@
       var extraSentTargets = makeMilestones(200000, 10000000, 20);
       for (i = 0; i < 20; i++) { t=extraSentTargets[i]; QUESTS.push({ id: 'soc_xsc_'+i, cat: 4, title: fmtNum(t)+' Coins senden (Experte)', desc: 'Sende insgesamt '+fmtNum(t)+' Coins.', type: 'sent_coins', target: t, reward_coins: Math.ceil(500*Math.pow(1.12,i)), reward_trophies: i+2 }); }
       // Cat 5: Rang - one quest per rank level (1100 quests)
-      for (i = 0; i < 1100; i++) { var rl=RANKS[i]; QUESTS.push({ id: 'rng_'+i, cat: 5, title: rl.label+' kaufen', desc: 'Kaufe das Rang-Upgrade '+rl.label+'.', type: 'rank_level', target: i, reward_coins: (i+1)*10, reward_trophies: Math.floor(i/110)+1 }); }
+      QUESTS_RANK_OFFSET = BASE_QUESTS.length; // rank quests are now virtual
 
       function makeDefaultState() {
         return { coins:0, coinsEarned:0, trophies:0, questsDone:0, done:{}, ready:{}, progress:{}, autoCollect:false, playerName:'', rank:null, rankIndex:-1, maxLevel:0, lbViews:0, sentCoins:0, recvCoins:0, sentToPlayers:[], recvFromPlayers:[], lbPosition:999999, mainAccount:null, subAccounts:[], hasPin:false, questBaseline:null, multiplierLevel:0 };
@@ -30988,8 +31024,8 @@
         var effRecvPlayers  = Math.max(0, (state.recvFromPlayers||[]).length  - (bl.recvFromPlayersCount||0));
         if (!state.ready) state.ready = {};
         var newly = [];
-        for (var q = 0; q < QUESTS.length; q++) {
-          var quest = QUESTS[q];
+        for (var q = 0; q < QUESTS_RANK_OFFSET; q++) {
+          var quest = BASE_QUESTS[q];
           if (state.done[quest.id] || state.ready[quest.id]) continue;
           var met = false, prog = 0;
           if (quest.type==='level')             { prog=effLevel;       met=prog>=quest.target; }
@@ -31005,7 +31041,6 @@
           else if (quest.type==='lb_position')  { prog=state.lbPosition; met=state.lbPosition<=quest.target; }
           else if (quest.type==='has_rank')     { prog=state.rankIndex>=0?1:0; met=state.rankIndex>=0; }
           else if (quest.type==='all_ranks')    { prog=state.rankIndex+1; met=state.rankIndex>=99999999; }
-          else if (quest.type==='rank_level')   { prog=state.rankIndex+1; met=state.rankIndex>=quest.target; }
           state.progress[quest.id] = prog;
           if (met) {
             if (state.autoCollect) {
@@ -31017,6 +31052,19 @@
             }
             newly.push(quest);
           }
+        }
+        // Check rank quests efficiently — only up to player's current rank
+        var _rkEnd=Math.min(state.rankIndex+1, RANK_QUEST_COUNT-1);
+        for(var _rq=0;_rq<=_rkEnd;_rq++){
+          var _rqid='rng_'+_rq;
+          if(state.done[_rqid]||state.ready[_rqid]) continue;
+          state.progress[_rqid]=state.rankIndex+1;
+          var _rqst=getRankQuest(_rq);
+          if(state.autoCollect){
+            var _mult=1+(state.multiplierLevel||0)*0.1;
+            var _rc=Math.round(_rqst.reward_coins*_mult),_rt=_rqst.reward_trophies>0?Math.round(_rqst.reward_trophies*_mult):0;
+            state.done[_rqid]=true;state.coins+=_rc;state.coinsEarned+=_rc;state.trophies+=_rt;state.questsDone+=1;effQuestsDone+=1;
+          } else { state.ready[_rqid]=true; newly.push(_rqst); }
         }
         save();
         if (typeof callback==='function') callback(newly);
@@ -31188,14 +31236,17 @@
         };
         // Mark permanently-true threshold quests as done without giving rewards,
         // so they don't cascade rewards into other quests on the next checkQuests() call.
-        for(var qi=0;qi<QUESTS.length;qi++){
-          var qr=QUESTS[qi], alreadyMet=false;
+        for(var qi=0;qi<QUESTS_RANK_OFFSET;qi++){
+          var qr=BASE_QUESTS[qi], alreadyMet=false;
           if(qr.type==='has_name')    alreadyMet=!!(state.playerName&&state.playerName.length>0);
           else if(qr.type==='has_rank')    alreadyMet=state.rankIndex>=0;
           else if(qr.type==='all_ranks')   alreadyMet=state.rankIndex>=99999999;
-          else if(qr.type==='rank_level')  alreadyMet=state.rankIndex>=qr.target;
           else if(qr.type==='lb_position') alreadyMet=state.lbPosition<=qr.target;
           if(alreadyMet) state.done[qr.id]=true;
+        }
+        // Mark already-met rank quests as done
+        for(var _rri=0;_rri<=Math.min(state.rankIndex,RANK_QUEST_COUNT-1);_rri++){
+          state.done['rng_'+_rri]=true;
         }
         save();
       }
@@ -31203,7 +31254,11 @@
       function collectQuest(questId) {
         if (!state.ready || !state.ready[questId]) return null;
         var quest = null;
-        for (var ci=0; ci<QUESTS.length; ci++) { if(QUESTS[ci].id===questId){quest=QUESTS[ci];break;} }
+        if(questId.slice(0,4)==='rng_'){
+          quest=getRankQuest(parseInt(questId.slice(4)));
+        } else {
+          for(var ci=0;ci<QUESTS_RANK_OFFSET;ci++){if(BASE_QUESTS[ci].id===questId){quest=BASE_QUESTS[ci];break;}}
+        }
         if (!quest) return null;
         var mult=1+(state.multiplierLevel||0)*0.1;
         var rc=Math.round(quest.reward_coins*mult), rt=quest.reward_trophies>0?Math.round(quest.reward_trophies*mult):0;
@@ -31227,7 +31282,7 @@
         if (state.coins < 100000) return false;
         state.coins -= 100000; state.multiplierLevel = (state.multiplierLevel||0) + 1; save(); return true;
       }
-      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, upgradeRankN:upgradeRankN,sumRankCosts:sumRankCosts,getRankLabel:getRankLabel, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save, applyServerData:applyServerData, loadServerData:loadServerData, verifyPin:verifyPin, renameAccount:renameAccount, setPinAccount:setPinAccount, createSubAccount:createSubAccount, deleteAccount:deleteAccount, logoutAccount:logoutAccount, switchToAccount:switchToAccount, resetQuests:resetQuests, collectQuest:collectQuest, collectAllReady:collectAllReady, toggleAutoCollect:toggleAutoCollect, buyMultiplier:buyMultiplier };
+      window._QS = { QUESTS:QUESTS, CATS:CATS, RANKS:RANKS, state:state, getLevel:function(){return 0;}, checkQuests:checkQuests, syncToCloud:syncToCloud, loadFromCloud:loadFromCloud, fetchLeaderboard:fetchLeaderboard, sendCoins:sendCoins, upgradeRank:upgradeRank, upgradeRankN:upgradeRankN,sumRankCosts:sumRankCosts,getRankLabel:getRankLabel,getRankQuest:getRankQuest,RANK_QUEST_COUNT:RANK_QUEST_COUNT, resetAll:resetAll, fmtNum:fmtNum, load:load, save:save, applyServerData:applyServerData, loadServerData:loadServerData, verifyPin:verifyPin, renameAccount:renameAccount, setPinAccount:setPinAccount, createSubAccount:createSubAccount, deleteAccount:deleteAccount, logoutAccount:logoutAccount, switchToAccount:switchToAccount, resetQuests:resetQuests, collectQuest:collectQuest, collectAllReady:collectAllReady, toggleAutoCollect:toggleAutoCollect, buyMultiplier:buyMultiplier };
       window._gameAPI = {
         playCustomLevel: function(levelData) {
           if(!Sc||!Sc.instance){return;}
