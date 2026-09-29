@@ -31255,7 +31255,7 @@
         save();
       }
 
-      function collectQuest(questId) {
+      function collectQuest(questId, _noSave) {
         if (!state.ready || !state.ready[questId]) return null;
         var quest = null;
         if(questId.slice(0,4)==='rng_'){
@@ -31269,11 +31269,11 @@
         state.done[questId]=true; delete state.ready[questId];
         state.coins+=rc; state.coinsEarned+=rc;
         state.trophies+=rt; state.questsDone+=1;
-        save(); return quest;
+        if(!_noSave) save(); return quest;
       }
       function collectAllReady() {
         if (!state.ready) return;
-        var ids=Object.keys(state.ready); for(var ci=0;ci<ids.length;ci++) collectQuest(ids[ci]);
+        var ids=Object.keys(state.ready); for(var ci=0;ci<ids.length;ci++) collectQuest(ids[ci], true);
         save();
       }
       function toggleAutoCollect() {
