@@ -31592,7 +31592,7 @@
                   h('div',null,'Nächster Rang: '+nextRank.label),
                   h('div',{style:'font-size:11px;opacity:0.7;margin:4px 0;display:flex;align-items:center;gap:3px;flex-wrap:wrap;'},'Guthaben: '+QS.fmtNum(QS.state.coins),h('span',{class:'mc'})),
                   h('div',{style:'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;'},
-                    [1,5,10,100,1000,10000,100000,1000000,1000000000].map(function(n){
+                    [1,5,10,100,1000,10000,100000,1000000,1000000000,1e12,1e15].map(function(n){
                       var endIdx=Math.min(nextRankIdx+n-1,999999999);
                       var totalCost=QS.sumRankCosts(nextRankIdx,endIdx);
                       var actualN=endIdx-nextRankIdx+1;
