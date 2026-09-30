@@ -30752,7 +30752,7 @@
 
       function fmtNum(n) {
         var tiers=[
-          [1e27,'Oc'],[1e24,'Sp'],[1e21,'Sx'],[1e18,'Qi'],[1e15,'Qa'],
+          [1e33,'Dc'],[1e30,'Nn'],[1e27,'Oc'],[1e24,'Sp'],[1e21,'Sx'],[1e18,'Qi'],[1e15,'Qa'],
           [1e12,'T'],[1e9,'B'],[1e6,'M'],[1e3,'K']
         ];
         for(var _i=0;_i<tiers.length;_i++){
@@ -30765,7 +30765,7 @@
       }
       function parseAmount(s){
         s=String(s||'').trim().replace(',','.');
-        var m=s.match(/^(\d+\.?\d*)\s*([KkMmBbTtQqSsOo][AaIiXxPpCc]?)?$/);
+        var m=s.match(/^(\d+\.?\d*)\s*([KkMmBbTtQqSsOoDdNn][AaIiXxPpCcNn]?)?$/);
         if(!m) return 0;
         var n=parseFloat(m[1]);
         var suf=(m[2]||'').toUpperCase();
@@ -30778,6 +30778,8 @@
         else if(suf==='SX')n*=1e21;
         else if(suf==='SP')n*=1e24;
         else if(suf==='OC')n*=1e27;
+        else if(suf==='NN')n*=1e30;
+        else if(suf==='DC')n*=1e33;
         return Math.floor(n)||0;
       }
 
@@ -31441,7 +31443,7 @@
                   return h('div',{style:'display:flex;flex-direction:column;gap:3px;'},
                     h('span',{style:'font-size:10px;color:rgba(255,255,255,0.6);white-space:nowrap;'},'×'+(cur/100).toFixed(1)+' 💫'),
                     h('div',{style:'display:flex;flex-wrap:wrap;gap:3px;'},
-                      [1,5,10,100,1000,10000,100000,1e6,1e9,1e12,1e15,1e18,1e21].map(function(n){
+                      [1,5,10,100,1000,10000,100000,1e6,1e9,1e12,1e15,1e18,1e21,1e24,1e27].map(function(n){
                         var cost=n*100000;
                         var can=QS.state.coins>=cost;
                         return h('button',{key:n,class:'qs-act-btn',style:'font-size:10px;padding:3px 6px;white-space:nowrap;'+(can?'border-color:rgba(241,196,15,0.7);':'opacity:0.35;'),onClick:function(){buyN(n);}},'+'+QS.fmtNum(n)+' ('+QS.fmtNum(cost)+')');
