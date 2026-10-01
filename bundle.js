@@ -30752,7 +30752,7 @@
 
       function fmtNum(n) {
         var tiers=[
-          [1e33,'Dc'],[1e30,'Nn'],[1e27,'Oc'],[1e24,'Sp'],[1e21,'Sx'],[1e18,'Qi'],[1e15,'Qa'],
+          [1e36,'Udc'],[1e33,'Dc'],[1e30,'Nn'],[1e27,'Oc'],[1e24,'Sp'],[1e21,'Sx'],[1e18,'Qi'],[1e15,'Qa'],
           [1e12,'T'],[1e9,'B'],[1e6,'M'],[1e3,'K']
         ];
         for(var _i=0;_i<tiers.length;_i++){
@@ -30765,7 +30765,7 @@
       }
       function parseAmount(s){
         s=String(s||'').trim().replace(',','.');
-        var m=s.match(/^(\d+\.?\d*)\s*([KkMmBbTtQqSsOoDdNn][AaIiXxPpCcNn]?)?$/);
+        var m=s.match(/^(\d+\.?\d*)\s*([KkMmBbTtQqSsOoDdNnUu][AaIiXxPpCcNnDd]{0,2})?$/);
         if(!m) return 0;
         var n=parseFloat(m[1]);
         var suf=(m[2]||'').toUpperCase();
@@ -30780,6 +30780,7 @@
         else if(suf==='OC')n*=1e27;
         else if(suf==='NN')n*=1e30;
         else if(suf==='DC')n*=1e33;
+        else if(suf==='UDC')n*=1e36;
         return Math.floor(n)||0;
       }
 
@@ -31592,7 +31593,7 @@
                   h('div',null,'Nächster Rang: '+nextRank.label),
                   h('div',{style:'font-size:11px;opacity:0.7;margin:4px 0;display:flex;align-items:center;gap:3px;flex-wrap:wrap;'},'Guthaben: '+QS.fmtNum(QS.state.coins),h('span',{class:'mc'})),
                   h('div',{style:'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;'},
-                    [1,5,10,100,1000,10000,100000,1000000,1000000000,1e12,1e15].map(function(n){
+                    [1,5,10,100,1000,10000,100000,1000000,1000000000,1e12,1e15,1e36].map(function(n){
                       var endIdx=Math.min(nextRankIdx+n-1,999999999);
                       var totalCost=QS.sumRankCosts(nextRankIdx,endIdx);
                       var actualN=endIdx-nextRankIdx+1;
