@@ -79,8 +79,8 @@ def give_rewards(name, coins, trophies):
         print(f"✗ Spieler '{name}' nicht gefunden oder Lesefehler: {err}")
         sys.exit(1)
 
-    player["pendingCoins"]    = min(int(1e21), (player.get("pendingCoins", 0) or 0) + coins)
-    player["pendingTrophies"] = min(int(1e21), (player.get("pendingTrophies", 0) or 0) + trophies)
+    player["pendingCoins"]    = min(int(1e36), (player.get("pendingCoins", 0) or 0) + coins)
+    player["pendingTrophies"] = min(int(1e36), (player.get("pendingTrophies", 0) or 0) + trophies)
 
     print(f"  Schreibe Belohnung...")
     ok, err = kv_put(key, player, token, ns)

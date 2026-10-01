@@ -210,8 +210,8 @@ async function handleRequest(request) {
 
         var pendingCoins     = existing.pendingCoins    || 0;
         var pendingTrophies  = existing.pendingTrophies || 0;
-        var coins     = Math.min(1e21, (parseFloat(body.coins)    || 0) + pendingCoins);
-        var trophies  = Math.min(1e21, (parseFloat(body.trophies) || 0) + pendingTrophies);
+        var coins     = Math.min(1e36, (parseFloat(body.coins)    || 0) + pendingCoins);
+        var trophies  = Math.min(1e36, (parseFloat(body.trophies) || 0) + pendingTrophies);
         var maxLevel  = Math.max(0, Math.min(999999999, parseInt(body.maxLevel)  || 0));
         var rankIndex = typeof body.rankIndex === 'number' ? Math.max(-1, Math.min(999999999, body.rankIndex)) : (existing.rankIndex || -1);
 
@@ -240,7 +240,7 @@ async function handleRequest(request) {
                 var mainKey = 'player:' + existing.mainAccount.toLowerCase();
                 var mainAcc = await PLAYERS.get(mainKey, 'json');
                 if (mainAcc) {
-                    mainAcc.coins = Math.min(1e21, (mainAcc.coins || 0) + coins);
+                    mainAcc.coins = Math.min(1e36, (mainAcc.coins || 0) + coins);
                     mainAcc.updatedAt = Date.now();
                     await PLAYERS.put(mainKey, JSON.stringify(mainAcc));
                     var mlb = await PLAYERS.get('lb_cache', 'json') || [];
@@ -298,7 +298,7 @@ async function handleRequest(request) {
         try { sbody = await request.json(); } catch(e) { return respond({ error: 'Bad JSON' }, 400); }
         if (!sbody || !sbody.from || !sbody.to || !sbody.amount) return respond({ error: 'Parameter fehlen' }, 400);
         var amount = parseFloat(sbody.amount);
-        if (!amount || amount <= 0 || amount > 1e21) return respond({ error: 'Ungültiger Betrag' }, 400);
+        if (!amount || amount <= 0 || amount > 1e36) return respond({ error: 'Ungültiger Betrag' }, 400);
 
         var fromKey = 'player:' + String(sbody.from).toLowerCase().slice(0, 20);
         var toKey   = 'player:' + String(sbody.to).toLowerCase().slice(0, 20);
@@ -638,8 +638,8 @@ async function handleRequest(request) {
         var acData = JSON.parse(acRaw);
         var addCoins = parseInt(acbody.coins) || 0;
         var addTrophies = parseInt(acbody.trophies) || 0;
-        acData.pendingCoins = Math.min(1e21, (acData.pendingCoins || 0) + addCoins);
-        acData.pendingTrophies = Math.min(1e21, (acData.pendingTrophies || 0) + addTrophies);
+        acData.pendingCoins = Math.min(1e36, (acData.pendingCoins || 0) + addCoins);
+        acData.pendingTrophies = Math.min(1e36, (acData.pendingTrophies || 0) + addTrophies);
         acData.updatedAt = Date.now();
         await PLAYERS.put(acKey, JSON.stringify(acData));
         return respond({ ok: true, player: acbody.name, pendingCoins: acData.pendingCoins, pendingTrophies: acData.pendingTrophies });
